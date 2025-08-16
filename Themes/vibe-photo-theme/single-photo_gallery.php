@@ -75,25 +75,32 @@
                                     <?php endif; ?>
                                 </div>
 
-                                <?php if (get_the_content()) : ?>
+                                <?php 
+                                // Check for excerpt first, then content, then fallback
+                                $gallery_description = '';
+                                
+                                // Try to get excerpt first
+                                if (has_excerpt()) {
+                                    $gallery_description = get_the_excerpt();
+                                } else if (get_the_content()) {
+                                    // Get content but remove gallery shortcodes to prevent duplicate display
+                                    $content = get_the_content();
+                                    
+                                    // Remove ALL gallery shortcodes more aggressively
+                                    $content = preg_replace('/\[gallery[^\]]*\]/', '', $content);
+                                    $content = preg_replace('/\[\/gallery\]/', '', $content);
+                                    
+                                    // Only use content if there's something meaningful left after removing gallery shortcodes
+                                    $cleaned_content = trim(strip_tags($content));
+                                    if (!empty($cleaned_content) && strlen($cleaned_content) > 10) {
+                                        $gallery_description = apply_filters('the_content', $content);
+                                    }
+                                }
+                                
+                                // Show description if we have one
+                                if (!empty($gallery_description)) : ?>
                                     <div class="gallery-description">
-                                        <?php 
-                                        // Get content but remove gallery shortcodes to prevent duplicate display
-                                        $content = get_the_content();
-                                        
-                                        // Remove ALL gallery shortcodes more aggressively
-                                        $content = preg_replace('/\[gallery[^\]]*\]/', '', $content);
-                                        $content = preg_replace('/\[\/gallery\]/', '', $content);
-                                        
-                                        // Only show content if there's something meaningful left after removing gallery shortcodes
-                                        $cleaned_content = trim(strip_tags($content));
-                                        if (!empty($cleaned_content) && strlen($cleaned_content) > 10) {
-                                            // Apply content filters but skip gallery shortcode processing
-                                            echo apply_filters('the_content', $content);
-                                        } else {
-                                            echo '<p>This gallery contains images - scroll down to view them.</p>';
-                                        }
-                                        ?>
+                                        <?php echo $gallery_description; ?>
                                     </div>
                                 <?php endif; ?>
                             </header>

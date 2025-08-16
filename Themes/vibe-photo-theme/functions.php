@@ -134,6 +134,12 @@ function vibe_photo_scripts() {
     // Add lightbox functionality
     wp_enqueue_script('vibe-photo-lightbox', get_template_directory_uri() . '/assets/js/lightbox.js', array('jquery', 'foundation-js'), '1.0.0', true);
     
+    // Localize script for AJAX
+    wp_localize_script('vibe-photo-lightbox', 'vibePhotoAjax', array(
+        'ajaxurl' => admin_url('admin-ajax.php'),
+        'nonce' => wp_create_nonce('vibe_photo_nonce')
+    ));
+    
     // Add responsive navigation
     wp_enqueue_script('vibe-photo-navigation', get_template_directory_uri() . '/assets/js/navigation.js', array('jquery', 'foundation-js'), '1.0.0', true);
     
@@ -205,6 +211,127 @@ function vibe_photo_debug_content_filters() {
     }
 }
 add_action('template_redirect', 'vibe_photo_debug_content_filters');
+
+/**
+ * AJAX handler for getting image EXIF data
+ */
+function vibe_photo_get_image_exif() {
+    // Verify nonce
+    if (!wp_verify_nonce($_POST['nonce'], 'vibe_photo_nonce')) {
+        wp_die('Invalid nonce');
+    }
+    
+    $image_url = sanitize_url($_POST['image_url']);
+    
+    // Try to get attachment ID from URL
+    $attachment_id = attachment_url_to_postid($image_url);
+    
+    if (!$attachment_id) {
+        wp_send_json_error('Image not found');
+        return;
+    }
+    
+    // Get image metadata
+    $metadata = wp_get_attachment_metadata($attachment_id);
+    $file_path = get_attached_file($attachment_id);
+    
+    $exif_data = array();
+    
+    // Get basic file info
+    if ($metadata) {
+        $exif_data['size'] = $metadata['width'] . ' × ' . $metadata['height'] . ' pixels';
+        
+        // Get file size
+        if (file_exists($file_path)) {
+            $file_size = filesize($file_path);
+            $exif_data['file_size'] = size_format($file_size);
+        }
+    }
+    
+    // Try to get EXIF data if available
+    if (function_exists('exif_read_data') && file_exists($file_path)) {
+        $exif = @exif_read_data($file_path);
+        
+        if ($exif) {
+            // Camera info
+            if (isset($exif['Make']) && isset($exif['Model'])) {
+                $exif_data['camera'] = $exif['Make'] . ' ' . $exif['Model'];
+            }
+            
+            // Lens info
+            if (isset($exif['UndefinedTag:0xA434'])) {
+                $exif_data['lens'] = $exif['UndefinedTag:0xA434'];
+            } elseif (isset($exif['LensModel'])) {
+                $exif_data['lens'] = $exif['LensModel'];
+            }
+            
+            // Aperture
+            if (isset($exif['COMPUTED']['ApertureFNumber'])) {
+                $exif_data['aperture'] = $exif['COMPUTED']['ApertureFNumber'];
+            } elseif (isset($exif['FNumber'])) {
+                $aperture = explode('/', $exif['FNumber']);
+                if (count($aperture) == 2 && $aperture[1] != 0) {
+                    $exif_data['aperture'] = 'f/' . round($aperture[0] / $aperture[1], 1);
+                }
+            }
+            
+            // Shutter speed
+            if (isset($exif['ExposureTime'])) {
+                $shutter = $exif['ExposureTime'];
+                if (strpos($shutter, '/') !== false) {
+                    $parts = explode('/', $shutter);
+                    if (count($parts) == 2 && $parts[1] != 0) {
+                        $decimal = $parts[0] / $parts[1];
+                        if ($decimal >= 1) {
+                            $exif_data['shutter'] = round($decimal, 1) . 's';
+                        } else {
+                            $exif_data['shutter'] = $shutter . 's';
+                        }
+                    }
+                } else {
+                    $exif_data['shutter'] = $shutter . 's';
+                }
+            }
+            
+            // ISO
+            if (isset($exif['ISOSpeedRatings'])) {
+                $exif_data['iso'] = 'ISO ' . $exif['ISOSpeedRatings'];
+            }
+            
+            // Focal length
+            if (isset($exif['FocalLength'])) {
+                $focal = $exif['FocalLength'];
+                if (strpos($focal, '/') !== false) {
+                    $parts = explode('/', $focal);
+                    if (count($parts) == 2 && $parts[1] != 0) {
+                        $exif_data['focal_length'] = round($parts[0] / $parts[1]) . 'mm';
+                    }
+                } else {
+                    $exif_data['focal_length'] = $focal . 'mm';
+                }
+            }
+            
+            // Date taken
+            if (isset($exif['DateTime'])) {
+                $date = DateTime::createFromFormat('Y:m:d H:i:s', $exif['DateTime']);
+                if ($date) {
+                    $exif_data['date_taken'] = $date->format('F j, Y g:i A');
+                }
+            } elseif (isset($exif['DateTimeOriginal'])) {
+                $date = DateTime::createFromFormat('Y:m:d H:i:s', $exif['DateTimeOriginal']);
+                if ($date) {
+                    $exif_data['date_taken'] = $date->format('F j, Y g:i A');
+                }
+            }
+        }
+    }
+    
+    wp_send_json_success($exif_data);
+}
+
+// Register AJAX handlers for both logged-in and non-logged-in users
+add_action('wp_ajax_get_image_exif', 'vibe_photo_get_image_exif');
+add_action('wp_ajax_nopriv_get_image_exif', 'vibe_photo_get_image_exif');
 
 /**
  * Create sample gallery for testing
