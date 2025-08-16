@@ -80,13 +80,10 @@
                                         <?php 
                                         // Get content but remove gallery shortcodes to prevent duplicate display
                                         $content = get_the_content();
-                                        echo '<!-- DEBUG: Original content: ' . esc_html($content) . ' -->';
                                         
                                         // Remove ALL gallery shortcodes more aggressively
                                         $content = preg_replace('/\[gallery[^\]]*\]/', '', $content);
                                         $content = preg_replace('/\[\/gallery\]/', '', $content);
-                                        
-                                        echo '<!-- DEBUG: Content after removing gallery shortcodes: ' . esc_html($content) . ' -->';
                                         
                                         // Only show content if there's something meaningful left after removing gallery shortcodes
                                         $cleaned_content = trim(strip_tags($content));
@@ -94,7 +91,7 @@
                                             // Apply content filters but skip gallery shortcode processing
                                             echo apply_filters('the_content', $content);
                                         } else {
-                                            echo '<p>Gallery content processed - shortcodes removed to prevent conflicts.</p>';
+                                            echo '<p>This gallery contains images - scroll down to view them.</p>';
                                         }
                                         ?>
                                     </div>
@@ -106,11 +103,6 @@
                                 <?php
                                 // Get gallery images from post meta first
                                 $gallery_images = get_post_meta(get_the_ID(), '_gallery_images', true);
-                                
-                                // Debug: Show what we found
-                                echo '<!-- DEBUG: Gallery ID: ' . get_the_ID() . ' -->';
-                                echo '<!-- DEBUG: Gallery images from meta: "' . $gallery_images . '" -->';
-                                echo '<!-- DEBUG: Meta empty? ' . (empty($gallery_images) ? 'YES' : 'NO') . ' -->';
                                 
                                 // If no custom gallery images, try to get from post content
                                 if (empty($gallery_images)) {
@@ -157,23 +149,13 @@
                                     $image_ids = array_filter(array_map('trim', $image_ids)); // Remove empty values and trim
                                     
                                     if (!empty($image_ids)) : ?>
-                                        <!-- DEBUGGING: Image count and CSS check -->
-                                        <div style="background: yellow; padding: 10px; margin: 10px;">
-                                            <strong>DEBUG:</strong> Found <?php echo count($image_ids); ?> images<br>
-                                            <strong>Container CSS Test:</strong> This should be in a yellow box with proper styling.
-                                        </div>
-                                        
                                         <div class="masonry-gallery custom-grid-gallery" 
                                              id="vibe-gallery-container"
-                                             data-masonry='{"percentPosition": true, "itemSelector": ".masonry-item"}' 
                                              style="
                                                  display: grid !important; 
                                                  grid-template-columns: repeat(3, 1fr) !important; 
                                                  gap: 20px !important; 
                                                  margin: 20px 0 !important;
-                                                 background: rgba(0,255,0,0.1) !important;
-                                                 border: 2px solid green !important;
-                                                 padding: 20px !important;
                                                  width: 100% !important;
                                              ">
                                             <?php foreach ($image_ids as $image_id) :
@@ -191,26 +173,18 @@
                                                 
                                                 if (!$image_url || !$image_medium) continue;
                                             ?>
-                                                <div class="masonry-item gallery-image-item" style="
-                                                    width: 100% !important; 
-                                                    margin: 0 !important; 
-                                                    padding: 0 !important;
-                                                    border: 1px solid red !important;
-                                                    background: rgba(255,0,0,0.1) !important;
-                                                ">
-                                                    <div class="gallery-image-wrapper" style="width: 100%; display: block;">
+                                                <div class="masonry-item gallery-image-item photo-item">
+                                                    <div class="gallery-image-wrapper">
                                                         <a href="<?php echo esc_url($image_url); ?>" 
-                                                           class="gallery-lightbox" 
+                                                           class="gallery-link" 
                                                            data-caption="<?php echo esc_attr($image_caption ? $image_caption : $image_title); ?>"
-                                                           title="<?php echo esc_attr($image_title); ?>"
-                                                           style="display: block; width: 100%;">
+                                                           title="<?php echo esc_attr($image_title); ?>">
                                                             
                                                             <img src="<?php echo esc_url($image_medium[0]); ?>" 
                                                                  alt="<?php echo esc_attr($image_alt ? $image_alt : $image_title); ?>"
                                                                  width="<?php echo esc_attr($image_medium[1]); ?>"
                                                                  height="<?php echo esc_attr($image_medium[2]); ?>"
-                                                                 loading="lazy" 
-                                                                 style="width: 100%; height: auto; display: block;" />
+                                                                 loading="lazy" />
                                                             
                                                             <div class="image-overlay">
                                                                 <span class="zoom-icon">🔍</span>
@@ -322,123 +296,5 @@
     </footer>
 
     <?php wp_footer(); ?>
-    
-    <!-- DEBUG: Check what's happening to our gallery after page load -->
-    <script>
-    // Use jQuery instead of $ to avoid conflicts
-    jQuery(document).ready(function($) {
-        console.log('=== GALLERY DEBUG: Page loaded with jQuery ===');
-        
-        const gallery = document.querySelector('#vibe-gallery-container');
-        if (gallery) {
-            console.log('Gallery found:', gallery);
-            console.log('Gallery innerHTML length:', gallery.innerHTML.length);
-            console.log('Gallery computed styles:', {
-                display: getComputedStyle(gallery).display,
-                gridTemplateColumns: getComputedStyle(gallery).gridTemplateColumns,
-                gap: getComputedStyle(gallery).gap
-            });
-            
-            // Store original state
-            const originalHTML = gallery.innerHTML;
-            const originalStyle = gallery.getAttribute('style');
-            const originalClassName = gallery.className;
-            
-            console.log('Stored original state - HTML length:', originalHTML.length);
-            
-            // Create a protective function
-            function protectGallery() {
-                if (gallery.innerHTML !== originalHTML) {
-                    console.log('DETECTED: Gallery HTML was modified! Restoring...');
-                    gallery.innerHTML = originalHTML;
-                }
-                
-                if (gallery.getAttribute('style') !== originalStyle) {
-                    console.log('DETECTED: Gallery style was modified! Restoring...');
-                    gallery.setAttribute('style', originalStyle);
-                }
-                
-                if (gallery.className !== originalClassName) {
-                    console.log('DETECTED: Gallery classes were modified! Restoring...');
-                    gallery.className = originalClassName;
-                }
-            }
-            
-            // Monitor for changes to the gallery
-            const observer = new MutationObserver(function(mutations) {
-                mutations.forEach(function(mutation) {
-                    console.log('=== GALLERY CHANGED ===');
-                    console.log('Type:', mutation.type);
-                    console.log('Target:', mutation.target);
-                    
-                    if (mutation.type === 'childList') {
-                        console.log('Gallery content changed!');
-                        console.log('New innerHTML length:', gallery.innerHTML.length);
-                        console.log('Restoring original content...');
-                        // Restore immediately
-                        setTimeout(protectGallery, 0);
-                    }
-                    
-                    if (mutation.type === 'attributes') {
-                        console.log('Gallery attributes changed!');
-                        console.log('Changed attribute:', mutation.attributeName);
-                        console.log('Restoring original attributes...');
-                        // Restore immediately
-                        setTimeout(protectGallery, 0);
-                    }
-                });
-            });
-            
-            observer.observe(gallery, {
-                childList: true,
-                attributes: true,
-                subtree: true,
-                attributeFilter: ['style', 'class']
-            });
-            
-            // Also run protection every 100ms for the first 5 seconds
-            let protectionCount = 0;
-            const protectionInterval = setInterval(function() {
-                protectGallery();
-                protectionCount++;
-                if (protectionCount > 50) { // 5 seconds
-                    clearInterval(protectionInterval);
-                    console.log('Gallery protection monitoring complete');
-                }
-            }, 100);
-            
-            // Also check for any scripts that might be modifying the gallery
-            const scripts = document.querySelectorAll('script');
-            console.log('Scripts on page:', scripts.length);
-            scripts.forEach((script, index) => {
-                if (script.src) {
-                    console.log(`Script ${index}: ${script.src}`);
-                } else if (script.innerHTML.includes('gallery') || script.innerHTML.includes('masonry')) {
-                    console.log(`Inline script ${index} contains gallery/masonry:`, script.innerHTML.substring(0, 200));
-                }
-            });
-        } else {
-            console.log('Gallery not found!');
-        }
-        
-        // Also check after a delay to see final state
-        setTimeout(function() {
-            console.log('=== GALLERY DEBUG: 5 seconds after load ===');
-            const gallery = document.querySelector('#vibe-gallery-container');
-            if (gallery) {
-                console.log('Final gallery innerHTML length:', gallery.innerHTML.length);
-                console.log('Final gallery styles:', {
-                    display: getComputedStyle(gallery).display,
-                    gridTemplateColumns: getComputedStyle(gallery).gridTemplateColumns,
-                    gap: getComputedStyle(gallery).gap
-                });
-                console.log('Gallery children count:', gallery.children.length);
-                Array.from(gallery.children).forEach((child, index) => {
-                    console.log(`Child ${index}:`, child.tagName, child.className, child.style.cssText);
-                });
-            }
-        }, 5000);
-    });
-    </script>
 </body>
 </html>

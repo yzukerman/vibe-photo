@@ -132,7 +132,7 @@ function vibe_photo_scripts() {
     // TEMPORARILY DISABLED - wp_enqueue_script('vibe-photo-gallery', get_template_directory_uri() . '/assets/js/gallery-masonry.js', array('jquery', 'foundation-js', 'masonry-js', 'imagesloaded-js'), '1.0.0', true);
     
     // Add lightbox functionality
-    // TEMPORARILY DISABLED - wp_enqueue_script('vibe-photo-lightbox', get_template_directory_uri() . '/assets/js/lightbox.js', array('jquery', 'foundation-js'), '1.0.0', true);
+    wp_enqueue_script('vibe-photo-lightbox', get_template_directory_uri() . '/assets/js/lightbox.js', array('jquery', 'foundation-js'), '1.0.0', true);
     
     // Add responsive navigation
     wp_enqueue_script('vibe-photo-navigation', get_template_directory_uri() . '/assets/js/navigation.js', array('jquery', 'foundation-js'), '1.0.0', true);
