@@ -1,0 +1,33 @@
+{
+    "folders": [
+        {
+            "name": "Photography Theme",
+            "path": "./Themes/vibe-photo-theme"
+        },
+        {
+            "name": "Local Site",
+            "path": "~/Local Sites/vibe-photo/app/public"
+        },
+        {
+            "name": "Custom Plugins",
+            "path": "./Plugins"
+        }
+    ],
+    "settings": {
+        "files.associations": {
+            "*.php": "php"
+        },
+        "search.exclude": {
+            "**/node_modules": true,
+            "**/vendor": true,
+            "**/*.log": true
+        }
+    },
+    "extensions": {
+        "recommendations": [
+            "ms-vscode.vscode-php-debug",
+            "bmewburn.vscode-intelephense-client",
+            "wordpresstoolbox.wordpress-toolbox"
+        ]
+    }
+}
