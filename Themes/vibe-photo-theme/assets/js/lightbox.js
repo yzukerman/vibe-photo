@@ -27,7 +27,6 @@
             '.lightbox-content { flex: 1; text-align: center; height: 100%; display: flex; align-items: center; justify-content: center; position: relative; }' +
             '.lightbox-image-container { position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }' +
             '.lightbox-image { max-width: 100%; max-height: 100%; object-fit: contain; z-index: 1 !important; position: relative; }' +
-            '.lightbox-loading { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #666; z-index: 500; }' +
             '.lightbox-footer { padding: 15px 20px; background: #f8f9fa; border-top: 1px solid #dee2e6; flex-shrink: 0; max-height: 40vh; overflow-y: auto; z-index: 1000; position: relative; }' +
             '.lightbox-details { margin-bottom: 15px; }' +
             '.lightbox-navigation { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #dee2e6; }' +
@@ -38,9 +37,11 @@
             '.nav-next { text-align: right; }' +
             '.lightbox-info { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }' +
             '.lightbox-exif h4, .lightbox-sharing h4 { margin: 0 0 15px 0; font-size: 16px; font-weight: 600; }' +
-            '.exif-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }' +
-            '.exif-item { display: flex; justify-content: space-between; }' +
-            '.exif-label { font-weight: 500; }' +
+            '.exif-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; max-height: 300px; overflow-y: auto; }' +
+            '.exif-item { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #f0f0f0; }' +
+            '.exif-item:last-child { border-bottom: none; }' +
+            '.exif-label { font-weight: 500; color: #666; }' +
+            '.exif-value { color: #333; text-align: right; max-width: 60%; word-break: break-word; }' +
             '.share-buttons { display: flex; flex-wrap: wrap; gap: 10px; }' +
             '.share-btn { display: flex; align-items: center; gap: 5px; padding: 8px 12px; background: #007cba; color: white; text-decoration: none; border-radius: 4px; border: none; cursor: pointer; font-size: 14px; }' +
             '.share-btn:hover { background: #005a87; color: white; }' +
@@ -77,7 +78,6 @@
                     '<div class="lightbox-content">' +
                         '<div class="lightbox-image-container">' +
                             '<img src="" alt="" class="lightbox-image">' +
-                            '<div class="lightbox-loading">Loading...</div>' +
                         '</div>' +
                     '</div>' +
                 '</div>' +
@@ -125,8 +125,40 @@
                                     '<span class="exif-value" data-exif="date">-</span>' +
                                 '</div>' +
                                 '<div class="exif-item">' +
+                                    '<span class="exif-label">Flash:</span>' +
+                                    '<span class="exif-value" data-exif="flash">-</span>' +
+                                '</div>' +
+                                '<div class="exif-item">' +
+                                    '<span class="exif-label">White Balance:</span>' +
+                                    '<span class="exif-value" data-exif="white_balance">-</span>' +
+                                '</div>' +
+                                '<div class="exif-item">' +
+                                    '<span class="exif-label">Exposure Mode:</span>' +
+                                    '<span class="exif-value" data-exif="exposure_mode">-</span>' +
+                                '</div>' +
+                                '<div class="exif-item">' +
+                                    '<span class="exif-label">Metering:</span>' +
+                                    '<span class="exif-value" data-exif="metering_mode">-</span>' +
+                                '</div>' +
+                                '<div class="exif-item">' +
+                                    '<span class="exif-label">Color Space:</span>' +
+                                    '<span class="exif-value" data-exif="color_space">-</span>' +
+                                '</div>' +
+                                '<div class="exif-item">' +
                                     '<span class="exif-label">Size:</span>' +
                                     '<span class="exif-value" data-exif="size">-</span>' +
+                                '</div>' +
+                                '<div class="exif-item">' +
+                                    '<span class="exif-label">File Size:</span>' +
+                                    '<span class="exif-value" data-exif="file_size">-</span>' +
+                                '</div>' +
+                                '<div class="exif-item gps-item" style="display: none;">' +
+                                    '<span class="exif-label">GPS:</span>' +
+                                    '<span class="exif-value" data-exif="gps_coordinates">-</span>' +
+                                '</div>' +
+                                '<div class="exif-item software-item" style="display: none;">' +
+                                    '<span class="exif-label">Software:</span>' +
+                                    '<span class="exif-value" data-exif="software">-</span>' +
                                 '</div>' +
                             '</div>' +
                         '</div>' +
@@ -134,27 +166,21 @@
                             '<h4>Share this image</h4>' +
                             '<div class="share-buttons">' +
                                 '<a href="#" class="share-btn facebook" target="_blank" rel="noopener">' +
-                                    '<span class="share-icon">📘</span>' +
                                     '<span class="share-text">Facebook</span>' +
                                 '</a>' +
                                 '<a href="#" class="share-btn twitter" target="_blank" rel="noopener">' +
-                                    '<span class="share-icon">🐦</span>' +
                                     '<span class="share-text">Twitter</span>' +
                                 '</a>' +
                                 '<a href="#" class="share-btn tumblr" target="_blank" rel="noopener">' +
-                                    '<span class="share-icon">📝</span>' +
                                     '<span class="share-text">Tumblr</span>' +
                                 '</a>' +
                                 '<a href="#" class="share-btn pinterest" target="_blank" rel="noopener">' +
-                                    '<span class="share-icon">📌</span>' +
                                     '<span class="share-text">Pinterest</span>' +
                                 '</a>' +
                                 '<a href="#" class="share-btn download" download>' +
-                                    '<span class="share-icon">💾</span>' +
                                     '<span class="share-text">Download</span>' +
                                 '</a>' +
                                 '<button class="share-btn copy-link">' +
-                                    '<span class="share-icon">🔗</span>' +
                                     '<span class="share-text">Copy Link</span>' +
                                 '</button>' +
                             '</div>' +
@@ -296,15 +322,11 @@
             $lightboxTitle.text(image.title);
             $lightboxDescription.text(image.description);
             $imageCounter.text((index + 1) + ' of ' + images.length);
-
-            // Add loading state
-            $lightboxImage.addClass('loading');
             
             // Load new image
             var newImg = new Image();
             newImg.onload = function() {
                 $lightboxImage.attr('src', image.src).attr('alt', image.alt);
-                $lightboxImage.removeClass('loading');
                 
                 // Load EXIF data and update sharing links
                 loadImageMetadata(image.src, index);
@@ -355,9 +377,11 @@
                     success: function(response) {
                         if (response.success && response.data) {
                             updateExifData(response.data);
+                        } else {
+                            $('.exif-value[data-exif="camera"]').text('EXIF data not available');
                         }
                     },
-                    error: function() {
+                    error: function(xhr, status, error) {
                         // Fallback: try to extract basic info from image
                         extractBasicImageInfo(imageSrc);
                     }
@@ -384,7 +408,28 @@
             if (exifData.iso) $('.exif-value[data-exif="iso"]').text(exifData.iso);
             if (exifData.focal_length) $('.exif-value[data-exif="focal"]').text(exifData.focal_length);
             if (exifData.date_taken) $('.exif-value[data-exif="date"]').text(exifData.date_taken);
-            if (exifData.file_size) $('.exif-value[data-exif="size"]').text(exifData.file_size);
+            if (exifData.flash) $('.exif-value[data-exif="flash"]').text(exifData.flash);
+            if (exifData.white_balance) $('.exif-value[data-exif="white_balance"]').text(exifData.white_balance);
+            if (exifData.exposure_mode) $('.exif-value[data-exif="exposure_mode"]').text(exifData.exposure_mode);
+            if (exifData.metering_mode) $('.exif-value[data-exif="metering_mode"]').text(exifData.metering_mode);
+            if (exifData.color_space) $('.exif-value[data-exif="color_space"]').text(exifData.color_space);
+            if (exifData.file_size) $('.exif-value[data-exif="file_size"]').text(exifData.file_size);
+            if (exifData.size) $('.exif-value[data-exif="size"]').text(exifData.size);
+            
+            // Show/hide optional fields based on availability
+            if (exifData.gps_coordinates) {
+                $('.exif-value[data-exif="gps_coordinates"]').text(exifData.gps_coordinates);
+                $('.gps-item').show();
+            } else {
+                $('.gps-item').hide();
+            }
+            
+            if (exifData.software) {
+                $('.exif-value[data-exif="software"]').text(exifData.software);
+                $('.software-item').show();
+            } else {
+                $('.software-item').hide();
+            }
         }
 
         function updateSharingLinks(image) {

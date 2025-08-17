@@ -218,33 +218,69 @@ add_action('template_redirect', 'vibe_photo_debug_content_filters');
 function vibe_photo_get_image_exif() {
     // Verify nonce
     if (!wp_verify_nonce($_POST['nonce'], 'vibe_photo_nonce')) {
-        wp_die('Invalid nonce');
+        wp_send_json_error('Invalid nonce');
+        return;
     }
     
     $image_url = sanitize_url($_POST['image_url']);
     
+    // Fix protocol-relative URLs
+    if (strpos($image_url, '//') === 0) {
+        $image_url = 'http:' . $image_url;
+    }
+    
     // Try to get attachment ID from URL
     $attachment_id = attachment_url_to_postid($image_url);
     
-    if (!$attachment_id) {
-        wp_send_json_error('Image not found');
-        return;
-    }
-    
-    // Get image metadata
-    $metadata = wp_get_attachment_metadata($attachment_id);
-    $file_path = get_attached_file($attachment_id);
-    
     $exif_data = array();
     
-    // Get basic file info
-    if ($metadata) {
-        $exif_data['size'] = $metadata['width'] . ' × ' . $metadata['height'] . ' pixels';
+    if (!$attachment_id) {
+        // If no attachment ID, try to work with the URL directly
+        $upload_dir = wp_get_upload_dir();
         
-        // Get file size
+        // Try multiple methods to convert URL to file path
+        $file_path = str_replace($upload_dir['baseurl'], $upload_dir['basedir'], $image_url);
+        
+        // If that didn't work, try extracting just the relative path
+        if (!file_exists($file_path)) {
+            // Extract the path after /wp-content/uploads/
+            if (preg_match('/\/wp-content\/uploads\/(.+)$/', $image_url, $matches)) {
+                $relative_path = $matches[1];
+                $file_path = $upload_dir['basedir'] . '/' . $relative_path;
+            }
+        }
+        
         if (file_exists($file_path)) {
+            // Get basic file info without WordPress metadata
+            $image_size = getimagesize($file_path);
+            if ($image_size) {
+                $exif_data['size'] = $image_size[0] . ' × ' . $image_size[1] . ' pixels';
+            }
+            
             $file_size = filesize($file_path);
-            $exif_data['file_size'] = size_format($file_size);
+            if ($file_size) {
+                $exif_data['file_size'] = size_format($file_size);
+            }
+        } else {
+            wp_send_json_error(array(
+                'message' => 'Image file not found'
+            ));
+            return;
+        }
+    } else {
+        // Get image metadata from WordPress
+        $metadata = wp_get_attachment_metadata($attachment_id);
+        $file_path = get_attached_file($attachment_id);
+        
+        // Get basic file info
+        if ($metadata) {
+            $exif_data['size'] = $metadata['width'] . ' × ' . $metadata['height'] . ' pixels';
+            
+            // Get file size
+            if (file_exists($file_path)) {
+                $file_size = filesize($file_path);
+                $exif_data['file_size'] = size_format($file_size);
+            }
         }
     }
     
@@ -255,14 +291,20 @@ function vibe_photo_get_image_exif() {
         if ($exif) {
             // Camera info
             if (isset($exif['Make']) && isset($exif['Model'])) {
-                $exif_data['camera'] = $exif['Make'] . ' ' . $exif['Model'];
+                $exif_data['camera'] = trim($exif['Make'] . ' ' . $exif['Model']);
             }
             
-            // Lens info
+            // Lens info - check multiple possible fields
             if (isset($exif['UndefinedTag:0xA434'])) {
                 $exif_data['lens'] = $exif['UndefinedTag:0xA434'];
             } elseif (isset($exif['LensModel'])) {
                 $exif_data['lens'] = $exif['LensModel'];
+            } elseif (isset($exif['LensInfo'])) {
+                $exif_data['lens'] = $exif['LensInfo'];
+            } elseif (isset($exif['LensMake'])) {
+                $lens_make = $exif['LensMake'];
+                $lens_model = isset($exif['LensModel']) ? $exif['LensModel'] : '';
+                $exif_data['lens'] = trim($lens_make . ' ' . $lens_model);
             }
             
             // Aperture
@@ -272,6 +314,12 @@ function vibe_photo_get_image_exif() {
                 $aperture = explode('/', $exif['FNumber']);
                 if (count($aperture) == 2 && $aperture[1] != 0) {
                     $exif_data['aperture'] = 'f/' . round($aperture[0] / $aperture[1], 1);
+                }
+            } elseif (isset($exif['MaxApertureValue'])) {
+                $aperture = explode('/', $exif['MaxApertureValue']);
+                if (count($aperture) == 2 && $aperture[1] != 0) {
+                    $f_stop = pow(2, ($aperture[0] / $aperture[1]) / 2);
+                    $exif_data['aperture'] = 'f/' . round($f_stop, 1);
                 }
             }
             
@@ -291,11 +339,23 @@ function vibe_photo_get_image_exif() {
                 } else {
                     $exif_data['shutter'] = $shutter . 's';
                 }
+            } elseif (isset($exif['ShutterSpeedValue'])) {
+                $shutter_speed = explode('/', $exif['ShutterSpeedValue']);
+                if (count($shutter_speed) == 2 && $shutter_speed[1] != 0) {
+                    $speed = pow(2, $shutter_speed[0] / $shutter_speed[1]);
+                    if ($speed >= 1) {
+                        $exif_data['shutter'] = '1/' . round(1/$speed) . 's';
+                    } else {
+                        $exif_data['shutter'] = round($speed, 1) . 's';
+                    }
+                }
             }
             
             // ISO
             if (isset($exif['ISOSpeedRatings'])) {
                 $exif_data['iso'] = 'ISO ' . $exif['ISOSpeedRatings'];
+            } elseif (isset($exif['PhotographicSensitivity'])) {
+                $exif_data['iso'] = 'ISO ' . $exif['PhotographicSensitivity'];
             }
             
             // Focal length
@@ -311,17 +371,114 @@ function vibe_photo_get_image_exif() {
                 }
             }
             
-            // Date taken
-            if (isset($exif['DateTime'])) {
-                $date = DateTime::createFromFormat('Y:m:d H:i:s', $exif['DateTime']);
-                if ($date) {
-                    $exif_data['date_taken'] = $date->format('F j, Y g:i A');
-                }
-            } elseif (isset($exif['DateTimeOriginal'])) {
+            // 35mm equivalent focal length
+            if (isset($exif['FocalLengthIn35mmFilm'])) {
+                $exif_data['focal_35mm'] = $exif['FocalLengthIn35mmFilm'] . 'mm (35mm equiv.)';
+            }
+            
+            // Date taken - try multiple date fields
+            if (isset($exif['DateTimeOriginal'])) {
                 $date = DateTime::createFromFormat('Y:m:d H:i:s', $exif['DateTimeOriginal']);
                 if ($date) {
                     $exif_data['date_taken'] = $date->format('F j, Y g:i A');
                 }
+            } elseif (isset($exif['DateTime'])) {
+                $date = DateTime::createFromFormat('Y:m:d H:i:s', $exif['DateTime']);
+                if ($date) {
+                    $exif_data['date_taken'] = $date->format('F j, Y g:i A');
+                }
+            } elseif (isset($exif['DateTimeDigitized'])) {
+                $date = DateTime::createFromFormat('Y:m:d H:i:s', $exif['DateTimeDigitized']);
+                if ($date) {
+                    $exif_data['date_taken'] = $date->format('F j, Y g:i A');
+                }
+            }
+            
+            // Flash information
+            if (isset($exif['Flash'])) {
+                $flash_value = intval($exif['Flash']);
+                $flash_descriptions = array(
+                    0 => 'No Flash',
+                    1 => 'Flash Fired',
+                    5 => 'Flash Fired, Return not detected',
+                    7 => 'Flash Fired, Return detected',
+                    8 => 'On, Did not fire',
+                    9 => 'On, Fired',
+                    13 => 'On, Return not detected',
+                    15 => 'On, Return detected',
+                    16 => 'Off, Did not fire',
+                    24 => 'Auto, Did not fire',
+                    25 => 'Auto, Fired',
+                    29 => 'Auto, Fired, Return not detected',
+                    31 => 'Auto, Fired, Return detected',
+                    32 => 'No flash function',
+                    65 => 'Red-eye reduction, Fired',
+                    69 => 'Red-eye reduction, Fired, Return not detected',
+                    71 => 'Red-eye reduction, Fired, Return detected',
+                    73 => 'Red-eye reduction, On, Fired',
+                    77 => 'Red-eye reduction, On, Fired, Return not detected',
+                    79 => 'Red-eye reduction, On, Fired, Return detected',
+                    89 => 'Red-eye reduction, Auto, Fired',
+                    93 => 'Red-eye reduction, Auto, Fired, Return not detected',
+                    95 => 'Red-eye reduction, Auto, Fired, Return detected'
+                );
+                $exif_data['flash'] = isset($flash_descriptions[$flash_value]) ? $flash_descriptions[$flash_value] : 'Unknown';
+            }
+            
+            // White balance
+            if (isset($exif['WhiteBalance'])) {
+                $wb_values = array(0 => 'Auto', 1 => 'Manual');
+                $exif_data['white_balance'] = isset($wb_values[$exif['WhiteBalance']]) ? $wb_values[$exif['WhiteBalance']] : 'Unknown';
+            }
+            
+            // Exposure mode
+            if (isset($exif['ExposureMode'])) {
+                $exposure_modes = array(0 => 'Auto', 1 => 'Manual', 2 => 'Auto bracket');
+                $exif_data['exposure_mode'] = isset($exposure_modes[$exif['ExposureMode']]) ? $exposure_modes[$exif['ExposureMode']] : 'Unknown';
+            }
+            
+            // Metering mode
+            if (isset($exif['MeteringMode'])) {
+                $metering_modes = array(
+                    0 => 'Unknown',
+                    1 => 'Average',
+                    2 => 'Center-weighted average',
+                    3 => 'Spot',
+                    4 => 'Multi-spot',
+                    5 => 'Pattern',
+                    6 => 'Partial'
+                );
+                $exif_data['metering_mode'] = isset($metering_modes[$exif['MeteringMode']]) ? $metering_modes[$exif['MeteringMode']] : 'Unknown';
+            }
+            
+            // GPS coordinates if available
+            if (isset($exif['GPSLatitude']) && isset($exif['GPSLongitude'])) {
+                $lat = $exif['GPSLatitude'];
+                $lon = $exif['GPSLongitude'];
+                $lat_ref = isset($exif['GPSLatitudeRef']) ? $exif['GPSLatitudeRef'] : '';
+                $lon_ref = isset($exif['GPSLongitudeRef']) ? $exif['GPSLongitudeRef'] : '';
+                
+                // Convert DMS to decimal
+                if (is_array($lat) && count($lat) >= 3) {
+                    $lat_decimal = $lat[0] + ($lat[1]/60) + ($lat[2]/3600);
+                    if ($lat_ref == 'S') $lat_decimal = -$lat_decimal;
+                    
+                    $lon_decimal = $lon[0] + ($lon[1]/60) + ($lon[2]/3600);
+                    if ($lon_ref == 'W') $lon_decimal = -$lon_decimal;
+                    
+                    $exif_data['gps_coordinates'] = round($lat_decimal, 6) . ', ' . round($lon_decimal, 6);
+                }
+            }
+            
+            // Color space
+            if (isset($exif['ColorSpace'])) {
+                $color_spaces = array(1 => 'sRGB', 65535 => 'Uncalibrated');
+                $exif_data['color_space'] = isset($color_spaces[$exif['ColorSpace']]) ? $color_spaces[$exif['ColorSpace']] : 'Unknown';
+            }
+            
+            // Software/Camera firmware
+            if (isset($exif['Software'])) {
+                $exif_data['software'] = $exif['Software'];
             }
         }
     }
@@ -330,8 +487,84 @@ function vibe_photo_get_image_exif() {
 }
 
 // Register AJAX handlers for both logged-in and non-logged-in users
-add_action('wp_ajax_get_image_exif', 'vibe_photo_get_image_exif');
-add_action('wp_ajax_nopriv_get_image_exif', 'vibe_photo_get_image_exif');
+add_action('wp_ajax_vibe_photo_get_image_exif', 'vibe_photo_get_image_exif');
+add_action('wp_ajax_nopriv_vibe_photo_get_image_exif', 'vibe_photo_get_image_exif');
+
+/**
+ * Check PHP EXIF extension availability
+ * Call via: http://localhost:3002/?check_exif=1
+ */
+function vibe_photo_check_exif() {
+    if (isset($_GET['check_exif']) && $_GET['check_exif'] === '1') {
+        echo '<div style="background: #f0f0f0; padding: 20px; margin: 20px; border: 1px solid #ccc; font-family: monospace;">';
+        echo '<h3>PHP EXIF Extension Status</h3>';
+        echo '<p><strong>EXIF Extension Available:</strong> ' . (function_exists('exif_read_data') ? 'YES' : 'NO') . '</p>';
+        echo '<p><strong>PHP Version:</strong> ' . phpversion() . '</p>';
+        
+        if (function_exists('exif_read_data')) {
+            echo '<p style="color: green;">✓ EXIF extension is available and ready to use!</p>';
+        } else {
+            echo '<p style="color: red;">✗ EXIF extension is NOT available. You may need to enable it in your PHP configuration.</p>';
+            echo '<p>To enable EXIF extension:</p>';
+            echo '<ul>';
+            echo '<li>Edit your php.ini file</li>';
+            echo '<li>Uncomment or add: extension=exif</li>';
+            echo '<li>Restart your web server</li>';
+            echo '</ul>';
+        }
+        
+        // Test with a sample image if EXIF is available
+        if (function_exists('exif_read_data')) {
+            $upload_dir = wp_upload_dir();
+            echo '<p><strong>Upload Directory:</strong> ' . $upload_dir['basedir'] . '</p>';
+        }
+        
+        // Test AJAX endpoint
+        echo '<h3>AJAX Endpoint Test</h3>';
+        echo '<button onclick="testAjax()" style="padding: 10px; background: #0073aa; color: white; border: none; cursor: pointer;">Test AJAX</button>';
+        echo '<div id="ajax-result" style="margin-top: 10px; padding: 10px; background: #fff; border: 1px solid #ddd;"></div>';
+        
+        echo '<script>
+        function testAjax() {
+            var resultDiv = document.getElementById("ajax-result");
+            resultDiv.innerHTML = "Testing AJAX...";
+            
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "' . admin_url('admin-ajax.php') . '", true);
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        resultDiv.innerHTML = "<strong>AJAX Response:</strong><pre>" + xhr.responseText + "</pre>";
+                    } else {
+                        resultDiv.innerHTML = "<strong>AJAX Error:</strong> " + xhr.status + " - " + xhr.statusText;
+                    }
+                }
+            };
+            
+            xhr.send("action=vibe_photo_test_ajax&test_data=hello");
+        }
+        </script>';
+        
+        echo '</div>';
+        exit;
+    }
+}
+add_action('init', 'vibe_photo_check_exif');
+
+/**
+ * Simple AJAX test endpoint
+ */
+function vibe_photo_test_ajax() {
+    wp_send_json_success(array(
+        'message' => 'AJAX is working!',
+        'test_data' => $_POST['test_data'] ?? 'no data',
+        'timestamp' => current_time('mysql')
+    ));
+}
+add_action('wp_ajax_vibe_photo_test_ajax', 'vibe_photo_test_ajax');
+add_action('wp_ajax_nopriv_vibe_photo_test_ajax', 'vibe_photo_test_ajax');
 
 /**
  * Create sample gallery for testing
