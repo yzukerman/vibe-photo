@@ -27,6 +27,7 @@ Your Vibe Photo Theme is now packaged and ready for distribution! The ZIP file c
 
 - `README.md` - Developer documentation
 - `README.txt` - WordPress.org style readme
+- `LICENSE` - GPL v2 license file
 
 ## 🚀 Distribution Methods
 
@@ -41,7 +42,7 @@ Your Vibe Photo Theme is now packaged and ready for distribution! The ZIP file c
 
 Users can install your theme by:
 
-1. Downloading the `vibe-photo-theme-1.0.0.zip` file
+1. Downloading the `vibe-photo-theme-v1.0.5.zip` file
 2. Going to **WordPress Admin > Appearance > Themes**
 3. Clicking **Add New > Upload Theme**
 4. Uploading the ZIP file
@@ -105,11 +106,12 @@ Theme automatically enhances with lightbox
 
 ### ✨ Advanced Lightbox
 
-- EXIF data display (camera settings, lens info)
-- Social sharing (Facebook, Twitter, Pinterest, Tumblr)
-- Image navigation with keyboard support
-- Full-screen viewing
-- Download functionality
+- EXIF data display (camera settings, lens info) in collapsible containers
+- Social sharing (Facebook, Twitter, Pinterest, Tumblr) in collapsible containers
+- Image navigation with keyboard support (arrow keys)
+- Full-screen viewing with F11 key and fullscreen button
+- Perfect image fitting with optimized viewport sizing
+- Nimble design with bottom navigation bar
 
 ### 📱 Responsive Design
 
@@ -184,7 +186,12 @@ This means users can:
 
 ## 🔄 Version Management
 
-Current version: **1.0.0**
+Current version: **1.0.5**
+
+Recent updates:
+- v1.0.5: Added fullscreen viewing capability
+- v1.0.4: Nimble lightbox redesign with collapsible containers
+- v1.0.3: Enhanced sample page removal and image sizing optimization
 
 For future updates:
 
@@ -199,13 +206,15 @@ Before distribution, verify:
 
 - ✅ Theme activates without errors
 - ✅ All templates load correctly
-- ✅ Lightbox functionality works
+- ✅ Lightbox functionality works with fullscreen support
 - ✅ Gallery blocks are enhanced
 - ✅ Responsive design functions
 - ✅ No JavaScript errors
-- ✅ EXIF data displays
-- ✅ Social sharing works
+- ✅ EXIF data displays in collapsible containers
+- ✅ Social sharing works in collapsible containers
 - ✅ Navigation functions properly
+- ✅ Gallery archive page shows clean card layout (no duplicate titles)
+- ✅ Keyboard navigation works (arrows, F11, escape)
 - ✅ WordPress coding standards met
 
 Your Vibe Photo Theme is now ready for the world! 🌟

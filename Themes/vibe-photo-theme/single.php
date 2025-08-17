@@ -1,60 +1,6 @@
-<!DOCTYPE html>
-<html <?php language_attributes(); ?>>
+<?php get_header(); ?>
 
-<head>
-	<meta charset="<?php bloginfo('charset'); ?>">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title><?php wp_title('|', true, 'right'); ?><?php bloginfo('name'); ?></title>
-	<?php wp_head(); ?>
-</head>
-
-<body <?php body_class(); ?>>
-	<header class="site-header">
-		<div class="grid-container">
-			<div class="grid-x grid-padding-x align-justify align-middle">
-				<div class="cell auto">
-					<a href="<?php echo home_url(); ?>" class="site-logo">
-						<?php bloginfo('name'); ?>
-					</a>
-				</div>
-
-				<div class="cell shrink">
-					<button class="menu-toggle hide-for-medium" data-toggle="responsive-menu">
-						<span class="fa fa-bars"></span> Menu
-					</button>
-
-					<nav class="main-navigation show-for-medium">
-						<?php
-						wp_nav_menu(array(
-							'theme_location' => 'primary',
-							'menu_id' => 'primary-menu',
-							'container' => false,
-							'menu_class' => 'menu horizontal',
-						));
-						?>
-					</nav>
-				</div>
-			</div>
-
-			<!-- Mobile Navigation -->
-			<div class="grid-x">
-				<div class="cell">
-					<nav class="main-navigation hide-for-medium" id="responsive-menu" data-toggler="is-active">
-						<?php
-						wp_nav_menu(array(
-							'theme_location' => 'primary',
-							'menu_id' => 'mobile-menu',
-							'container' => false,
-							'menu_class' => 'menu vertical',
-						));
-						?>
-					</nav>
-				</div>
-			</div>
-		</div>
-	</header>
-
-	<main class="site-main">
+<main class="site-main">
 		<div class="grid-container">
 			<div class="grid-x grid-padding-x">
 				<div class="cell large-8 large-offset-2">
@@ -136,47 +82,67 @@
 									</div>
 								<?php endif; ?>
 
-								<div class="post-navigation">
-									<?php
-									$prev_post = get_previous_post();
-									$next_post = get_next_post();
-									?>
-
-									<?php if ($prev_post) : ?>
-										<a href="<?php echo get_permalink($prev_post->ID); ?>" class="nav-previous">
-											<span class="nav-label"><?php _e('Previous Photo', 'vibe-photo'); ?></span>
-											<span class="nav-title"><?php echo get_the_title($prev_post->ID); ?></span>
-										</a>
-									<?php endif; ?>
-
-									<?php if ($next_post) : ?>
-										<a href="<?php echo get_permalink($next_post->ID); ?>" class="nav-next">
-											<span class="nav-label"><?php _e('Next Photo', 'vibe-photo'); ?></span>
-											<span class="nav-title"><?php echo get_the_title($next_post->ID); ?></span>
-										</a>
-									<?php endif; ?>
-								</div>
 							</footer>
 						</article>
 
-						<?php
-						// If comments are open or we have at least one comment, load up the comment template.
-						if (comments_open() || get_comments_number()) :
-							comments_template();
-						endif;
-						?>
-
 					<?php endwhile; ?>
 				</div>
+			</div>
+
+			<!-- Post Navigation Outside Centered Column -->
+			<div class="grid-x grid-padding-x" style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #eee;">
+				<div class="cell large-8 large-offset-2">
+					<div class="post-navigation" style="display: flex; justify-content: space-between; align-items: center;">
+						<div class="nav-previous">
+							<?php 
+							// Try built-in WordPress function first
+							$prev_link = get_previous_post_link('%link', '← Previous Post');
+							if ($prev_link) {
+								$styled_prev_link = str_replace('<a ', '<a style="display: inline-block; padding: 0.75rem 1.5rem; background: #f8f8f8; border: 1px solid #ddd; text-decoration: none; color: #333; border-radius: 4px; font-weight: 500;" ', $prev_link);
+								echo $styled_prev_link;
+							} else {
+								// Fallback: try manual approach
+								$prev_post = get_previous_post();
+								if ($prev_post) {
+									echo '<a href="' . get_permalink($prev_post->ID) . '" style="display: inline-block; padding: 0.75rem 1.5rem; background: #f8f8f8; border: 1px solid #ddd; text-decoration: none; color: #333; border-radius: 4px; font-weight: 500;">← Previous Post</a>';
+								}
+							}
+							?>
+						</div>
+
+						<div class="nav-next">
+							<?php 
+							$next_post = get_next_post();
+							if ($next_post) {
+								$next_url = get_permalink($next_post->ID);
+								echo '<button onclick="window.location.href=\'' . esc_url($next_url) . '\'" style="display: inline-block; padding: 0.75rem 1.5rem; background: #f8f8f8; border: 1px solid #ddd; text-decoration: none; color: #333; border-radius: 4px; font-weight: 500; cursor: pointer; position: relative; z-index: 100;">Next Post →</button>';
+							}
+							?>
+						</div>
+					</div>
+
+					<?php 
+					// Debug info - remove this after testing
+					$total_posts = wp_count_posts()->publish;
+					$current_post_date = get_the_date('Y-m-d H:i:s');
+					echo "<!-- Debug: Total published posts: $total_posts, Current post date: $current_post_date -->";
+					?>
+				</div>
+			</div>
+
+			<div class="grid-x grid-padding-x">
+				<div class="cell large-8 large-offset-2">
+					<div class="post-comments-spacing" style="margin-top: 3rem;"></div>
+
+					<?php
+					// If comments are open or we have at least one comment, load up the comment template.
+					if (comments_open() || get_comments_number()) :
+						comments_template();
+					endif;
+					?>
+				</div>
+			</div>
+		</div>
 	</main>
 
-	<footer class="site-footer">
-		<div class="container">
-			<p>&copy; <?php echo date('Y'); ?> <?php bloginfo('name'); ?>. <?php _e('All rights reserved.', 'vibe-photo'); ?></p>
-		</div>
-	</footer>
-
-	<?php wp_footer(); ?>
-</body>
-
-</html>
+<?php get_footer(); ?>

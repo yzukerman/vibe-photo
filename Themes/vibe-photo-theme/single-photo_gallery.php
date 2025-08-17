@@ -1,60 +1,6 @@
-<!DOCTYPE html>
-<html <?php language_attributes(); ?>>
+<?php get_header(); ?>
 
-<head>
-	<meta charset="<?php bloginfo('charset'); ?>">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title><?php wp_title('|', true, 'right'); ?><?php bloginfo('name'); ?></title>
-	<?php wp_head(); ?>
-</head>
-
-<body <?php body_class(); ?>>
-	<header class="site-header">
-		<div class="grid-container">
-			<div class="grid-x grid-padding-x align-justify align-middle">
-				<div class="cell auto">
-					<a href="<?php echo home_url(); ?>" class="site-logo">
-						<?php bloginfo('name'); ?>
-					</a>
-				</div>
-
-				<div class="cell shrink">
-					<button class="menu-toggle hide-for-medium" data-toggle="responsive-menu">
-						<span class="fa fa-bars"></span> Menu
-					</button>
-
-					<nav class="main-navigation show-for-medium">
-						<?php
-						wp_nav_menu(array(
-							'theme_location' => 'primary',
-							'menu_id' => 'primary-menu',
-							'container' => false,
-							'menu_class' => 'menu horizontal',
-						));
-						?>
-					</nav>
-				</div>
-			</div>
-
-			<!-- Mobile Navigation -->
-			<div class="grid-x">
-				<div class="cell">
-					<nav class="main-navigation hide-for-medium" id="responsive-menu" data-toggler="is-active">
-						<?php
-						wp_nav_menu(array(
-							'theme_location' => 'primary',
-							'menu_id' => 'mobile-menu',
-							'container' => false,
-							'menu_class' => 'menu vertical',
-						));
-						?>
-					</nav>
-				</div>
-			</div>
-		</div>
-	</header>
-
-	<main class="site-main">
+<main class="site-main">
 		<div class="grid-container">
 			<?php while (have_posts()) : the_post(); ?>
 				<div class="grid-x grid-padding-x">
@@ -209,29 +155,6 @@
 											<?php endforeach; ?>
 										</div>
 
-										<!-- Gallery Info -->
-										<div class="gallery-info callout photo-info">
-											<div class="grid-x grid-padding-x">
-												<div class="cell medium-6">
-													<h4><?php _e('Gallery Information', 'vibe-photo'); ?></h4>
-													<p><strong><?php _e('Total Images:', 'vibe-photo'); ?></strong> <?php echo count($image_ids); ?></p>
-													<p><strong><?php _e('Date Created:', 'vibe-photo'); ?></strong> <?php echo get_the_date(); ?></p>
-												</div>
-
-												<div class="cell medium-6">
-													<div class="gallery-actions">
-														<a href="<?php echo get_post_type_archive_link('photo_gallery'); ?>" class="button secondary">
-															<?php _e('← Back to Galleries', 'vibe-photo'); ?>
-														</a>
-
-														<button class="button photo-button" id="slideshow-toggle">
-															<?php _e('Start Slideshow', 'vibe-photo'); ?>
-														</button>
-													</div>
-												</div>
-											</div>
-										</div>
-
 									<?php else : ?>
 										<div class="callout warning text-center">
 											<h3><?php _e('No Valid Images Found', 'vibe-photo'); ?></h3>
@@ -293,17 +216,4 @@
 		</div>
 	</main>
 
-	<footer class="site-footer">
-		<div class="grid-container">
-			<div class="grid-x grid-padding-x">
-				<div class="cell text-center">
-					<p>&copy; <?php echo date('Y'); ?> <?php bloginfo('name'); ?>. <?php _e('All rights reserved.', 'vibe-photo'); ?></p>
-				</div>
-			</div>
-		</div>
-	</footer>
-
-	<?php wp_footer(); ?>
-</body>
-
-</html>
+<?php get_footer(); ?>

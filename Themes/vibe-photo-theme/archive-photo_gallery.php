@@ -8,76 +8,10 @@
 
 get_header(); ?>
 
-<!DOCTYPE html>
-<html <?php language_attributes(); ?>>
-
-<head>
-	<meta charset="<?php bloginfo('charset'); ?>">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title><?php wp_title('|', true, 'right'); ?><?php bloginfo('name'); ?></title>
-	<?php wp_head(); ?>
-</head>
-
-<body <?php body_class(); ?>>
-	<header class="site-header">
+<main class="site-main">
 		<div class="grid-container">
-			<div class="grid-x grid-padding-x align-justify align-middle">
-				<div class="cell auto">
-					<a href="<?php echo home_url(); ?>" class="site-logo">
-						<?php bloginfo('name'); ?>
-					</a>
-				</div>
-
-				<div class="cell shrink">
-					<button class="menu-toggle hide-for-medium" data-toggle="responsive-menu">
-						<span class="fa fa-bars"></span> Menu
-					</button>
-
-					<nav class="main-navigation show-for-medium">
-						<?php
-						wp_nav_menu(array(
-							'theme_location' => 'primary',
-							'menu_id' => 'primary-menu',
-							'container' => false,
-							'menu_class' => 'menu horizontal',
-						));
-						?>
-					</nav>
-				</div>
-			</div>
-
-			<!-- Mobile Navigation -->
-			<div class="grid-x">
-				<div class="cell">
-					<nav class="main-navigation hide-for-medium" id="responsive-menu" data-toggler="is-active">
-						<?php
-						wp_nav_menu(array(
-							'theme_location' => 'primary',
-							'menu_id' => 'mobile-menu',
-							'container' => false,
-							'menu_class' => 'menu vertical',
-						));
-						?>
-					</nav>
-				</div>
-			</div>
-		</div>
-	</header>
-
-	<main class="site-main">
-		<div class="grid-container">
-			<!-- Page Header -->
-			<div class="grid-x grid-padding-x">
-				<div class="cell">
-					<header class="page-header text-center">
-						<h1 class="page-title"><?php _e('Photo Galleries', 'vibe-photo'); ?></h1>
-						<p class="page-description"><?php _e('Browse through our collection of photography galleries', 'vibe-photo'); ?></p>
-					</header>
-				</div>
-			</div>
-
 			<!-- Galleries Grid -->
-			<div class="grid-x grid-padding-x gallery-archive">
+			<div class="grid-x grid-padding-x gallery-archive">>
 				<?php if (have_posts()) : ?>
 					<?php while (have_posts()) : the_post();
 						$gallery_images = get_post_meta(get_the_ID(), '_gallery_images', true);
@@ -174,17 +108,4 @@ get_header(); ?>
 		</div>
 	</main>
 
-	<footer class="site-footer">
-		<div class="grid-container">
-			<div class="grid-x grid-padding-x">
-				<div class="cell text-center">
-					<p>&copy; <?php echo date('Y'); ?> <?php bloginfo('name'); ?>. <?php _e('All rights reserved.', 'vibe-photo'); ?></p>
-				</div>
-			</div>
-		</div>
-	</footer>
-
-	<?php wp_footer(); ?>
-</body>
-
-</html>
+<?php get_footer(); ?>
