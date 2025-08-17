@@ -18,19 +18,24 @@
         var styles = '<style>' +
             '#vibe-lightbox { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 10000; display: none; align-items: center; justify-content: center; }' +
             '#vibe-lightbox.active { display: flex; }' +
-            '.lightbox-container { max-width: 90vw; max-height: 90vh; background: white; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; }' +
-            '.lightbox-header { padding: 15px 20px; background: #f8f9fa; border-bottom: 1px solid #dee2e6; display: flex; justify-content: space-between; align-items: center; }' +
-            '.lightbox-title { margin: 0; font-size: 18px; font-weight: 600; }' +
-            '.lightbox-close { background: none; border: none; font-size: 24px; cursor: pointer; padding: 0; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; }' +
-            '.lightbox-main { display: flex; align-items: center; position: relative; }' +
-            '.lightbox-content { flex: 1; text-align: center; }' +
-            '.lightbox-image-container { position: relative; }' +
-            '.lightbox-image { max-width: 100%; max-height: 60vh; object-fit: contain; }' +
-            '.lightbox-loading { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }' +
-            '.lightbox-nav { background: rgba(0,0,0,0.5); color: white; border: none; padding: 15px 20px; font-size: 24px; cursor: pointer; position: absolute; top: 50%; transform: translateY(-50%); z-index: 1; }' +
-            '.lightbox-prev { left: 10px; }' +
-            '.lightbox-next { right: 10px; }' +
-            '.lightbox-footer { padding: 20px; background: #f8f9fa; border-top: 1px solid #dee2e6; }' +
+            '.lightbox-container { max-width: 95vw; max-height: 95vh; background: white; border-radius: 8px; overflow: visible !important; display: flex; flex-direction: column; position: relative; }' +
+            '.lightbox-header { padding: 10px 15px; background: #f8f9fa; border-bottom: 1px solid #dee2e6; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; z-index: 1000; position: relative; }' +
+            '.lightbox-title { margin: 0; font-size: 16px; font-weight: 600; }' +
+            '.lightbox-close { background: rgba(255,255,255,0.9); border: 2px solid #333; font-size: 20px; cursor: pointer; padding: 8px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.3s; font-weight: bold; color: #333; }' +
+            '.lightbox-close:hover { background: #ff4444; color: white; border-color: #ff4444; transform: scale(1.1); }' +
+            '.lightbox-main { display: flex; align-items: center; position: relative; flex: 1; min-height: 0; overflow: visible !important; }' +
+            '.lightbox-content { flex: 1; text-align: center; height: 100%; display: flex; align-items: center; justify-content: center; position: relative; }' +
+            '.lightbox-image-container { position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }' +
+            '.lightbox-image { max-width: 100%; max-height: 100%; object-fit: contain; z-index: 1 !important; position: relative; }' +
+            '.lightbox-loading { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #666; z-index: 500; }' +
+            '.lightbox-footer { padding: 15px 20px; background: #f8f9fa; border-top: 1px solid #dee2e6; flex-shrink: 0; max-height: 40vh; overflow-y: auto; z-index: 1000; position: relative; }' +
+            '.lightbox-details { margin-bottom: 15px; }' +
+            '.lightbox-navigation { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #dee2e6; }' +
+            '.nav-link { color: #007cba; text-decoration: none; font-weight: 500; padding: 8px 12px; border-radius: 4px; transition: all 0.3s; }' +
+            '.nav-link:hover { background: #007cba; color: white; text-decoration: none; }' +
+            '.nav-link:disabled, .nav-link.disabled { color: #ccc; cursor: not-allowed; pointer-events: none; }' +
+            '.nav-prev { text-align: left; }' +
+            '.nav-next { text-align: right; }' +
             '.lightbox-info { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }' +
             '.lightbox-exif h4, .lightbox-sharing h4 { margin: 0 0 15px 0; font-size: 16px; font-weight: 600; }' +
             '.exif-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }' +
@@ -42,27 +47,46 @@
             '.image-counter { font-size: 14px; color: #666; }' +
             '.lightbox-description { margin: 10px 0; color: #666; }' +
             'body.lightbox-open { overflow: hidden; }' +
-            '@media (max-width: 768px) { .lightbox-info { grid-template-columns: 1fr; gap: 20px; } .exif-grid { grid-template-columns: 1fr; } }' +
+            '/* Additional close button in top-right corner of overlay */' +
+            '.lightbox-overlay-close { position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.9); border: 2px solid #333; font-size: 24px; cursor: pointer; padding: 10px; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.3s; font-weight: bold; color: #333; z-index: 10001; }' +
+            '.lightbox-overlay-close:hover { background: #ff4444; color: white; border-color: #ff4444; transform: scale(1.1); }' +
+            '@media (max-width: 768px) { ' +
+                '.lightbox-container { max-width: 98vw; max-height: 98vh; } ' +
+                '.lightbox-info { grid-template-columns: 1fr; gap: 20px; } ' +
+                '.exif-grid { grid-template-columns: 1fr; } ' +
+                '.lightbox-image { max-width: 100%; } ' +
+                '.lightbox-footer { max-height: 50vh; padding: 10px 15px; } ' +
+                '.lightbox-overlay-close { top: 15px; right: 15px; width: 45px; height: 45px; font-size: 20px; } ' +
+            '}' +
+            '@media (max-width: 480px) { ' +
+                '.lightbox-image { max-width: 100%; } ' +
+                '.lightbox-navigation { flex-direction: column; gap: 10px; text-align: center; } ' +
+                '.nav-prev, .nav-next { text-align: center; } ' +
+                '.lightbox-overlay-close { top: 10px; right: 10px; width: 40px; height: 40px; font-size: 18px; } ' +
+            '}' +
             '</style>';
         
         var lightboxHTML = '<div id="vibe-lightbox" class="lightbox-overlay">' +
+            '<!-- Additional close button in top-right corner -->' +
+            '<button class="lightbox-overlay-close" aria-label="Close lightbox">&times;</button>' +
             '<div class="lightbox-container">' +
                 '<div class="lightbox-header">' +
                     '<h3 class="lightbox-title"></h3>' +
-                    '<button class="lightbox-close" aria-label="Close lightbox">&times;</button>' +
                 '</div>' +
                 '<div class="lightbox-main">' +
-                    '<button class="lightbox-nav lightbox-prev" aria-label="Previous image">‹</button>' +
                     '<div class="lightbox-content">' +
                         '<div class="lightbox-image-container">' +
                             '<img src="" alt="" class="lightbox-image">' +
                             '<div class="lightbox-loading">Loading...</div>' +
                         '</div>' +
                     '</div>' +
-                    '<button class="lightbox-nav lightbox-next" aria-label="Next image">›</button>' +
                 '</div>' +
                 '<div class="lightbox-footer">' +
                     '<div class="lightbox-details">' +
+                        '<div class="lightbox-navigation">' +
+                            '<a href="#" class="nav-link nav-prev">‹ Previous</a>' +
+                            '<a href="#" class="nav-link nav-next">Next ›</a>' +
+                        '</div>' +
                         '<p class="lightbox-description"></p>' +
                         '<div class="lightbox-meta">' +
                             '<span class="image-counter"></span>' +
@@ -117,6 +141,10 @@
                                     '<span class="share-icon">🐦</span>' +
                                     '<span class="share-text">Twitter</span>' +
                                 '</a>' +
+                                '<a href="#" class="share-btn tumblr" target="_blank" rel="noopener">' +
+                                    '<span class="share-icon">📝</span>' +
+                                    '<span class="share-text">Tumblr</span>' +
+                                '</a>' +
                                 '<a href="#" class="share-btn pinterest" target="_blank" rel="noopener">' +
                                     '<span class="share-icon">📌</span>' +
                                     '<span class="share-text">Pinterest</span>' +
@@ -167,9 +195,15 @@
         });
 
         // Lightbox controls
-        $(document).on('click', '.lightbox-close', closeLightbox);
-        $(document).on('click', '.lightbox-prev', showPrevImage);
-        $(document).on('click', '.lightbox-next', showNextImage);
+        $(document).on('click', '.lightbox-overlay-close', closeLightbox);
+        $(document).on('click', '.nav-prev', function(e) {
+            e.preventDefault();
+            showPrevImage();
+        });
+        $(document).on('click', '.nav-next', function(e) {
+            e.preventDefault();
+            showNextImage();
+        });
 
         // Close on overlay click
         $(document).on('click', '.lightbox-overlay', function(e) {
@@ -182,6 +216,18 @@
         $(document).on('click', '.copy-link', function(e) {
             e.preventDefault();
             copyImageLink();
+        });
+
+        // Social sharing click handlers for better UX
+        $(document).on('click', '.share-btn.facebook, .share-btn.twitter, .share-btn.tumblr, .share-btn.pinterest', function(e) {
+            // Allow default behavior but add some visual feedback
+            var $btn = $(this);
+            var originalText = $btn.find('.share-text').text();
+            $btn.find('.share-text').text('Opening...');
+            
+            setTimeout(function() {
+                $btn.find('.share-text').text(originalText);
+            }, 1500);
         });
 
         // Keyboard navigation
@@ -207,6 +253,15 @@
             showImage(currentIndex);
             $('#vibe-lightbox').addClass('active');
             $('body').addClass('lightbox-open');
+            
+            // Debug: Check basic lightbox state
+            setTimeout(function() {
+                console.log('Lightbox opened. Navigation links:', {
+                    'prev exists': $('.nav-prev').length,
+                    'next exists': $('.nav-next').length,
+                    'total images': images.length
+                });
+            }, 100);
         }
 
         function closeLightbox() {
@@ -215,13 +270,17 @@
         }
 
         function showPrevImage() {
-            currentIndex = (currentIndex - 1 + images.length) % images.length;
-            showImage(currentIndex);
+            if (currentIndex > 0) {
+                currentIndex = currentIndex - 1;
+                showImage(currentIndex);
+            }
         }
 
         function showNextImage() {
-            currentIndex = (currentIndex + 1) % images.length;
-            showImage(currentIndex);
+            if (currentIndex < images.length - 1) {
+                currentIndex = currentIndex + 1;
+                showImage(currentIndex);
+            }
         }
 
         function showImage(index) {
@@ -253,9 +312,30 @@
             };
             newImg.src = image.src;
 
-            // Update navigation visibility
-            $('.lightbox-prev').toggle(images.length > 1);
-            $('.lightbox-next').toggle(images.length > 1);
+            // Update navigation visibility and state
+            var hasMultipleImages = images.length > 1;
+            var isFirstImage = index === 0;
+            var isLastImage = index === images.length - 1;
+            
+            if (hasMultipleImages) {
+                $('.lightbox-navigation').show();
+                
+                // Handle previous link
+                if (isFirstImage) {
+                    $('.nav-prev').addClass('disabled');
+                } else {
+                    $('.nav-prev').removeClass('disabled');
+                }
+                
+                // Handle next link
+                if (isLastImage) {
+                    $('.nav-next').addClass('disabled');
+                } else {
+                    $('.nav-next').removeClass('disabled');
+                }
+            } else {
+                $('.lightbox-navigation').hide();
+            }
         }
 
         function loadImageMetadata(imageSrc, imageIndex) {
@@ -312,11 +392,22 @@
             var imageUrl = image.src;
             var title = encodeURIComponent(image.title);
             var description = encodeURIComponent(image.description || 'Check out this photo');
+            var hashtags = encodeURIComponent('photography,gallery');
 
-            // Update sharing URLs
-            $('.share-btn.facebook').attr('href', 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(currentUrl));
-            $('.share-btn.twitter').attr('href', 'https://twitter.com/intent/tweet?text=' + description + '&url=' + encodeURIComponent(currentUrl));
-            $('.share-btn.pinterest').attr('href', 'https://pinterest.com/pin/create/button/?url=' + encodeURIComponent(currentUrl) + '&media=' + encodeURIComponent(imageUrl) + '&description=' + description);
+            // Update sharing URLs with functional links
+            // Facebook - share the current gallery page with the image
+            $('.share-btn.facebook').attr('href', 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(currentUrl) + '&quote=' + title + ' - ' + description);
+            
+            // Twitter - share with text, URL and hashtags
+            $('.share-btn.twitter').attr('href', 'https://twitter.com/intent/tweet?text=' + title + ' - ' + description + '&url=' + encodeURIComponent(currentUrl) + '&hashtags=' + hashtags);
+            
+            // Tumblr - share as photo post with caption
+            $('.share-btn.tumblr').attr('href', 'https://www.tumblr.com/widgets/share/tool?posttype=photo&tags=' + hashtags + '&caption=' + title + ' - ' + description + '&content=' + encodeURIComponent(imageUrl) + '&canonicalUrl=' + encodeURIComponent(currentUrl));
+            
+            // Pinterest - pin the image with description
+            $('.share-btn.pinterest').attr('href', 'https://pinterest.com/pin/create/button/?url=' + encodeURIComponent(currentUrl) + '&media=' + encodeURIComponent(imageUrl) + '&description=' + title + ' - ' + description);
+            
+            // Download - direct link to full-size image
             $('.share-btn.download').attr('href', imageUrl);
         }
 
