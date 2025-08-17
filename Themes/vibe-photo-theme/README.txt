@@ -4,13 +4,7 @@ Tags: photography, portfolio, gallery, responsive, minimal, foundation, lightbox
 Requires at least: 5.0
 Tested up to: 6.3
 Requires PHP: 7.4
-Stable tag: 1.0.4e Photo Theme v1.0.2 ===
-Contributors: Yuval Zukerman and Visual Studio Code Copilot with Claude Sonnet. 
-Tags: photography, portfolio, gallery, responsive, minimal, foundation, lightbox, exif
-Requires at least: 5.0
-Tested up to: 6.3
-Requires PHP: 7.4
-Stable tag: 1.0.2
+Stable tag: 1.0.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -131,3 +125,17 @@ For support and documentation, please visit the theme's repository or contact th
 == License ==
 
 This theme is licensed under the GPL v2 or later.
+
+== Warranty Disclaimer ==
+
+THIS THEME IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT. THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE THEME IS WITH YOU.
+
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE THEME OR THE USE OR OTHER DEALINGS IN THE THEME.
+
+This includes, but is not limited to:
+* Any damages resulting from the use or inability to use the theme
+* Loss of data or profits
+* Business interruption
+* Any other commercial damages or losses
+
+By installing and using this theme, you acknowledge that you have read this disclaimer and agree to use the theme at your own risk.
