@@ -918,6 +918,7 @@ img {
     gap: 20px;
     color: white !important;
     padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .exif-item {
@@ -926,7 +927,6 @@ img {
     align-items: center;
     padding: 8px 0;
     background: transparent;
-    border: none;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     color: white !important;
 }
@@ -950,6 +950,16 @@ img {
 .exif-container,
 .exif-container * {
     color: white !important;
+}
+
+/* Specific styling for software field to ensure border shows */
+.exif-item.software-item {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Ensure last items in EXIF grid have borders */
+.exif-item:last-child {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
 /* Share Buttons Styles */

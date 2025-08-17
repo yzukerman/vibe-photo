@@ -197,6 +197,9 @@
             // Reset EXIF data
             $('.exif-value').text('-');
             
+            // Hide optional fields by default
+            $('.title-item, .caption-item, .alt-text-item, .gps-item, .software-item').hide();
+            
             // Try to get EXIF data via WordPress AJAX
             if (typeof vibePhotoAjax !== 'undefined' && vibePhotoAjax.ajaxurl) {
                 $.ajax({
@@ -211,18 +214,24 @@
                         if (response.success && response.data) {
                             var exifData = response.data;
                             
+                            // Debug: Log the response data
+                            console.log('EXIF Data received:', exifData);
+                            
                             // Update each EXIF field if it exists
                             Object.keys(exifData).forEach(function(key) {
                                 var $field = $('[data-exif="' + key + '"]');
-                                if ($field.length && exifData[key]) {
+                                if ($field.length && exifData[key] && exifData[key] !== '-' && exifData[key] !== '') {
                                     $field.text(exifData[key]);
                                     
-                                    // Show special fields if they have data
-                                    if ((key === 'gps_coordinates' || key === 'software') && exifData[key] !== '-') {
-                                        $field.closest('.exif-item').show();
-                                    }
+                                    // Always show fields that have data
+                                    $field.closest('.exif-item').show();
+                                    
+                                    // Debug: Log what fields are being shown
+                                    console.log('Showing field:', key, 'with value:', exifData[key]);
                                 }
                             });
+                        } else {
+                            console.log('No data in response:', response);
                         }
                     },
                     error: function() {
@@ -512,6 +521,18 @@
                         '<button class="close-info-btn" data-target="exif" aria-label="Close image data">&times;</button>' +
                     '</div>' +
                     '<div class="exif-grid">' +
+                        '<div class="exif-item title-item" style="display: none;">' +
+                            '<span class="exif-label">Title:</span>' +
+                            '<span class="exif-value" data-exif="title">-</span>' +
+                        '</div>' +
+                        '<div class="exif-item caption-item" style="display: none;">' +
+                            '<span class="exif-label">Caption:</span>' +
+                            '<span class="exif-value" data-exif="caption">-</span>' +
+                        '</div>' +
+                        '<div class="exif-item alt-text-item" style="display: none;">' +
+                            '<span class="exif-label">Alt Text:</span>' +
+                            '<span class="exif-value" data-exif="alt_text">-</span>' +
+                        '</div>' +
                         '<div class="exif-item">' +
                             '<span class="exif-label">Camera:</span>' +
                             '<span class="exif-value" data-exif="camera">-</span>' +

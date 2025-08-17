@@ -451,12 +451,49 @@ function vibe_photo_get_image_exif() {
 		$image_url = 'http:' . $image_url;
 	}
 
-	// Try to get attachment ID from URL
-	$attachment_id = attachment_url_to_postid($image_url);
+	// Convert resized image URL to original URL for attachment lookup
+	$original_url = $image_url;
+	// Remove size dimensions (e.g., -683x1024.jpeg -> .jpeg)
+	$original_url = preg_replace('/-\d+x\d+(\.[^.]+)$/', '$1', $original_url);
 
-	$exif_data = array();
+	// Try to get attachment ID from original URL
+	$attachment_id = attachment_url_to_postid($original_url);
+
+	$exif_data = array();	if (!$attachment_id) {
+		// If attachment_url_to_postid failed, try alternative methods to find the attachment
+		global $wpdb;
+		
+		// Try multiple variations of the filename including -scaled versions
+		$filename = basename($original_url);
+		$filename_no_ext = pathinfo($filename, PATHINFO_FILENAME);
+		$filename_ext = pathinfo($filename, PATHINFO_EXTENSION);
+		
+		// Try multiple variations of the filename
+		$search_patterns = array(
+			'%' . $filename,                                    // exact: DSCF7743.jpeg
+			'%' . $filename_no_ext . '-scaled.' . $filename_ext, // scaled: DSCF7743-scaled.jpeg
+			'%' . $filename_no_ext . '%.' . $filename_ext        // any variation: DSCF7743-*.jpeg
+		);
+		
+		foreach ($search_patterns as $pattern) {
+			$attachments_with_filename = $wpdb->get_results($wpdb->prepare(
+				"SELECT p.ID FROM {$wpdb->posts} p 
+				 LEFT JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id 
+				 WHERE p.post_type = 'attachment' AND pm.meta_key = '_wp_attached_file' 
+				 AND pm.meta_value LIKE %s 
+				 LIMIT 1",
+				$pattern
+			));
+			
+			if ($attachments_with_filename) {
+				$attachment_id = $attachments_with_filename[0]->ID;
+				break; // Found one, stop searching
+			}
+		}
+	}
 
 	if (!$attachment_id) {
+		// Still no attachment ID, work with file directly
 		// If no attachment ID, try to work with the URL directly
 		$upload_dir = wp_get_upload_dir();
 
@@ -494,7 +531,25 @@ function vibe_photo_get_image_exif() {
 		$metadata = wp_get_attachment_metadata($attachment_id);
 		$file_path = get_attached_file($attachment_id);
 
-		// Get basic file info
+		// Get WordPress image title and caption
+		$post = get_post($attachment_id);
+		if ($post) {
+			// Get title (post_title)
+			if (!empty($post->post_title)) {
+				$exif_data['title'] = $post->post_title;
+			}
+			
+			// Get caption (post_excerpt)  
+			if (!empty($post->post_excerpt)) {
+				$exif_data['caption'] = $post->post_excerpt;
+			}
+			
+			// Get alt text (stored in meta)
+			$alt_text = get_post_meta($attachment_id, '_wp_attachment_image_alt', true);
+			if (!empty($alt_text)) {
+				$exif_data['alt_text'] = $alt_text;
+			}
+		}		// Get basic file info
 		if ($metadata) {
 			$exif_data['size'] = $metadata['width'] . ' × ' . $metadata['height'] . ' pixels';
 

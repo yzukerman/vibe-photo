@@ -9,6 +9,6 @@
 	</footer>
 
 	<?php wp_footer(); ?>
-</body>
+	</body>
 
-</html>
+	</html>

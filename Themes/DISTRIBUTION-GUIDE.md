@@ -189,6 +189,7 @@ This means users can:
 Current version: **1.0.5**
 
 Recent updates:
+
 - v1.0.5: Added fullscreen viewing capability
 - v1.0.4: Nimble lightbox redesign with collapsible containers
 - v1.0.3: Enhanced sample page removal and image sizing optimization
