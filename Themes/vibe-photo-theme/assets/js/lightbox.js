@@ -146,6 +146,9 @@
                 console.log('Image loaded successfully:', image.src);
                 $lightboxImage.attr('src', image.src).attr('alt', image.alt);
                 
+                // Optimize image sizing based on aspect ratio
+                optimizeLightboxImageSize($lightboxImage[0], newImg);
+                
                 // Load EXIF data and update sharing links
                 loadImageMetadata(image.src, index);
                 updateSharingLinks(image);
@@ -168,23 +171,25 @@
             var isLastImage = index === images.length - 1;
             
             if (hasMultipleImages) {
-                $('.lightbox-navigation').show();
+                $('.lightbox-navigation-bar').show();
+                $('.nav-prev, .nav-next').show();
                 
-                // Handle previous link
+                // Handle previous button
                 if (isFirstImage) {
-                    $('.nav-prev').addClass('disabled');
+                    $('.nav-prev').addClass('disabled').prop('disabled', true);
                 } else {
-                    $('.nav-prev').removeClass('disabled');
+                    $('.nav-prev').removeClass('disabled').prop('disabled', false);
                 }
                 
-                // Handle next link
+                // Handle next button
                 if (isLastImage) {
-                    $('.nav-next').addClass('disabled');
+                    $('.nav-next').addClass('disabled').prop('disabled', true);
                 } else {
-                    $('.nav-next').removeClass('disabled');
+                    $('.nav-next').removeClass('disabled').prop('disabled', false);
                 }
             } else {
-                $('.lightbox-navigation').hide();
+                $('.lightbox-navigation-bar').show(); // Still show for info buttons
+                $('.nav-prev, .nav-next').hide(); // But hide navigation buttons
             }
         }
         
@@ -480,9 +485,6 @@
             '<!-- Additional close button in top-right corner -->' +
             '<button class="lightbox-overlay-close" aria-label="Close lightbox">&times;</button>' +
             '<div class="lightbox-container">' +
-                '<div class="lightbox-header">' +
-                    '<h3 class="lightbox-title"></h3>' +
-                '</div>' +
                 '<div class="lightbox-main">' +
                     '<div class="lightbox-content">' +
                         '<div class="lightbox-image-container">' +
@@ -490,110 +492,116 @@
                         '</div>' +
                     '</div>' +
                 '</div>' +
-                '<div class="lightbox-footer">' +
-                    '<div class="lightbox-details">' +
-                        '<div class="lightbox-navigation">' +
-                            '<a href="#" class="nav-link nav-prev">‹ Previous</a>' +
-                            '<a href="#" class="nav-link nav-next">Next ›</a>' +
+                '<!-- Navigation Bar (always visible at bottom) -->' +
+                '<div class="lightbox-navigation-bar">' +
+                    '<div class="nav-controls">' +
+                        '<button class="nav-btn nav-prev" aria-label="Previous image">‹ Previous</button>' +
+                        '<span class="image-counter"></span>' +
+                        '<button class="nav-btn nav-next" aria-label="Next image">Next ›</button>' +
+                    '</div>' +
+                    '<div class="info-controls">' +
+                        '<button class="info-btn" data-target="exif" aria-label="Show image data">Image Data</button>' +
+                        '<button class="info-btn" data-target="share" aria-label="Show sharing options">Share</button>' +
+                    '</div>' +
+                '</div>' +
+                '<!-- Collapsible EXIF Container -->' +
+                '<div class="lightbox-info-container exif-container" style="display: none;">' +
+                    '<div class="info-header">' +
+                        '<h4>Image Data</h4>' +
+                        '<button class="close-info-btn" data-target="exif" aria-label="Close image data">&times;</button>' +
+                    '</div>' +
+                    '<div class="exif-grid">' +
+                        '<div class="exif-item">' +
+                            '<span class="exif-label">Camera:</span>' +
+                            '<span class="exif-value" data-exif="camera">-</span>' +
                         '</div>' +
-                        '<p class="lightbox-description"></p>' +
-                        '<div class="lightbox-meta">' +
-                            '<span class="image-counter"></span>' +
+                        '<div class="exif-item">' +
+                            '<span class="exif-label">Lens:</span>' +
+                            '<span class="exif-value" data-exif="lens">-</span>' +
+                        '</div>' +
+                        '<div class="exif-item">' +
+                            '<span class="exif-label">Aperture:</span>' +
+                            '<span class="exif-value" data-exif="aperture">-</span>' +
+                        '</div>' +
+                        '<div class="exif-item">' +
+                            '<span class="exif-label">Shutter:</span>' +
+                            '<span class="exif-value" data-exif="shutter">-</span>' +
+                        '</div>' +
+                        '<div class="exif-item">' +
+                            '<span class="exif-label">ISO:</span>' +
+                            '<span class="exif-value" data-exif="iso">-</span>' +
+                        '</div>' +
+                        '<div class="exif-item">' +
+                            '<span class="exif-label">Focal Length:</span>' +
+                            '<span class="exif-value" data-exif="focal">-</span>' +
+                        '</div>' +
+                        '<div class="exif-item">' +
+                            '<span class="exif-label">Date Taken:</span>' +
+                            '<span class="exif-value" data-exif="date">-</span>' +
+                        '</div>' +
+                        '<div class="exif-item">' +
+                            '<span class="exif-label">Flash:</span>' +
+                            '<span class="exif-value" data-exif="flash">-</span>' +
+                        '</div>' +
+                        '<div class="exif-item">' +
+                            '<span class="exif-label">White Balance:</span>' +
+                            '<span class="exif-value" data-exif="white_balance">-</span>' +
+                        '</div>' +
+                        '<div class="exif-item">' +
+                            '<span class="exif-label">Exposure Mode:</span>' +
+                            '<span class="exif-value" data-exif="exposure_mode">-</span>' +
+                        '</div>' +
+                        '<div class="exif-item">' +
+                            '<span class="exif-label">Metering:</span>' +
+                            '<span class="exif-value" data-exif="metering_mode">-</span>' +
+                        '</div>' +
+                        '<div class="exif-item">' +
+                            '<span class="exif-label">Color Space:</span>' +
+                            '<span class="exif-value" data-exif="color_space">-</span>' +
+                        '</div>' +
+                        '<div class="exif-item">' +
+                            '<span class="exif-label">Size:</span>' +
+                            '<span class="exif-value" data-exif="size">-</span>' +
+                        '</div>' +
+                        '<div class="exif-item">' +
+                            '<span class="exif-label">File Size:</span>' +
+                            '<span class="exif-value" data-exif="file_size">-</span>' +
+                        '</div>' +
+                        '<div class="exif-item gps-item" style="display: none;">' +
+                            '<span class="exif-label">GPS:</span>' +
+                            '<span class="exif-value" data-exif="gps_coordinates">-</span>' +
+                        '</div>' +
+                        '<div class="exif-item software-item" style="display: none;">' +
+                            '<span class="exif-label">Software:</span>' +
+                            '<span class="exif-value" data-exif="software">-</span>' +
                         '</div>' +
                     '</div>' +
-                    '<div class="lightbox-info">' +
-                        '<div class="lightbox-exif">' +
-                            '<h4>Image Details</h4>' +
-                            '<div class="exif-grid">' +
-                                '<div class="exif-item">' +
-                                    '<span class="exif-label">Camera:</span>' +
-                                    '<span class="exif-value" data-exif="camera">-</span>' +
-                                '</div>' +
-                                '<div class="exif-item">' +
-                                    '<span class="exif-label">Lens:</span>' +
-                                    '<span class="exif-value" data-exif="lens">-</span>' +
-                                '</div>' +
-                                '<div class="exif-item">' +
-                                    '<span class="exif-label">Aperture:</span>' +
-                                    '<span class="exif-value" data-exif="aperture">-</span>' +
-                                '</div>' +
-                                '<div class="exif-item">' +
-                                    '<span class="exif-label">Shutter:</span>' +
-                                    '<span class="exif-value" data-exif="shutter">-</span>' +
-                                '</div>' +
-                                '<div class="exif-item">' +
-                                    '<span class="exif-label">ISO:</span>' +
-                                    '<span class="exif-value" data-exif="iso">-</span>' +
-                                '</div>' +
-                                '<div class="exif-item">' +
-                                    '<span class="exif-label">Focal Length:</span>' +
-                                    '<span class="exif-value" data-exif="focal">-</span>' +
-                                '</div>' +
-                                '<div class="exif-item">' +
-                                    '<span class="exif-label">Date Taken:</span>' +
-                                    '<span class="exif-value" data-exif="date">-</span>' +
-                                '</div>' +
-                                '<div class="exif-item">' +
-                                    '<span class="exif-label">Flash:</span>' +
-                                    '<span class="exif-value" data-exif="flash">-</span>' +
-                                '</div>' +
-                                '<div class="exif-item">' +
-                                    '<span class="exif-label">White Balance:</span>' +
-                                    '<span class="exif-value" data-exif="white_balance">-</span>' +
-                                '</div>' +
-                                '<div class="exif-item">' +
-                                    '<span class="exif-label">Exposure Mode:</span>' +
-                                    '<span class="exif-value" data-exif="exposure_mode">-</span>' +
-                                '</div>' +
-                                '<div class="exif-item">' +
-                                    '<span class="exif-label">Metering:</span>' +
-                                    '<span class="exif-value" data-exif="metering_mode">-</span>' +
-                                '</div>' +
-                                '<div class="exif-item">' +
-                                    '<span class="exif-label">Color Space:</span>' +
-                                    '<span class="exif-value" data-exif="color_space">-</span>' +
-                                '</div>' +
-                                '<div class="exif-item">' +
-                                    '<span class="exif-label">Size:</span>' +
-                                    '<span class="exif-value" data-exif="size">-</span>' +
-                                '</div>' +
-                                '<div class="exif-item">' +
-                                    '<span class="exif-label">File Size:</span>' +
-                                    '<span class="exif-value" data-exif="file_size">-</span>' +
-                                '</div>' +
-                                '<div class="exif-item gps-item" style="display: none;">' +
-                                    '<span class="exif-label">GPS:</span>' +
-                                    '<span class="exif-value" data-exif="gps_coordinates">-</span>' +
-                                '</div>' +
-                                '<div class="exif-item software-item" style="display: none;">' +
-                                    '<span class="exif-label">Software:</span>' +
-                                    '<span class="exif-value" data-exif="software">-</span>' +
-                                '</div>' +
-                            '</div>' +
-                        '</div>' +
-                        '<div class="lightbox-sharing">' +
-                            '<h4>Share this image</h4>' +
-                            '<div class="share-buttons">' +
-                                '<a href="#" class="share-btn facebook" target="_blank" rel="noopener">' +
-                                    '<span class="share-text">Facebook</span>' +
-                                '</a>' +
-                                '<a href="#" class="share-btn twitter" target="_blank" rel="noopener">' +
-                                    '<span class="share-text">Twitter</span>' +
-                                '</a>' +
-                                '<a href="#" class="share-btn tumblr" target="_blank" rel="noopener">' +
-                                    '<span class="share-text">Tumblr</span>' +
-                                '</a>' +
-                                '<a href="#" class="share-btn pinterest" target="_blank" rel="noopener">' +
-                                    '<span class="share-text">Pinterest</span>' +
-                                '</a>' +
-                                '<a href="#" class="share-btn download" download>' +
-                                    '<span class="share-text">Download</span>' +
-                                '</a>' +
-                                '<button class="share-btn copy-link">' +
-                                    '<span class="share-text">Copy Link</span>' +
-                                '</button>' +
-                            '</div>' +
-                        '</div>' +
+                '</div>' +
+                '<!-- Collapsible Share Container -->' +
+                '<div class="lightbox-info-container share-container" style="display: none;">' +
+                    '<div class="info-header">' +
+                        '<h4>Share this image</h4>' +
+                        '<button class="close-info-btn" data-target="share" aria-label="Close sharing options">&times;</button>' +
+                    '</div>' +
+                    '<div class="share-buttons">' +
+                        '<a href="#" class="share-btn facebook" target="_blank" rel="noopener">' +
+                            '<span class="share-text">Facebook</span>' +
+                        '</a>' +
+                        '<a href="#" class="share-btn twitter" target="_blank" rel="noopener">' +
+                            '<span class="share-text">Twitter</span>' +
+                        '</a>' +
+                        '<a href="#" class="share-btn tumblr" target="_blank" rel="noopener">' +
+                            '<span class="share-text">Tumblr</span>' +
+                        '</a>' +
+                        '<a href="#" class="share-btn pinterest" target="_blank" rel="noopener">' +
+                            '<span class="share-text">Pinterest</span>' +
+                        '</a>' +
+                        '<a href="#" class="share-btn download" download>' +
+                            '<span class="share-text">Download</span>' +
+                        '</a>' +
+                        '<button class="share-btn copy-link">' +
+                            '<span class="share-text">Copy Link</span>' +
+                        '</button>' +
                     '</div>' +
                 '</div>' +
             '</div>' +
@@ -706,6 +714,35 @@
             }, 1500);
         });
 
+        // New nimble lightbox event handlers
+        $(document).on('click', '.info-btn', function(e) {
+            e.preventDefault();
+            var target = $(this).data('target');
+            var $container = $('.' + target + '-container');
+            var $btn = $(this);
+            
+            // Toggle container visibility
+            if ($container.is(':visible')) {
+                hideInfoContainer(target);
+                $btn.removeClass('active');
+            } else {
+                // Hide other containers first
+                $('.lightbox-info-container').hide();
+                $('.info-btn').removeClass('active');
+                
+                // Show selected container
+                showInfoContainer(target);
+                $btn.addClass('active');
+            }
+        });
+
+        $(document).on('click', '.close-info-btn', function(e) {
+            e.preventDefault();
+            var target = $(this).data('target');
+            hideInfoContainer(target);
+            $('.info-btn[data-target="' + target + '"]').removeClass('active');
+        });
+
         // Keyboard navigation
         $(document).on('keydown', function(e) {
             if ($('#vibe-lightbox').hasClass('active')) {
@@ -790,23 +827,25 @@
             var isLastImage = index === images.length - 1;
             
             if (hasMultipleImages) {
-                $('.lightbox-navigation').show();
+                $('.lightbox-navigation-bar').show();
+                $('.nav-prev, .nav-next').show();
                 
-                // Handle previous link
+                // Handle previous button
                 if (isFirstImage) {
-                    $('.nav-prev').addClass('disabled');
+                    $('.nav-prev').addClass('disabled').prop('disabled', true);
                 } else {
-                    $('.nav-prev').removeClass('disabled');
+                    $('.nav-prev').removeClass('disabled').prop('disabled', false);
                 }
                 
-                // Handle next link
+                // Handle next button
                 if (isLastImage) {
-                    $('.nav-next').addClass('disabled');
+                    $('.nav-next').addClass('disabled').prop('disabled', true);
                 } else {
-                    $('.nav-next').removeClass('disabled');
+                    $('.nav-next').removeClass('disabled').prop('disabled', false);
                 }
             } else {
-                $('.lightbox-navigation').hide();
+                $('.lightbox-navigation-bar').show(); // Still show for info buttons
+                $('.nav-prev, .nav-next').hide(); // But hide navigation buttons
             }
         }
 
@@ -980,5 +1019,87 @@
             openLightbox();
         }
     }
+
+    // Global function for optimizing lightbox image sizing
+    function optimizeLightboxImageSize(imgElement, loadedImg) {
+        if (!imgElement || !loadedImg) return;
+        
+        // Get viewport dimensions
+        var viewportWidth = window.innerWidth;
+        var viewportHeight = window.innerHeight;
+        
+        // Get image natural dimensions
+        var imgWidth = loadedImg.naturalWidth || loadedImg.width;
+        var imgHeight = loadedImg.naturalHeight || loadedImg.height;
+        
+        // Calculate aspect ratio
+        var aspectRatio = imgWidth / imgHeight;
+        
+        // Reserve space for navigation bar (60px) and padding (40px total)
+        var availableWidth = viewportWidth - 40;
+        var availableHeight = viewportHeight - 100; // 60px nav + 40px padding
+        
+        // Calculate optimal dimensions to perfectly fit viewport
+        var targetWidth, targetHeight;
+        
+        // Calculate both possible sizing approaches
+        var widthConstrained = {
+            width: availableWidth,
+            height: availableWidth / aspectRatio
+        };
+        
+        var heightConstrained = {
+            width: availableHeight * aspectRatio,
+            height: availableHeight
+        };
+        
+        // Choose the approach that fits both dimensions
+        if (widthConstrained.height <= availableHeight) {
+            // Width-constrained approach fits
+            targetWidth = widthConstrained.width;
+            targetHeight = widthConstrained.height;
+        } else {
+            // Height-constrained approach
+            targetWidth = heightConstrained.width;
+            targetHeight = heightConstrained.height;
+        }
+        
+        // Apply the calculated dimensions
+        $(imgElement).css({
+            'width': targetWidth + 'px',
+            'height': targetHeight + 'px',
+            'max-width': targetWidth + 'px',
+            'max-height': targetHeight + 'px',
+            'object-fit': 'contain'
+        });
+        
+        console.log('Optimized image size:', {
+            original: imgWidth + 'x' + imgHeight,
+            target: Math.round(targetWidth) + 'x' + Math.round(targetHeight),
+            aspectRatio: aspectRatio.toFixed(2),
+            viewport: viewportWidth + 'x' + viewportHeight,
+            available: availableWidth + 'x' + availableHeight
+        });
+    }
+
+    // Helper functions for info containers
+    function showInfoContainer(target) {
+        $('.' + target + '-container').show();
+    }
+
+    function hideInfoContainer(target) {
+        $('.' + target + '-container').hide();
+    }
+
+    // Add window resize handler to re-optimize image size when viewport changes
+    $(window).on('resize', function() {
+        var $lightboxImage = $('.lightbox-image');
+        if ($lightboxImage.length && $('#lightbox-modal').is(':visible')) {
+            var imgElement = $lightboxImage[0];
+            if (imgElement.naturalWidth) {
+                optimizeLightboxImageSize(imgElement, imgElement);
+            }
+        }
+    });
 
 })(jQuery);

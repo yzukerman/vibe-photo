@@ -287,10 +287,12 @@ function vibe_photo_filter_menu_items($items, $args) {
 	}
 
 	foreach ($items as $key => $item) {
-		// Remove "Sample Page" from menus
+		// Remove "Sample Page" from menus - check multiple properties
 		if (
 			stripos($item->title, 'sample page') !== false ||
-			(isset($item->post_title) && stripos($item->post_title, 'sample page') !== false)
+			(isset($item->post_title) && stripos($item->post_title, 'sample page') !== false) ||
+			(isset($item->url) && stripos($item->url, 'sample-page') !== false) ||
+			(isset($item->object) && $item->object === 'page' && stripos($item->title, 'sample') !== false)
 		) {
 			unset($items[$key]);
 		}
@@ -302,8 +304,22 @@ function vibe_photo_filter_menu_items($items, $args) {
 	}
 	return $items;
 }
+
+// Add multiple filters to catch different menu contexts
 if (function_exists('add_filter')) {
 	add_filter('wp_nav_menu_objects', 'vibe_photo_filter_menu_items', 10, 2);
+	add_filter('wp_get_nav_menu_items', 'vibe_photo_filter_menu_items', 10, 2);
+	add_filter('wp_page_menu', 'vibe_photo_filter_page_menu', 10, 2);
+}
+
+/**
+ * Filter wp_page_menu fallback to remove sample page
+ */
+function vibe_photo_filter_page_menu($menu, $args) {
+	// Remove sample page from fallback page menu
+	$menu = preg_replace('/<li[^>]*>\s*<a[^>]*sample-page[^>]*>.*?<\/a>\s*<\/li>/i', '', $menu);
+	$menu = preg_replace('/<li[^>]*>\s*<a[^>]*>.*?sample.*?page.*?<\/a>\s*<\/li>/i', '', $menu);
+	return $menu;
 }
 
 /**

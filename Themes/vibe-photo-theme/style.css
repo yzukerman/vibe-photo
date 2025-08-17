@@ -1,9 +1,9 @@
 /*
-Theme Name: Vibe Photo Theme v1.0.2
+Theme Name: Vibe Photo Theme v1.0.4
 Description: A modern, responsive WordPress theme designed specifically for photography portfolios and photo galleries. Features advanced lightbox with EXIF data, WordPress Gallery block enhancement, custom Photo Gallery post type, social sharing, and responsive design built with Foundation CSS framework.
 Author: Yuval Zukerman
 Author URI: https://github.com/Yuval-Zukerman_adi
-Version: 1.0.2
+Version: 1.0.4
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 Tags: photography, portfolio, gallery, responsive, minimal, foundation, lightbox, exif, social-sharing, custom-post-type, masonry, one-column, two-columns, three-columns, flexible-header, custom-menu, featured-images, post-thumbnails, translation-ready
@@ -700,24 +700,267 @@ img {
 
 .lightbox-container {
     position: relative;
-    max-width: 90vw;
-    max-height: 90vh;
+    width: 100vw;
+    height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.lightbox-main {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 20px;
+    box-sizing: border-box;
 }
 
 .lightbox-content {
     position: relative;
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 100%;
+    max-height: 100%;
 }
 
 .lightbox-image {
     max-width: 100%;
-    max-height: 80vh;
+    max-height: 100%;
+    width: auto;
+    height: auto;
     object-fit: contain;
     border-radius: 5px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+/* Navigation Bar (always visible at bottom) */
+.lightbox-navigation-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.9);
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    backdrop-filter: blur(10px);
+    z-index: 1001;
+}
+
+.nav-controls {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.nav-btn {
+    background: transparent;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.nav-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.6);
+    transform: translateY(-2px);
+}
+
+.nav-btn:disabled,
+.nav-btn.disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.image-counter {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 14px;
+    font-weight: 500;
+    min-width: 80px;
+    text-align: center;
+}
+
+.info-controls {
+    display: flex;
+    gap: 10px;
+}
+
+.info-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.info-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.6);
+    transform: translateY(-2px);
+}
+
+.info-btn.active {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.8);
+}
+
+/* Collapsible Info Containers */
+.lightbox-info-container {
+    position: fixed;
+    bottom: 80px; /* Above navigation bar */
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.95);
+    backdrop-filter: blur(15px);
+    padding: 20px;
+    max-height: calc(100vh - 160px); /* Account for nav bar and spacing */
+    overflow-y: auto;
+    z-index: 1000;
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.info-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.info-header h4 {
+    color: white;
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.close-info-btn {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.close-info-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: rotate(90deg);
+}
+
+/* EXIF Grid Styles */
+.exif-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    color: white !important;
+    padding: 10px 0;
+}
+
+.exif-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    color: white !important;
+}
+
+.exif-label {
+    font-weight: 600;
+    color: white !important;
+    flex-shrink: 0;
+    opacity: 1 !important;
+}
+
+.exif-value {
+    color: white !important;
+    font-weight: 400;
+    text-align: right;
+    word-break: break-word;
+    opacity: 1 !important;
+}
+
+/* Ensure all text in EXIF container is white */
+.exif-container,
+.exif-container * {
+    color: white !important;
+}
+
+/* Share Buttons Styles */
+.share-buttons {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+}
+
+.share-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 15px 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.share-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.6);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.share-btn:active {
+    transform: translateY(-1px);
+}
+
+.share-text {
+    font-size: 14px;
 }
 
 .lightbox-caption {
@@ -853,8 +1096,61 @@ img {
     }
     
     .lightbox-container {
-        max-width: 95vw;
-        max-height: 95vh;
+        width: 100vw;
+        height: 100vh;
+        padding: 0;
+    }
+    
+    .lightbox-main {
+        padding: 10px;
+    }
+    
+    .lightbox-navigation-bar {
+        padding: 10px 15px;
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .nav-controls {
+        order: 2;
+        gap: 15px;
+    }
+    
+    .info-controls {
+        order: 1;
+        gap: 8px;
+    }
+    
+    .nav-btn,
+    .info-btn {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+    
+    .image-counter {
+        font-size: 12px;
+        min-width: 60px;
+    }
+    
+    .lightbox-info-container {
+        bottom: 120px; /* Account for taller nav bar */
+        padding: 15px;
+        max-height: calc(100vh - 200px);
+    }
+    
+    .exif-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .share-buttons {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+    
+    .share-btn {
+        padding: 12px 16px;
+        font-size: 12px;
     }
     
     .lightbox-close {
