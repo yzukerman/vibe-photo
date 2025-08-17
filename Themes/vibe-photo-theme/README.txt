@@ -1,14 +1,14 @@
-=== Vibe Photo Theme v1.0.5 ===
+=== Vibe Photo Theme v1.0.8 ===
 Contributors: Yuval Zukerman and Visual Studio Code Copilot with Claude Sonnet. 
-Tags: photography, portfolio, gallery, responsive, minimal, foundation, lightbox, exif
+Tags: photography, portfolio, gallery, responsive, minimal, foundation, lightbox, exif, metadata
 Requires at least: 5.0
 Tested up to: 6.3
 Requires PHP: 7.4
-Stable tag: 1.0.5
+Stable tag: 1.0.8
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-A modern, responsive WordPress theme designed specifically for photography portfolios and photo galleries with advanced lightbox functionality.
+A modern, responsive WordPress theme designed specifically for photography portfolios and photo galleries with advanced lightbox functionality and WordPress metadata integration.
 
 **Note**: This version will install alongside previous versions without overwriting them, allowing you to safely test the new version.
 
@@ -17,12 +17,15 @@ A modern, responsive WordPress theme designed specifically for photography portf
 Vibe Photo Theme is a professional photography theme built with Foundation CSS framework. It features:
 
 * **Advanced Lightbox**: Custom lightbox with EXIF data display, social sharing, navigation, and fullscreen viewing
+* **WordPress Metadata Integration**: Displays image titles, captions, and alt text from WordPress attachment data
+* **Smart Attachment Detection**: Handles WordPress scaled images for proper metadata retrieval
 * **WordPress Gallery Block Support**: Enhanced Gallery blocks with lightbox functionality
 * **Custom Photo Gallery Post Type**: Dedicated post type for photo galleries
 * **Responsive Design**: Mobile-first design that looks great on all devices
 * **Foundation CSS Framework**: Built on the solid Foundation by Zurb framework
 * **Social Sharing**: Share photos on Facebook, Twitter, Pinterest, and Tumblr
 * **EXIF Data Display**: Shows camera settings and technical details for images
+* **Conditional Field Display**: Metadata fields only appear when they have content
 * **Masonry Layout**: Beautiful grid layouts for photo galleries
 * **SEO Optimized**: Clean, semantic HTML5 markup
 * **Fullscreen Support**: True fullscreen image viewing with keyboard navigation
@@ -133,6 +136,25 @@ Yes, you can modify the CSS variables in style.css or add custom CSS through the
 == Support ==
 
 For support and documentation, please visit the theme's repository or contact the developer.
+
+== Changelog ==
+
+= 1.0.8 =
+* New: WordPress metadata integration - lightbox now displays image titles, captions, and alt text from WordPress attachment data
+* Enhanced: Smart attachment detection handles WordPress scaled images (-scaled suffix)
+* Improved: Conditional field display - metadata fields only appear when they have content
+* Enhanced: Better filename pattern matching for attachment ID detection
+* Fixed: Border styling consistency across all data fields in lightbox
+* Updated: CSS optimizations for visual polish
+
+= 1.0.7 =
+* Enhanced lightbox functionality and EXIF data display
+
+= 1.0.6 =
+* Foundation CSS integration and responsive improvements
+
+= 1.0.5 =
+* Initial stable release with core functionality
 
 == License ==
 

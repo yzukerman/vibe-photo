@@ -1,15 +1,18 @@
-# Vibe Photo Theme
+# Vibe Photo Theme v1.0.8
 
-A modern, responsive WordPress theme designed specifically for photography portfolios and photo galleries with advanced lightbox functionality.
+A modern, responsive WordPress theme designed specifically for photography portfolios and photo galleries with advanced lightbox functionality and WordPress metadata integration.
 
 ## Features
 
 - **Advanced Lightbox**: Custom lightbox with EXIF data display, social sharing, and navigation
+- **WordPress Metadata Integration**: Displays image titles, captions, and alt text from WordPress
+- **Smart Attachment Detection**: Handles WordPress scaled images for proper metadata retrieval
 - **WordPress Gallery Block Support**: Enhanced Gallery blocks with lightbox functionality
 - **Custom Photo Gallery Post Type**: Dedicated post type for photo galleries
 - **Responsive Design**: Mobile-first design built with Foundation CSS framework
 - **Social Sharing**: Share photos on Facebook, Twitter, Pinterest, and Tumblr
 - **EXIF Data Display**: Shows camera settings and technical details
+- **Conditional Field Display**: Metadata fields only appear when they have content
 - **Professional Typography**: Clean, readable fonts optimized for photography
 
 ## Installation
@@ -146,6 +149,21 @@ vibe-photo-theme/
     │   └── navigation.js   # Menu and navigation
     └── images/             # Theme images
 ```
+
+## Changelog
+
+### Version 1.0.8
+- **New**: WordPress metadata integration - lightbox now displays image titles, captions, and alt text from WordPress attachment data
+- **Enhanced**: Smart attachment detection handles WordPress scaled images (-scaled suffix)
+- **Improved**: Conditional field display - metadata fields only appear when they have content
+- **Enhanced**: Better filename pattern matching for attachment ID detection
+- **Fixed**: Border styling consistency across all data fields in lightbox
+- **Updated**: CSS optimizations for visual polish
+
+### Previous Versions
+- **1.0.7**: Enhanced lightbox functionality and EXIF data display
+- **1.0.6**: Foundation CSS integration and responsive improvements
+- **1.0.5**: Initial stable release with core functionality
 
 ## Credits
 

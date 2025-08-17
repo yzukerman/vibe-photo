@@ -1,19 +1,19 @@
 /*
-Theme Name: Vibe Photo Theme v1.0.5
-Description: A modern, responsive WordPress theme designed specifically for photography portfolios and photo galleries. Features advanced lightbox with EXIF data, fullscreen viewing, WordPress Gallery block enhancement, custom Photo Gallery post type, social sharing, and responsive design built with Foundation CSS framework.
+Theme Name: Vibe Photo Theme v1.0.8
+Description: A modern, responsive WordPress theme designed specifically for photography portfolios and photo galleries. Features advanced lightbox with EXIF data, WordPress image metadata integration (titles, captions, alt text), fullscreen viewing, WordPress Gallery block enhancement, custom Photo Gallery post type, social sharing, and responsive design built with Foundation CSS framework.
 Author: Yuval Zukerman
 Author URI: https://github.com/Yuval-Zukerman_adi
-Version: 1.0.7
+Version: 1.0.8
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
-Tags: photography, portfolio, gallery, responsive, minimal, foundation, lightscreen, exif, social-sharing, custom-post-type, masonry, one-column, two-columns, three-columns, flexible-header, custom-menu, featured-images, post-thumbnails, translation-ready, fullscreen
-Text Domain: vibe-photo-v1-0-5
+Tags: photography, portfolio, gallery, responsive, minimal, foundation, lightscreen, exif, social-sharing, custom-post-type, masonry, one-column, two-columns, three-columns, flexible-header, custom-menu, featured-images, post-thumbnails, translation-ready, fullscreen, metadata
+Text Domain: vibe-photo-v1-0-8
 Domain Path: /languages
 Requires at least: 5.0
 Tested up to: 6.3
 Requires PHP: 7.4
 Network: false
-*/
+*/ 
 
 /* Foundation Customizations and Theme Overrides */
 
