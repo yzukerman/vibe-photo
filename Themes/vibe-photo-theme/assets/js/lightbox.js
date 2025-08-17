@@ -502,6 +502,7 @@
                     '<div class="info-controls">' +
                         '<button class="info-btn" data-target="exif" aria-label="Show image data">Image Data</button>' +
                         '<button class="info-btn" data-target="share" aria-label="Show sharing options">Share</button>' +
+                        '<button class="fullscreen-btn" aria-label="Toggle fullscreen">⛶ Fullscreen</button>' +
                     '</div>' +
                 '</div>' +
                 '<!-- Collapsible EXIF Container -->' +
@@ -743,6 +744,58 @@
             $('.info-btn[data-target="' + target + '"]').removeClass('active');
         });
 
+        // Fullscreen functionality
+        $(document).on('click', '.fullscreen-btn', function(e) {
+            e.preventDefault();
+            toggleFullscreen();
+        });
+
+        function toggleFullscreen() {
+            var lightboxElement = document.getElementById('vibe-lightbox');
+            var $fullscreenBtn = $('.fullscreen-btn');
+            
+            if (!document.fullscreenElement && !document.webkitFullscreenElement && 
+                !document.mozFullScreenElement && !document.msFullscreenElement) {
+                // Enter fullscreen
+                if (lightboxElement.requestFullscreen) {
+                    lightboxElement.requestFullscreen();
+                } else if (lightboxElement.webkitRequestFullscreen) {
+                    lightboxElement.webkitRequestFullscreen();
+                } else if (lightboxElement.mozRequestFullScreen) {
+                    lightboxElement.mozRequestFullScreen();
+                } else if (lightboxElement.msRequestFullscreen) {
+                    lightboxElement.msRequestFullscreen();
+                }
+                $fullscreenBtn.addClass('active').html('⛶ Exit Fullscreen');
+            } else {
+                // Exit fullscreen
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.mozCancelFullScreen) {
+                    document.mozCancelFullScreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+                $fullscreenBtn.removeClass('active').html('⛶ Fullscreen');
+            }
+        }
+
+        // Listen for fullscreen change events
+        $(document).on('fullscreenchange webkitfullscreenchange mozfullscreenchange MSFullscreenChange', function() {
+            var $fullscreenBtn = $('.fullscreen-btn');
+            
+            if (!document.fullscreenElement && !document.webkitFullscreenElement && 
+                !document.mozFullScreenElement && !document.msFullscreenElement) {
+                // Exited fullscreen
+                $fullscreenBtn.removeClass('active').html('⛶ Fullscreen');
+            } else {
+                // Entered fullscreen
+                $fullscreenBtn.addClass('active').html('⛶ Exit Fullscreen');
+            }
+        });
+
         // Keyboard navigation
         $(document).on('keydown', function(e) {
             if ($('#vibe-lightbox').hasClass('active')) {
@@ -755,6 +808,10 @@
                         break;
                     case 39: // Right arrow
                         showNextImage();
+                        break;
+                    case 122: // F11 for fullscreen toggle
+                        e.preventDefault();
+                        toggleFullscreen();
                         break;
                 }
             }

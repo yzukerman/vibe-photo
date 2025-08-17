@@ -1,10 +1,10 @@
-=== Vibe Photo Theme v1.0.4 ===
+=== Vibe Photo Theme v1.0.5 ===
 Contributors: Yuval Zukerman and Visual Studio Code Copilot with Claude Sonnet. 
 Tags: photography, portfolio, gallery, responsive, minimal, foundation, lightbox, exif
 Requires at least: 5.0
 Tested up to: 6.3
 Requires PHP: 7.4
-Stable tag: 1.0.4
+Stable tag: 1.0.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -16,7 +16,7 @@ A modern, responsive WordPress theme designed specifically for photography portf
 
 Vibe Photo Theme is a professional photography theme built with Foundation CSS framework. It features:
 
-* **Advanced Lightbox**: Custom lightbox with EXIF data display, social sharing, and navigation
+* **Advanced Lightbox**: Custom lightbox with EXIF data display, social sharing, navigation, and fullscreen viewing
 * **WordPress Gallery Block Support**: Enhanced Gallery blocks with lightbox functionality
 * **Custom Photo Gallery Post Type**: Dedicated post type for photo galleries
 * **Responsive Design**: Mobile-first design that looks great on all devices
@@ -25,6 +25,7 @@ Vibe Photo Theme is a professional photography theme built with Foundation CSS f
 * **EXIF Data Display**: Shows camera settings and technical details for images
 * **Masonry Layout**: Beautiful grid layouts for photo galleries
 * **SEO Optimized**: Clean, semantic HTML5 markup
+* **Fullscreen Support**: True fullscreen image viewing with keyboard navigation
 
 == Installation ==
 
@@ -37,10 +38,12 @@ Vibe Photo Theme is a professional photography theme built with Foundation CSS f
 
 = Lightbox Functionality =
 * Custom advanced lightbox for all gallery images
-* EXIF data display (camera, lens, settings)
-* Social sharing buttons
-* Image navigation with keyboard support
-* Full-screen image viewing
+* Full-screen viewing with F11 key or fullscreen button
+* EXIF data display (camera, lens, settings) in collapsible container
+* Social sharing buttons in collapsible container
+* Image navigation with keyboard support (arrow keys)
+* Keyboard controls: Escape (close), Left/Right arrows (navigate), F11 (fullscreen)
+* Perfect image fitting with optimized viewport sizing
 
 = Photo Gallery Support =
 * Custom Photo Gallery post type
@@ -73,6 +76,15 @@ Absolutely! The theme is built with a mobile-first approach using Foundation CSS
 Yes, you can modify the CSS variables in style.css or add custom CSS through the WordPress customizer.
 
 == Changelog ==
+
+= 1.0.5 =
+* Added fullscreen viewing capability for lightbox images
+* Fullscreen toggle button in navigation bar with green active state
+* F11 key support for fullscreen toggle
+* Enhanced keyboard navigation with fullscreen controls
+* Cross-browser fullscreen API support (Chrome, Firefox, Safari, Edge)
+* Automatic fullscreen state detection and button updates
+* Mobile-responsive fullscreen button styling
 
 = 1.0.4 =
 * Redesigned nimble lightbox interface with collapsible information containers
