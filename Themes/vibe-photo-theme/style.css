@@ -871,3 +871,168 @@ img {
         font-size: 1.2rem;
     }
 }
+
+/* Homepage Layout Styles */
+.latest-posts {
+    margin-bottom: 3rem;
+}
+
+.latest-posts h2,
+.photo-galleries h2 {
+    font-size: 2rem;
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+    font-weight: 300;
+    text-align: center;
+}
+
+/* Latest Posts Styling */
+.latest-post-item {
+    background: var(--white);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    margin-bottom: 2rem;
+}
+
+.latest-post-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.latest-post-item .post-thumbnail {
+    overflow: hidden;
+    line-height: 0;
+}
+
+.latest-post-item .post-featured-image {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.latest-post-item:hover .post-featured-image {
+    transform: scale(1.05);
+}
+
+.latest-post-item .post-content {
+    padding: 1.5rem;
+}
+
+.latest-post-item .post-title {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.latest-post-item .post-title a {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.latest-post-item .post-title a:hover {
+    color: var(--accent-color);
+}
+
+.latest-post-item .post-meta {
+    color: var(--dark-gray);
+    font-size: 0.9rem;
+}
+
+.latest-post-item .post-meta time {
+    font-weight: 500;
+}
+
+/* Photo Galleries Section */
+.photo-galleries {
+    padding-top: 2rem;
+    border-top: 1px solid var(--light-gray);
+}
+
+/* Section Spacing */
+@media screen and (min-width: 640px) {
+    .latest-posts {
+        margin-bottom: 4rem;
+    }
+    
+    .photo-galleries {
+        padding-top: 3rem;
+    }
+    
+    .latest-posts h2,
+    .photo-galleries h2 {
+        font-size: 2.5rem;
+        margin-bottom: 2rem;
+    }
+}
+
+/* WordPress Gallery Block Enhancements */
+.wp-block-gallery.vibe-lightbox-gallery {
+    margin: 2rem 0;
+}
+
+.wp-block-gallery.vibe-lightbox-gallery .wp-block-image,
+.wp-block-gallery.vibe-lightbox-gallery figure {
+    margin: 0.5rem;
+}
+
+/* Make ALL WordPress Gallery block images clickable and styled */
+.wp-block-gallery img,
+.wp-block-gallery.vibe-lightbox-gallery .lightbox-image {
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.wp-block-gallery img:hover,
+.wp-block-gallery.vibe-lightbox-gallery .lightbox-image:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Classic Gallery Shortcode Enhancements */
+.vibe-lightbox-gallery {
+    margin: 2rem 0;
+}
+
+.vibe-lightbox-gallery .lightbox-image {
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 4px;
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.vibe-lightbox-gallery .lightbox-image:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Gallery item styling for shortcode galleries */
+.vibe-lightbox-gallery .gallery-item {
+    margin-bottom: 1rem;
+}
+
+.vibe-lightbox-gallery .gallery-item .lightbox-image {
+    width: 100%;
+    height: auto;
+}
+
+/* Responsive gallery adjustments */
+@media screen and (max-width: 640px) {
+    .wp-block-gallery.vibe-lightbox-gallery .wp-block-image,
+    .wp-block-gallery.vibe-lightbox-gallery figure {
+        margin: 0.25rem;
+    }
+    
+    .wp-block-gallery.vibe-lightbox-gallery .lightbox-image:hover,
+    .vibe-lightbox-gallery .lightbox-image:hover {
+        transform: none;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+}

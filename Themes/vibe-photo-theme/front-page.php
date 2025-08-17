@@ -55,107 +55,110 @@
 
     <main class="site-main">
         <div class="grid-container">
-            <!-- Hero Section -->
-            <div class="grid-x grid-padding-x">
-                <div class="cell text-center">
-                    <section class="hero-section">
-                        <h1 class="hero-title"><?php bloginfo('name'); ?></h1>
-                        <p class="hero-description"><?php bloginfo('description'); ?></p>
-                    </section>
-                </div>
-            </div>
+            <!-- Latest Posts Section -->
+            <section class="latest-posts">
+                <h2>Latest Posts</h2>
+                <?php
+                // Query for regular posts
+                $posts_query = new WP_Query(array(
+                    'post_type' => 'post',
+                    'posts_per_page' => 10,
+                    'post_status' => 'publish',
+                    'paged' => get_query_var('paged') ? get_query_var('paged') : 1
+                ));
+                
+                if ($posts_query->have_posts()) : ?>
+                    <div class="grid-x grid-padding-x">
+                        <?php while ($posts_query->have_posts()) : $posts_query->the_post(); ?>
+                            <div class="cell medium-6 large-4">
+                                <article id="post-<?php the_ID(); ?>" <?php post_class('latest-post-item'); ?>>
+                                    <?php if (has_post_thumbnail()) : ?>
+                                        <div class="post-thumbnail">
+                                            <a href="<?php the_permalink(); ?>">
+                                                <?php the_post_thumbnail('large', array('class' => 'post-featured-image')); ?>
+                                            </a>
+                                        </div>
+                                    <?php endif; ?>
+                                    
+                                    <div class="post-content">
+                                        <h3 class="post-title">
+                                            <a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
+                                        </h3>
+                                        <div class="post-meta">
+                                            <time datetime="<?php echo get_the_date('c'); ?>"><?php echo get_the_date(); ?></time>
+                                        </div>
+                                        <div class="post-excerpt">
+                                            <?php the_excerpt(); ?>
+                                        </div>
+                                    </div>
+                                </article>
+                            </div>
+                        <?php endwhile; ?>
+                    </div>
 
-            <!-- Recent Galleries Section -->
-            <div class="grid-x grid-padding-x">
-                <div class="cell">
-                    <section class="recent-galleries">
-                        <h2 class="section-title text-center">Latest Photo Galleries</h2>
-                        
+                    <!-- Pagination for posts -->
+                    <div class="pagination">
                         <?php
-                        // Query for the 3 most recent photo galleries
-                        $recent_galleries = new WP_Query(array(
-                            'post_type' => 'photo_gallery',
-                            'posts_per_page' => 3,
-                            'post_status' => 'publish',
-                            'orderby' => 'date',
-                            'order' => 'DESC'
+                        $big = 999999999;
+                        echo paginate_links(array(
+                            'base' => str_replace($big, '%#%', esc_url(get_pagenum_link($big))),
+                            'format' => '?paged=%#%',
+                            'current' => max(1, get_query_var('paged')),
+                            'total' => $posts_query->max_num_pages,
+                            'prev_text' => __('Previous', 'vibe-photo'),
+                            'next_text' => __('Next', 'vibe-photo'),
                         ));
-
-                        if ($recent_galleries->have_posts()) : ?>
-                            <div class="grid-x grid-padding-x gallery-grid" data-equalizer data-equalize-on="medium">
-                                <?php while ($recent_galleries->have_posts()) : $recent_galleries->the_post(); ?>
-                                    <div class="cell medium-4">
-                                        <article class="gallery-card" data-equalizer-watch>
-                                            <div class="gallery-card-image">
-                                                <a href="<?php the_permalink(); ?>" title="<?php the_title_attribute(); ?>">
-                                                    <?php if (has_post_thumbnail()) : ?>
-                                                        <?php the_post_thumbnail('gallery-medium', array('alt' => get_the_title())); ?>
-                                                    <?php else : ?>
-                                                        <div class="placeholder-image">
-                                                            <span class="placeholder-text">No Image</span>
-                                                        </div>
-                                                    <?php endif; ?>
-                                                </a>
-                                            </div>
-                                            
-                                            <div class="gallery-card-content">
-                                                <h3 class="gallery-card-title">
-                                                    <a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
-                                                </h3>
-                                                
-                                                <?php if (get_the_excerpt()) : ?>
-                                                    <p class="gallery-card-excerpt"><?php echo get_the_excerpt(); ?></p>
-                                                <?php endif; ?>
-                                                
-                                                <div class="gallery-card-meta">
-                                                    <time datetime="<?php echo get_the_date('c'); ?>" class="gallery-date">
-                                                        <?php echo get_the_date(); ?>
-                                                    </time>
-                                                    
-                                                    <?php
-                                                    // Count images in gallery
-                                                    $gallery_images = get_post_meta(get_the_ID(), '_gallery_images', true);
-                                                    if ($gallery_images) {
-                                                        $image_count = count(explode(',', $gallery_images));
-                                                        echo '<span class="image-count">' . $image_count . ' ' . _n('photo', 'photos', $image_count, 'vibe-photo') . '</span>';
-                                                    }
-                                                    ?>
-                                                </div>
-                                                
-                                                <a href="<?php the_permalink(); ?>" class="button photo-button">
-                                                    <?php _e('View Gallery', 'vibe-photo'); ?>
-                                                </a>
-                                            </div>
-                                        </article>
-                                    </div>
-                                <?php endwhile; ?>
-                            </div>
-                            
-                            <div class="grid-x grid-padding-x">
-                                <div class="cell text-center">
-                                    <a href="<?php echo get_post_type_archive_link('photo_gallery'); ?>" class="button large photo-button">
-                                        <?php _e('View All Galleries', 'vibe-photo'); ?>
-                                    </a>
-                                </div>
-                            </div>
-                            
-                        <?php else : ?>
-                            <div class="grid-x grid-padding-x">
-                                <div class="cell text-center">
-                                    <div class="callout secondary">
-                                        <h3><?php _e('No Galleries Yet', 'vibe-photo'); ?></h3>
-                                        <p><?php _e('Check back soon for new photo galleries.', 'vibe-photo'); ?></p>
-                                    </div>
-                                </div>
-                            </div>
-                        <?php endif;
-                        
-                        // Reset post data
-                        wp_reset_postdata();
                         ?>
-                    </section>
-                </div>
-            </div>
+                    </div>
+
+                <?php else : ?>
+                    <div class="no-content">
+                        <h3><?php _e('No posts found', 'vibe-photo'); ?></h3>
+                        <p><?php _e('You have posts but they are not showing. This might be a configuration issue.', 'vibe-photo'); ?></p>
+                    </div>
+                <?php endif; ?>
+                <?php wp_reset_postdata(); ?>
+            </section>
+
+            <!-- Photo Galleries Section -->
+            <section class="photo-galleries">
+                <h2>Photo Galleries</h2>
+                <?php
+                // Query for photo gallery posts
+                $gallery_query = new WP_Query(array(
+                    'post_type' => 'photo_gallery',
+                    'posts_per_page' => 12,
+                    'post_status' => 'publish'
+                ));
+                
+                if ($gallery_query->have_posts()) : ?>
+                    <div class="grid-x grid-padding-x photo-grid">
+                        <?php while ($gallery_query->have_posts()) : $gallery_query->the_post(); ?>
+                            <div class="cell medium-4 large-3">
+                                <article id="gallery-<?php the_ID(); ?>" <?php post_class('photo-item'); ?>>
+                                    <?php if (has_post_thumbnail()) : ?>
+                                        <a href="<?php the_permalink(); ?>">
+                                            <?php the_post_thumbnail('gallery-medium'); ?>
+                                        </a>
+                                    <?php endif; ?>
+                                    
+                                    <div class="photo-meta">
+                                        <h3><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>
+                                        <time datetime="<?php echo get_the_date('c'); ?>"><?php echo get_the_date(); ?></time>
+                                    </div>
+                                </article>
+                            </div>
+                        <?php endwhile; ?>
+                    </div>
+                <?php else : ?>
+                    <div class="no-content">
+                        <h3><?php _e('No photo galleries found', 'vibe-photo'); ?></h3>
+                        <p><?php _e('Sorry, no photo galleries were found. Please check back later.', 'vibe-photo'); ?></p>
+                    </div>
+                <?php endif; ?>
+                
+                <?php wp_reset_postdata(); ?>
+            </section>
         </div>
     </main>
 

@@ -157,12 +157,189 @@ if (function_exists('add_action')) {
 }
 
 /**
+ * Enhance WordPress Gallery blocks to use our lightbox
+ */
+function vibe_photo_enhance_gallery_blocks($content) {
+    // Only process if we have gallery blocks
+    if (strpos($content, 'wp-block-gallery') === false) {
+        return $content;
+    }
+    
+    // Add lightbox attributes to gallery images
+    $content = preg_replace_callback(
+        '/<figure class="[^"]*wp-block-gallery[^"]*"[^>]*>(.*?)<\/figure>/s',
+        function($matches) {
+            $gallery_content = $matches[0];
+            
+            // Add our lightbox class to the gallery container
+            $gallery_content = str_replace(
+                'wp-block-gallery',
+                'wp-block-gallery vibe-lightbox-gallery',
+                $gallery_content
+            );
+            
+            // Enhance each image in the gallery - handle complex img tags with multiple attributes
+            $gallery_content = preg_replace_callback(
+                '/<img\s+[^>]*src=["\']([^"\']+)["\'][^>]*>/i',
+                function($img_matches) {
+                    $img_tag = $img_matches[0];
+                    $img_src = $img_matches[1];
+                    
+                    // Skip if already has lightbox attributes
+                    if (strpos($img_tag, 'lightbox-image') !== false) {
+                        return $img_tag;
+                    }
+                    
+                    // Clean up protocol-relative URLs
+                    if (strpos($img_src, '//') === 0) {
+                        $img_src = 'http:' . $img_src;
+                    }
+                    
+                    // Try to get the full size image URL by removing size suffix
+                    $full_size_src = $img_src;
+                    if (preg_match('/-(\d+)x(\d+)\.(jpg|jpeg|png|gif|webp)$/i', $img_src, $size_matches)) {
+                        $full_size_src = preg_replace('/-\d+x\d+\.(' . $size_matches[3] . ')$/i', '.$1', $img_src);
+                    }
+                    
+                    // Add lightbox attributes before the closing >
+                    $lightbox_attrs = sprintf(
+                        ' data-lightbox="gallery" data-full-src="%s" data-src="%s" class="lightbox-image"',
+                        htmlspecialchars($full_size_src, ENT_QUOTES),
+                        htmlspecialchars($img_src, ENT_QUOTES)
+                    );
+                    
+                    // Insert lightbox attributes before the closing >
+                    $enhanced_img = str_replace('>', $lightbox_attrs . '>', $img_tag);
+                    
+                    return $enhanced_img;
+                },
+                $gallery_content
+            );
+            
+            return $gallery_content;
+        },
+        $content
+    );
+    
+    return $content;
+}
+
+/**
+ * Also enhance classic gallery shortcodes
+ */
+function vibe_photo_enhance_gallery_shortcode($content) {
+    // Look for gallery shortcode output
+    if (strpos($content, 'gallery-') === false) {
+        return $content;
+    }
+    
+    // Add lightbox attributes to gallery images in shortcode galleries
+    $content = preg_replace_callback(
+        '/<div[^>]*class="[^"]*gallery[^"]*"[^>]*>(.*?)<\/div>/s',
+        function($matches) {
+            $gallery_content = $matches[0];
+            
+            // Add our lightbox class
+            $gallery_content = str_replace('class="', 'class="vibe-lightbox-gallery ', $gallery_content);
+            
+            // Enhance images within gallery items
+            $gallery_content = preg_replace_callback(
+                '/<a[^>]*href="([^"]+)"[^>]*><img([^>]+)src="([^"]+)"([^>]*)><\/a>/i',
+                function($link_matches) {
+                    $full_src = $link_matches[1];
+                    $img_attrs = $link_matches[2] . $link_matches[4];
+                    $thumb_src = $link_matches[3];
+                    
+                    // Create lightbox-enabled image (remove the link wrapper)
+                    return sprintf(
+                        '<img %s src="%s" data-lightbox="gallery" data-full-src="%s" data-src="%s" class="lightbox-image" %s>',
+                        $link_matches[2],
+                        $thumb_src,
+                        esc_attr($full_src),
+                        esc_attr($thumb_src),
+                        $link_matches[4]
+                    );
+                },
+                $gallery_content
+            );
+            
+            return $gallery_content;
+        },
+        $content
+    );
+    
+    return $content;
+}
+
+if (function_exists('add_filter')) {
+    // Apply to all post content
+    add_filter('the_content', 'vibe_photo_enhance_gallery_blocks', 20);
+    add_filter('the_content', 'vibe_photo_enhance_gallery_shortcode', 21);
+}
+
+/**
  * Remove gallery shortcode processing to prevent conflicts
  */
 function vibe_photo_disable_gallery_shortcode() {
     remove_shortcode('gallery');
 }
 add_action('init', 'vibe_photo_disable_gallery_shortcode');
+
+/**
+ * Modify the main query to ensure home page shows regular posts
+ */
+function vibe_photo_modify_main_query($query) {
+    if (!is_admin() && $query->is_main_query()) {
+        if (is_home() || is_front_page()) {
+            // Ensure we're showing regular posts on the home/front page
+            $query->set('post_type', array('post'));
+            $query->set('posts_per_page', 10);
+            $query->set('post_status', 'publish');
+        }
+    }
+}
+add_action('pre_get_posts', 'vibe_photo_modify_main_query');
+
+/**
+ * Create sample posts if none exist (for testing)
+ */
+function vibe_photo_create_sample_posts() {
+    // Check if we have any published posts
+    $posts = get_posts(array(
+        'post_type' => 'post',
+        'post_status' => 'publish',
+        'numberposts' => 1
+    ));
+    
+    // If no posts exist, create some sample ones
+    if (empty($posts)) {
+        $sample_posts = array(
+            array(
+                'title' => 'Welcome to Your Photography Site',
+                'content' => 'This is your first post. You can edit or delete it, then start creating your own content!'
+            ),
+            array(
+                'title' => 'Photography Tips for Beginners',
+                'content' => 'Here are some essential photography tips to help you get started with your photography journey.'
+            ),
+            array(
+                'title' => 'Latest Photo Gallery Updates',
+                'content' => 'Check out our latest photo galleries featuring stunning landscapes and portraits.'
+            )
+        );
+        
+        foreach ($sample_posts as $sample_post) {
+            wp_insert_post(array(
+                'post_title' => $sample_post['title'],
+                'post_content' => $sample_post['content'],
+                'post_status' => 'publish',
+                'post_type' => 'post',
+                'post_author' => 1
+            ));
+        }
+    }
+}
+add_action('after_switch_theme', 'vibe_photo_create_sample_posts');
 
 /**
  * Completely prevent gallery shortcode processing on gallery pages

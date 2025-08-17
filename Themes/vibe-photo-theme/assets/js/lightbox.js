@@ -6,11 +6,420 @@
     'use strict';
 
     $(document).ready(function() {
-        // Initialize lightbox for gallery images
-        if ($('.masonry-gallery').length || $('.gallery-link').length) {
+        var currentIndex = 0;
+        var images = [];
+
+        // Initialize lightbox for gallery images and WordPress Gallery blocks
+        console.log('Lightbox: Checking for galleries...');
+        console.log('Custom galleries found:', $('.masonry-gallery').length);
+        console.log('Gallery links found:', $('.gallery-link').length);
+        console.log('WordPress galleries found:', $('.vibe-lightbox-gallery').length);
+        console.log('Lightbox images found:', $('.lightbox-image').length);
+        console.log('All wp-block-gallery elements:', $('.wp-block-gallery').length);
+        console.log('All images in wp-block-gallery:', $('.wp-block-gallery img').length);
+        
+        // Debug: Log what we actually find
+        $('.wp-block-gallery').each(function(i) {
+            console.log('Gallery block ' + i + ':', $(this).attr('class'));
+            $(this).find('img').each(function(j) {
+                console.log('  Image ' + j + ':', $(this).attr('src'), 'has lightbox class:', $(this).hasClass('lightbox-image'));
+            });
+        });
+        
+        function rebuildImageArrayAndOpen($clickedImg) {
+            console.log('Rebuilding image array for clicked image...');
+            
+            // Clear current images array
+            images = [];
+            
+            // Find all lightbox images in the same gallery
+            var $gallery = $clickedImg.closest('.wp-block-gallery, .vibe-lightbox-gallery');
+            var $galleryImages = $gallery.find('img');
+            var clickedIndex = 0;
+            
+            $galleryImages.each(function(index) {
+                var $img = $(this);
+                var imgSrc = $img.attr('src');
+                var fullSrc = $img.attr('data-full-src') || imgSrc;
+                
+                // Clean up protocol-relative URLs first
+                if (imgSrc && imgSrc.indexOf('//') === 0) {
+                    imgSrc = 'http:' + imgSrc;
+                }
+                if (fullSrc && fullSrc.indexOf('//') === 0) {
+                    fullSrc = 'http:' + fullSrc;
+                }
+                
+                if (imgSrc) {
+                    // Try to get full size URL if we don't already have it
+                    if (!$img.attr('data-full-src')) {
+                        var sizeMatch = imgSrc.match(/-(\d+)x(\d+)\.(jpg|jpeg|png|gif|webp)$/i);
+                        if (sizeMatch) {
+                            fullSrc = imgSrc.replace(/-\d+x\d+\.([^.]+)$/i, '.$1');
+                        } else {
+                            fullSrc = imgSrc; // Use the same URL if no size pattern found
+                        }
+                    }
+                    
+                    console.log('Processing image:', imgSrc, '-> full:', fullSrc);
+                    
+                    images.push({
+                        src: fullSrc,
+                        title: $img.attr('alt') || $img.attr('title') || 'Gallery Image ' + (index + 1),
+                        description: $img.attr('data-caption') || '',
+                        thumb: imgSrc,
+                        alt: $img.attr('alt') || '',
+                        type: 'wp-gallery'
+                    });
+                    
+                    // Check if this is the clicked image
+                    if ($img[0] === $clickedImg[0]) {
+                        clickedIndex = index;
+                    }
+                }
+            });
+            
+            console.log('Rebuilt image array with', images.length, 'images. Clicked index:', clickedIndex);
+            
+            // Set current index and open lightbox
+            currentIndex = clickedIndex;
+            openLightbox();
+        }
+        
+        function openLightbox() {
+            if (images.length === 0) return;
+            
+            showImage(currentIndex);
+            $('#vibe-lightbox').addClass('active');
+            $('body').addClass('lightbox-open');
+            
+            // Debug: Check basic lightbox state
+            setTimeout(function() {
+                console.log('Lightbox opened. Navigation links:', {
+                    'prev exists': $('.nav-prev').length,
+                    'next exists': $('.nav-next').length,
+                    'total images': images.length
+                });
+            }, 100);
+        }
+
+        function closeLightbox() {
+            $('#vibe-lightbox').removeClass('active');
+            $('body').removeClass('lightbox-open');
+        }
+
+        function showPrevImage() {
+            if (currentIndex > 0) {
+                currentIndex = currentIndex - 1;
+                showImage(currentIndex);
+            }
+        }
+
+        function showNextImage() {
+            if (currentIndex < images.length - 1) {
+                currentIndex = currentIndex + 1;
+                showImage(currentIndex);
+            }
+        }
+        
+        function showImage(index) {
+            if (!images[index]) return;
+            
+            var image = images[index];
+            var $lightboxImage = $('.lightbox-image');
+            var $lightboxTitle = $('.lightbox-title');
+            var $lightboxDescription = $('.lightbox-description');
+            var $imageCounter = $('.image-counter');
+
+            console.log('Showing image:', image);
+            console.log('Image src:', image.src);
+            console.log('Image thumb:', image.thumb);
+
+            // Update title and description
+            $lightboxTitle.text(image.title);
+            $lightboxDescription.text(image.description);
+            $imageCounter.text((index + 1) + ' of ' + images.length);
+            
+            // Load new image
+            var newImg = new Image();
+            newImg.onload = function() {
+                console.log('Image loaded successfully:', image.src);
+                $lightboxImage.attr('src', image.src).attr('alt', image.alt);
+                
+                // Load EXIF data and update sharing links
+                loadImageMetadata(image.src, index);
+                updateSharingLinks(image);
+            };
+            newImg.onerror = function() {
+                console.log('Failed to load image:', image.src);
+                console.log('Trying thumbnail instead:', image.thumb);
+                // Fallback to thumbnail if full size fails
+                $lightboxImage.attr('src', image.thumb).attr('alt', image.alt);
+                
+                // Still try to load metadata for the thumbnail
+                loadImageMetadata(image.thumb, index);
+                updateSharingLinks(image);
+            };
+            newImg.src = image.src;
+
+            // Update navigation visibility and state
+            var hasMultipleImages = images.length > 1;
+            var isFirstImage = index === 0;
+            var isLastImage = index === images.length - 1;
+            
+            if (hasMultipleImages) {
+                $('.lightbox-navigation').show();
+                
+                // Handle previous link
+                if (isFirstImage) {
+                    $('.nav-prev').addClass('disabled');
+                } else {
+                    $('.nav-prev').removeClass('disabled');
+                }
+                
+                // Handle next link
+                if (isLastImage) {
+                    $('.nav-next').addClass('disabled');
+                } else {
+                    $('.nav-next').removeClass('disabled');
+                }
+            } else {
+                $('.lightbox-navigation').hide();
+            }
+        }
+        
+        function loadImageMetadata(imageSrc, imageIndex) {
+            // Reset EXIF data
+            $('.exif-value').text('-');
+            
+            // Try to get EXIF data via WordPress AJAX
+            if (typeof vibePhotoAjax !== 'undefined' && vibePhotoAjax.ajaxurl) {
+                $.ajax({
+                    url: vibePhotoAjax.ajaxurl,
+                    type: 'POST',
+                    data: {
+                        action: 'vibe_photo_get_image_exif',
+                        image_url: imageSrc,
+                        nonce: vibePhotoAjax.nonce
+                    },
+                    success: function(response) {
+                        if (response.success && response.data) {
+                            var exifData = response.data;
+                            
+                            // Update each EXIF field if it exists
+                            Object.keys(exifData).forEach(function(key) {
+                                var $field = $('[data-exif="' + key + '"]');
+                                if ($field.length && exifData[key]) {
+                                    $field.text(exifData[key]);
+                                    
+                                    // Show special fields if they have data
+                                    if ((key === 'gps_coordinates' || key === 'software') && exifData[key] !== '-') {
+                                        $field.closest('.exif-item').show();
+                                    }
+                                }
+                            });
+                        }
+                    },
+                    error: function() {
+                        console.log('Could not load EXIF data for image:', imageSrc);
+                    }
+                });
+            }
+            
+            // Hide GPS and software fields by default (will be shown if data exists)
+            $('.gps-item, .software-item').hide();
+            
+            // Show software field if we detect it has a value
+            if ($('[data-exif="software"]').text() && $('[data-exif="software"]').text() !== '-') {
+                $('.software-item').show();
+            } else {
+                $('.software-item').hide();
+            }
+        }
+
+        function updateSharingLinks(image) {
+            var currentUrl = window.location.href;
+            var imageUrl = image.src;
+            var title = encodeURIComponent(image.title);
+            var description = encodeURIComponent(image.description || 'Check out this photo');
+            var hashtags = encodeURIComponent('photography,gallery');
+
+            // Update sharing URLs with functional links
+            // Facebook - share the current gallery page with the image
+            $('.share-btn.facebook').attr('href', 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(currentUrl) + '&quote=' + title + ' - ' + description);
+            
+            // Twitter - share with text, URL and hashtags
+            $('.share-btn.twitter').attr('href', 'https://twitter.com/intent/tweet?text=' + title + ' - ' + description + '&url=' + encodeURIComponent(currentUrl) + '&hashtags=' + hashtags);
+            
+            // Tumblr - share as photo post with caption
+            $('.share-btn.tumblr').attr('href', 'https://www.tumblr.com/widgets/share/tool?posttype=photo&tags=' + hashtags + '&caption=' + title + ' - ' + description + '&content=' + encodeURIComponent(imageUrl) + '&canonicalUrl=' + encodeURIComponent(currentUrl));
+            
+            // Pinterest - pin the image with description
+            $('.share-btn.pinterest').attr('href', 'https://pinterest.com/pin/create/button/?url=' + encodeURIComponent(currentUrl) + '&media=' + encodeURIComponent(imageUrl) + '&description=' + title + ' - ' + description);
+            
+            // Download - direct link to full-size image
+            $('.share-btn.download').attr('href', imageUrl);
+        }
+
+        function copyImageLink() {
+            var imageUrl = $('.lightbox-image').attr('src');
+            
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(imageUrl).then(function() {
+                    showCopySuccess();
+                });
+            } else {
+                // Fallback for older browsers
+                var textArea = document.createElement('textarea');
+                textArea.value = imageUrl;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showCopySuccess();
+            }
+        }
+
+        function showCopySuccess() {
+            var $copyBtn = $('.copy-link .share-text');
+            var originalText = $copyBtn.text();
+            $copyBtn.text('Copied!');
+            setTimeout(function() {
+                $copyBtn.text(originalText);
+            }, 2000);
+        }
+        
+        if ($('.masonry-gallery').length || $('.gallery-link').length || $('.vibe-lightbox-gallery').length || $('.lightbox-image').length) {
+            console.log('Lightbox: Creating lightbox...');
             createLightbox();
             bindLightboxEvents();
+        } else {
+            console.log('Lightbox: No galleries found, checking for wp-block-gallery...');
+            if ($('.wp-block-gallery').length) {
+                console.log('Found wp-block-gallery elements:', $('.wp-block-gallery').length);
+                
+                // Enhanced fallback: properly enhance WordPress gallery images
+                $('.wp-block-gallery img').each(function() {
+                    var $img = $(this);
+                    var imgSrc = $img.attr('src');
+                    
+                    console.log('Processing gallery image:', imgSrc);
+                    
+                    if (!$img.hasClass('lightbox-image') && imgSrc) {
+                        // Clean up protocol-relative URLs
+                        if (imgSrc.indexOf('//') === 0) {
+                            imgSrc = 'http:' + imgSrc;
+                        }
+                        
+                        // Try to get full size URL
+                        var fullSrc = imgSrc;
+                        var sizeMatch = imgSrc.match(/-(\d+)x(\d+)\.(jpg|jpeg|png|gif|webp)$/i);
+                        if (sizeMatch) {
+                            fullSrc = imgSrc.replace(/-\d+x\d+\.([^.]+)$/i, '.$1');
+                        }
+                        
+                        console.log('Adding lightbox to image - thumb:', imgSrc, 'full:', fullSrc);
+                        
+                        $img.addClass('lightbox-image');
+                        $img.attr('data-lightbox', 'gallery');
+                        $img.attr('data-full-src', fullSrc);
+                        $img.attr('data-src', imgSrc);
+                        
+                        // Add to parent gallery
+                        $img.closest('.wp-block-gallery').addClass('vibe-lightbox-gallery');
+                    }
+                });
+                
+                // Try again after enhancement
+                if ($('.lightbox-image').length > 0) {
+                    console.log('Lightbox: Enhanced images found, creating lightbox...');
+                    createLightbox();
+                    bindLightboxEvents();
+                } else {
+                    console.log('Lightbox: No images could be enhanced');
+                }
+            } else {
+                console.log('Lightbox: No wp-block-gallery elements found');
+            }
         }
+        
+        // Fallback: Add click handlers directly to any wp-block-gallery images
+        // This works even if our PHP enhancement didn't work
+        $('.wp-block-gallery img').on('click', function(e) {
+            console.log('Direct gallery image clicked:', $(this).attr('src'));
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Create a simple lightbox for this image
+            var $img = $(this);
+            var imgSrc = $img.attr('src');
+            
+            if (imgSrc) {
+                // Clean up protocol-relative URLs
+                if (imgSrc.indexOf('//') === 0) {
+                    imgSrc = 'http:' + imgSrc;
+                }
+                
+                // Try to get full size URL
+                var fullSrc = imgSrc;
+                var sizeMatch = imgSrc.match(/-(\d+)x(\d+)\.(jpg|jpeg|png|gif|webp)$/i);
+                if (sizeMatch) {
+                    fullSrc = imgSrc.replace(/-\d+x\d+\.([^.]+)$/i, '.$1');
+                }
+                
+                // Add lightbox attributes if not already present
+                if (!$img.hasClass('lightbox-image')) {
+                    $img.addClass('lightbox-image');
+                    $img.attr('data-lightbox', 'gallery');
+                    $img.attr('data-full-src', fullSrc);
+                    $img.attr('data-src', imgSrc);
+                    $img.closest('.wp-block-gallery').addClass('vibe-lightbox-gallery');
+                }
+                
+                // Ensure lightbox exists
+                if ($('#vibe-lightbox').length === 0) {
+                    createLightbox();
+                }
+                
+                // Rebuild image array and open lightbox
+                rebuildImageArrayAndOpen($img);
+            }
+        });
+        
+        // Lightbox controls
+        $(document).on('click', '.lightbox-overlay-close', closeLightbox);
+        $(document).on('click', '.nav-prev', function(e) {
+            e.preventDefault();
+            showPrevImage();
+        });
+        $(document).on('click', '.nav-next', function(e) {
+            e.preventDefault();
+            showNextImage();
+        });
+
+        // Close on overlay click
+        $(document).on('click', '.lightbox-overlay', function(e) {
+            if (e.target === this) {
+                closeLightbox();
+            }
+        });
+
+        // Keyboard navigation
+        $(document).on('keydown', function(e) {
+            if ($('#vibe-lightbox').hasClass('active')) {
+                switch(e.keyCode) {
+                    case 27: // Escape
+                        closeLightbox();
+                        break;
+                    case 37: // Left arrow
+                        showPrevImage();
+                        break;
+                    case 39: // Right arrow
+                        showNextImage();
+                        break;
+                }
+            }
+        });
     });
 
     function createLightbox() {
@@ -198,7 +607,9 @@
         var currentIndex = 0;
         var images = [];
 
-        // Collect all gallery images
+        console.log('Lightbox: Binding events...');
+
+        // Collect all gallery images from custom galleries
         $('.gallery-link').each(function(index) {
             var $link = $(this);
             var $img = $link.find('img');
@@ -209,7 +620,8 @@
                 title: $img.attr('alt') || $link.attr('title') || 'Untitled',
                 description: $link.attr('data-caption') || $parent.find('.image-caption p').text() || '',
                 thumb: $img.attr('src'),
-                alt: $img.attr('alt') || ''
+                alt: $img.attr('alt') || '',
+                type: 'custom-gallery'
             });
 
             // Prevent default link behavior and open lightbox
@@ -219,6 +631,44 @@
                 openLightbox();
             });
         });
+
+        console.log('Custom gallery images found:', $('.gallery-link').length);
+
+        // Collect images from WordPress Gallery blocks and enhanced galleries
+        $('.lightbox-image').each(function(index) {
+            var $img = $(this);
+            var galleryIndex = images.length + index; // Continue numbering from custom gallery images
+            var imgSrc = $img.attr('src');
+            var fullSrc = $img.attr('data-full-src') || imgSrc;
+            
+            console.log('Found lightbox image:', imgSrc);
+            console.log('Full size src:', fullSrc);
+            
+            // Only add images that have a valid src
+            if (imgSrc && imgSrc.length > 0) {
+                images.push({
+                    src: fullSrc,
+                    title: $img.attr('alt') || $img.attr('title') || 'Gallery Image',
+                    description: $img.attr('data-caption') || '',
+                    thumb: imgSrc,
+                    alt: $img.attr('alt') || '',
+                    type: 'wp-gallery'
+                });
+
+                // Add click handler for WordPress Gallery images
+                $img.on('click', function(e) {
+                    console.log('Image clicked:', imgSrc);
+                    e.preventDefault();
+                    e.stopPropagation();
+                    currentIndex = galleryIndex;
+                    openLightbox();
+                });
+            } else {
+                console.log('Skipping image with empty src');
+            }
+        });
+
+        console.log('Total images in lightbox:', images.length);
 
         // Lightbox controls
         $(document).on('click', '.lightbox-overlay-close', closeLightbox);
@@ -482,6 +932,52 @@
             setTimeout(function() {
                 $copyBtn.text(originalText);
             }, 2000);
+        }
+        
+        function rebuildImageArrayAndOpen($clickedImg) {
+            console.log('Rebuilding image array for clicked image...');
+            
+            // Clear current images array
+            images = [];
+            
+            // Find all lightbox images in the same gallery
+            var $gallery = $clickedImg.closest('.wp-block-gallery, .vibe-lightbox-gallery');
+            var $galleryImages = $gallery.find('img');
+            var clickedIndex = 0;
+            
+            $galleryImages.each(function(index) {
+                var $img = $(this);
+                var imgSrc = $img.attr('src');
+                var fullSrc = $img.attr('data-full-src') || imgSrc;
+                
+                // Clean up protocol-relative URLs
+                if (imgSrc && imgSrc.indexOf('//') === 0) {
+                    imgSrc = 'http:' + imgSrc;
+                    fullSrc = 'http:' + fullSrc;
+                }
+                
+                if (imgSrc) {
+                    images.push({
+                        src: fullSrc,
+                        title: $img.attr('alt') || $img.attr('title') || 'Gallery Image ' + (index + 1),
+                        description: $img.attr('data-caption') || '',
+                        thumb: imgSrc,
+                        alt: $img.attr('alt') || '',
+                        type: 'wp-gallery'
+                    });
+                    
+                    // Check if this is the clicked image
+                    if ($img[0] === $clickedImg[0]) {
+                        clickedIndex = index;
+                    }
+                }
+            });
+            
+            console.log('Rebuilt image array with', images.length, 'images. Clicked index:', clickedIndex);
+            
+            // Set current index and open lightbox
+            currentIndex = clickedIndex;
+            openLightbox();
         }
     }
 

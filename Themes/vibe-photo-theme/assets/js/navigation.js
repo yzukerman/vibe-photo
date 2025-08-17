@@ -117,9 +117,7 @@
         }
     });
 
-    // Initialize Foundation's equalizer for photo grids
-    if ($('[data-equalizer]').length) {
-        $('[data-equalizer]').foundation('equalizer', 'reflow');
-    }
+    // Foundation is initialized automatically for most components
+    // No manual equalizer initialization needed
 
 })(jQuery);
