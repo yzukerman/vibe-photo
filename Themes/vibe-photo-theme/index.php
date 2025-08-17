@@ -123,44 +123,50 @@
             </section>
 
             <!-- Photo Galleries Section -->
-            <section class="photo-galleries">
-                <h2>Photo Galleries</h2>
-                <?php
-                // Query for photo gallery posts
-                $gallery_query = new WP_Query(array(
-                    'post_type' => 'photo_gallery',
-                    'posts_per_page' => 12,
-                    'post_status' => 'publish'
-                ));
-                
-                if ($gallery_query->have_posts()) : ?>
-                    <div class="grid-x grid-padding-x photo-grid">
-                        <?php while ($gallery_query->have_posts()) : $gallery_query->the_post(); ?>
-                            <div class="cell medium-4 large-3">
-                                <article id="gallery-<?php the_ID(); ?>" <?php post_class('photo-item'); ?>>
-                                    <?php if (has_post_thumbnail()) : ?>
-                                        <a href="<?php the_permalink(); ?>">
-                                            <?php the_post_thumbnail('gallery-medium'); ?>
-                                        </a>
-                                    <?php endif; ?>
-                                    
-                                    <div class="photo-meta">
-                                        <h3><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>
-                                        <time datetime="<?php echo get_the_date('c'); ?>"><?php echo get_the_date(); ?></time>
-                                    </div>
-                                </article>
-                            </div>
-                        <?php endwhile; ?>
-                    </div>
-                <?php else : ?>
-                    <div class="no-content">
-                        <h3><?php _e('No photo galleries found', 'vibe-photo'); ?></h3>
-                        <p><?php _e('Sorry, no photo galleries were found. Please check back later.', 'vibe-photo'); ?></p>
-                    </div>
-                <?php endif; ?>
-                
-                <?php wp_reset_postdata(); ?>
-            </section>
+            <?php
+            // Check if photo galleries exist before showing the section
+            $gallery_check_query = new WP_Query(array(
+                'post_type' => 'photo_gallery',
+                'posts_per_page' => 1,
+                'post_status' => 'publish'
+            ));
+            
+            if ($gallery_check_query->have_posts()) : ?>
+                <section class="photo-galleries">
+                    <h2>Photo Galleries</h2>
+                    <?php
+                    // Query for photo gallery posts
+                    $gallery_query = new WP_Query(array(
+                        'post_type' => 'photo_gallery',
+                        'posts_per_page' => 12,
+                        'post_status' => 'publish'
+                    ));
+                    
+                    if ($gallery_query->have_posts()) : ?>
+                        <div class="grid-x grid-padding-x photo-grid">
+                            <?php while ($gallery_query->have_posts()) : $gallery_query->the_post(); ?>
+                                <div class="cell medium-4 large-3">
+                                    <article id="gallery-<?php the_ID(); ?>" <?php post_class('photo-item'); ?>>
+                                        <?php if (has_post_thumbnail()) : ?>
+                                            <a href="<?php the_permalink(); ?>">
+                                                <?php the_post_thumbnail('gallery-medium'); ?>
+                                            </a>
+                                        <?php endif; ?>
+                                        
+                                        <div class="photo-meta">
+                                            <h3><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>
+                                            <time datetime="<?php echo get_the_date('c'); ?>"><?php echo get_the_date(); ?></time>
+                                        </div>
+                                    </article>
+                                </div>
+                            <?php endwhile; ?>
+                        </div>
+                    <?php endif; ?>
+                    
+                    <?php wp_reset_postdata(); ?>
+                </section>
+            <?php endif; 
+            wp_reset_postdata(); ?>
         </div>
     </main>
 

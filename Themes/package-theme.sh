@@ -7,8 +7,9 @@ echo "🎨 Packaging Vibe Photo Theme for distribution..."
 
 # Set variables
 THEME_NAME="vibe-photo-theme"
-VERSION="1.0.0"
-PACKAGE_NAME="${THEME_NAME}-${VERSION}"
+VERSION="1.0.2"
+VERSIONED_THEME_NAME="${THEME_NAME}-v${VERSION}"
+PACKAGE_NAME="${VERSIONED_THEME_NAME}"
 BUILD_DIR="build"
 DIST_DIR="dist"
 
@@ -33,12 +34,12 @@ rsync -av --exclude='*.log' \
          --exclude='*.map' \
          --exclude='gulpfile.js' \
          --exclude='webpack.config.js' \
-         $THEME_NAME/ $BUILD_DIR/$THEME_NAME/
+         $THEME_NAME/ $BUILD_DIR/$VERSIONED_THEME_NAME/
 
 # Create ZIP file
 echo "📦 Creating distribution ZIP file..."
 cd $BUILD_DIR
-zip -r "../${DIST_DIR}/${PACKAGE_NAME}.zip" $THEME_NAME/
+zip -r "../${DIST_DIR}/${PACKAGE_NAME}.zip" $VERSIONED_THEME_NAME/
 cd ..
 
 # Cleanup

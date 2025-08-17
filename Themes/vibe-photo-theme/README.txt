@@ -1,14 +1,16 @@
-=== Vibe Photo Theme ===
+=== Vibe Photo Theme v1.0.2 ===
 Contributors: Yuval Zukerman and Visual Studio Code Copilot with Claude Sonnet. 
 Tags: photography, portfolio, gallery, responsive, minimal, foundation, lightbox, exif
 Requires at least: 5.0
 Tested up to: 6.3
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 1.0.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 A modern, responsive WordPress theme designed specifically for photography portfolios and photo galleries with advanced lightbox functionality.
+
+**Note**: This version will install alongside previous versions without overwriting them, allowing you to safely test the new version.
 
 == Description ==
 
@@ -71,6 +73,19 @@ Absolutely! The theme is built with a mobile-first approach using Foundation CSS
 Yes, you can modify the CSS variables in style.css or add custom CSS through the WordPress customizer.
 
 == Changelog ==
+
+= 1.0.2 =
+* Removed non-functional "Photo Metadata" meta box from post editor
+* Streamlined admin interface - EXIF data is now automatically extracted from images
+* Improved editor experience for content creators
+* Changed theme name and folder structure to prevent overwriting previous versions
+* Theme now installs alongside previous versions for safe testing
+
+= 1.0.1 =
+* Removed default "Sample Page" links from navigation menus
+* Hide Photo Galleries section on homepage when no galleries exist
+* Improved theme distribution packaging
+* Enhanced documentation
 
 = 1.0.0 =
 * Initial release

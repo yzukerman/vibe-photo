@@ -278,6 +278,32 @@ if (function_exists('add_filter')) {
 }
 
 /**
+ * Remove default "Sample Page" from navigation menus
+ */
+function vibe_photo_filter_menu_items($items, $args) {
+    if (!is_array($items)) {
+        return $items;
+    }
+    
+    foreach ($items as $key => $item) {
+        // Remove "Sample Page" from menus
+        if (stripos($item->title, 'sample page') !== false || 
+            (isset($item->post_title) && stripos($item->post_title, 'sample page') !== false)) {
+            unset($items[$key]);
+        }
+        
+        // Also remove "Hello world!" default post link if it appears
+        if (stripos($item->title, 'hello world') !== false) {
+            unset($items[$key]);
+        }
+    }
+    return $items;
+}
+if (function_exists('add_filter')) {
+    add_filter('wp_nav_menu_objects', 'vibe_photo_filter_menu_items', 10, 2);
+}
+
+/**
  * Remove gallery shortcode processing to prevent conflicts
  */
 function vibe_photo_disable_gallery_shortcode() {
@@ -905,91 +931,6 @@ function vibe_photo_flush_rewrite_rules() {
     }
 }
 add_action('after_switch_theme', 'vibe_photo_flush_rewrite_rules');
-
-/**
- * Add custom meta boxes for photo metadata
- */
-function vibe_photo_add_meta_boxes() {
-    add_meta_box(
-        'photo-metadata',
-        __('Photo Metadata', 'vibe-photo'),
-        'vibe_photo_metadata_callback',
-        array('post', 'photo_gallery')
-    );
-}
-add_action('add_meta_boxes', 'vibe_photo_add_meta_boxes');
-
-/**
- * Meta box callback for photo metadata
- */
-function vibe_photo_metadata_callback($post) {
-    wp_nonce_field('vibe_photo_save_metadata', 'vibe_photo_metadata_nonce');
-    
-    $camera = get_post_meta($post->ID, '_photo_camera', true);
-    $lens = get_post_meta($post->ID, '_photo_lens', true);
-    $aperture = get_post_meta($post->ID, '_photo_aperture', true);
-    $shutter_speed = get_post_meta($post->ID, '_photo_shutter_speed', true);
-    $iso = get_post_meta($post->ID, '_photo_iso', true);
-    $location = get_post_meta($post->ID, '_photo_location', true);
-    ?>
-    <table class="form-table">
-        <tr>
-            <th scope="row"><?php _e('Camera', 'vibe-photo'); ?></th>
-            <td><input type="text" name="photo_camera" value="<?php echo esc_attr($camera); ?>" class="regular-text" /></td>
-        </tr>
-        <tr>
-            <th scope="row"><?php _e('Lens', 'vibe-photo'); ?></th>
-            <td><input type="text" name="photo_lens" value="<?php echo esc_attr($lens); ?>" class="regular-text" /></td>
-        </tr>
-        <tr>
-            <th scope="row"><?php _e('Aperture', 'vibe-photo'); ?></th>
-            <td><input type="text" name="photo_aperture" value="<?php echo esc_attr($aperture); ?>" placeholder="f/2.8" /></td>
-        </tr>
-        <tr>
-            <th scope="row"><?php _e('Shutter Speed', 'vibe-photo'); ?></th>
-            <td><input type="text" name="photo_shutter_speed" value="<?php echo esc_attr($shutter_speed); ?>" placeholder="1/250s" /></td>
-        </tr>
-        <tr>
-            <th scope="row"><?php _e('ISO', 'vibe-photo'); ?></th>
-            <td><input type="text" name="photo_iso" value="<?php echo esc_attr($iso); ?>" placeholder="100" /></td>
-        </tr>
-        <tr>
-            <th scope="row"><?php _e('Location', 'vibe-photo'); ?></th>
-            <td><input type="text" name="photo_location" value="<?php echo esc_attr($location); ?>" class="regular-text" /></td>
-        </tr>
-    </table>
-    <?php
-}
-
-/**
- * Save photo metadata
- */
-function vibe_photo_save_metadata($post_id) {
-    if (!isset($_POST['vibe_photo_metadata_nonce'])) {
-        return;
-    }
-
-    if (!wp_verify_nonce($_POST['vibe_photo_metadata_nonce'], 'vibe_photo_save_metadata')) {
-        return;
-    }
-
-    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
-        return;
-    }
-
-    if (!current_user_can('edit_post', $post_id)) {
-        return;
-    }
-
-    $fields = array('camera', 'lens', 'aperture', 'shutter_speed', 'iso', 'location');
-    
-    foreach ($fields as $field) {
-        if (isset($_POST['photo_' . $field])) {
-            update_post_meta($post_id, '_photo_' . $field, sanitize_text_field($_POST['photo_' . $field]));
-        }
-    }
-}
-add_action('save_post', 'vibe_photo_save_metadata');
 
 /**
  * Custom excerpt length for photography posts
