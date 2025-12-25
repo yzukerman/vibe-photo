@@ -521,7 +521,7 @@ function vibe_photo_google_api_key_callback() {
 function vibe_photo_reverse_geocode($lat, $lon, $attachment_id = null) {
 	// Get API key from settings
 	$api_key = get_option('vibe_photo_google_api_key', '');
-	
+
 	// If no API key, return null
 	if (empty($api_key)) {
 		return null;
@@ -569,18 +569,18 @@ function vibe_photo_reverse_geocode($lat, $lon, $attachment_id = null) {
 	// Try to get city, state/province, country format
 	$location_parts = array();
 	$address_components = $data['results'][0]['address_components'];
-	
+
 	$locality = null;
 	$sublocality = null;
 	$admin_area = null;
 	$country = null;
-	
+
 	foreach ($address_components as $component) {
 		// Skip Plus Code components
 		if (in_array('plus_code', $component['types'])) {
 			continue;
 		}
-		
+
 		if (in_array('locality', $component['types'])) {
 			$locality = $component['long_name'];
 		}
@@ -962,50 +962,50 @@ function vibe_photo_get_image_exif() {
 				$lat_ref = isset($exif['GPSLatitudeRef']) ? $exif['GPSLatitudeRef'] : '';
 				$lon_ref = isset($exif['GPSLongitudeRef']) ? $exif['GPSLongitudeRef'] : '';
 
-			// Helper function to convert GPS rational number to decimal
-			$gps_to_decimal = function($coordinate) {
-				if (is_array($coordinate) && count($coordinate) >= 3) {
-					// Each component might be a rational number like "25/1"
-					$degrees = $coordinate[0];
-					$minutes = $coordinate[1];
-					$seconds = $coordinate[2];
-					
-					// Evaluate fractions
-					if (is_string($degrees) && strpos($degrees, '/') !== false) {
-						$parts = explode('/', $degrees);
-						$degrees = $parts[1] != 0 ? $parts[0] / $parts[1] : 0;
-					}
-					if (is_string($minutes) && strpos($minutes, '/') !== false) {
-						$parts = explode('/', $minutes);
-						$minutes = $parts[1] != 0 ? $parts[0] / $parts[1] : 0;
-					}
-					if (is_string($seconds) && strpos($seconds, '/') !== false) {
-						$parts = explode('/', $seconds);
-						$seconds = $parts[1] != 0 ? $parts[0] / $parts[1] : 0;
-					}
-					
-					return $degrees + ($minutes / 60) + ($seconds / 3600);
-				}
-				return 0;
-			};
+				// Helper function to convert GPS rational number to decimal
+				$gps_to_decimal = function ($coordinate) {
+					if (is_array($coordinate) && count($coordinate) >= 3) {
+						// Each component might be a rational number like "25/1"
+						$degrees = $coordinate[0];
+						$minutes = $coordinate[1];
+						$seconds = $coordinate[2];
 
-			// Convert DMS to decimal
-			if (is_array($lat) && count($lat) >= 3) {
-				$lat_decimal = $gps_to_decimal($lat);
-				if ($lat_ref == 'S') $lat_decimal = -$lat_decimal;
+						// Evaluate fractions
+						if (is_string($degrees) && strpos($degrees, '/') !== false) {
+							$parts = explode('/', $degrees);
+							$degrees = $parts[1] != 0 ? $parts[0] / $parts[1] : 0;
+						}
+						if (is_string($minutes) && strpos($minutes, '/') !== false) {
+							$parts = explode('/', $minutes);
+							$minutes = $parts[1] != 0 ? $parts[0] / $parts[1] : 0;
+						}
+						if (is_string($seconds) && strpos($seconds, '/') !== false) {
+							$parts = explode('/', $seconds);
+							$seconds = $parts[1] != 0 ? $parts[0] / $parts[1] : 0;
+						}
 
-				$lon_decimal = $gps_to_decimal($lon);
-				if ($lon_ref == 'W') $lon_decimal = -$lon_decimal;
+						return $degrees + ($minutes / 60) + ($seconds / 3600);
+					}
+					return 0;
+				};
 
-				$exif_data['gps_coordinates'] = round($lat_decimal, 6) . ', ' . round($lon_decimal, 6);
-				
-				// Add reverse geocoding
-				$location_name = vibe_photo_reverse_geocode($lat_decimal, $lon_decimal, $attachment_id);
-				if ($location_name) {
-					$exif_data['location'] = $location_name;
+				// Convert DMS to decimal
+				if (is_array($lat) && count($lat) >= 3) {
+					$lat_decimal = $gps_to_decimal($lat);
+					if ($lat_ref == 'S') $lat_decimal = -$lat_decimal;
+
+					$lon_decimal = $gps_to_decimal($lon);
+					if ($lon_ref == 'W') $lon_decimal = -$lon_decimal;
+
+					$exif_data['gps_coordinates'] = round($lat_decimal, 6) . ', ' . round($lon_decimal, 6);
+
+					// Add reverse geocoding
+					$location_name = vibe_photo_reverse_geocode($lat_decimal, $lon_decimal, $attachment_id);
+					if ($location_name) {
+						$exif_data['location'] = $location_name;
+					}
 				}
 			}
-		}
 
 			// Color space
 			if (isset($exif['ColorSpace'])) {
