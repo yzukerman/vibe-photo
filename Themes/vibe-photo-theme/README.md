@@ -2,6 +2,8 @@
 
 A modern, responsive WordPress theme designed specifically for photography portfolios and photo galleries with advanced lightbox functionality, WordPress metadata integration, and comprehensive archive and menu support.
 
+Note: Claude Code Sonnet 4.5 developed the code with my guidance. No warranty is implied or otherwise. Use at your own risk.
+
 ## Features
 
 - **Advanced Lightbox**: Custom lightbox with EXIF data display, social sharing, and navigation
