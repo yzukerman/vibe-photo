@@ -90,6 +90,7 @@ function vibe_photo_setup() {
 	if (function_exists('register_nav_menus')) {
 		register_nav_menus(array(
 			'primary' => esc_html__('Primary Menu', 'vibe-photo'),
+			'footer' => esc_html__('Footer Menu', 'vibe-photo'),
 		));
 	}
 
@@ -301,6 +302,18 @@ function vibe_photo_filter_menu_items($items, $args) {
 		if (stripos($item->title, 'hello world') !== false) {
 			unset($items[$key]);
 		}
+
+		// Remove Privacy Policy from primary menu (header)
+		if (isset($args->theme_location) && $args->theme_location === 'primary') {
+			if (
+				stripos($item->title, 'privacy policy') !== false ||
+				stripos($item->title, 'privacy') !== false ||
+				(isset($item->url) && stripos($item->url, 'privacy-policy') !== false) ||
+				(isset($item->type) && $item->type === 'privacy-policy')
+			) {
+				unset($items[$key]);
+			}
+		}
 	}
 	return $items;
 }
@@ -310,15 +323,29 @@ if (function_exists('add_filter')) {
 	add_filter('wp_nav_menu_objects', 'vibe_photo_filter_menu_items', 10, 2);
 	add_filter('wp_get_nav_menu_items', 'vibe_photo_filter_menu_items', 10, 2);
 	add_filter('wp_page_menu', 'vibe_photo_filter_page_menu', 10, 2);
+	add_filter('wp_list_pages', 'vibe_photo_filter_list_pages', 10, 2);
 }
 
 /**
- * Filter wp_page_menu fallback to remove sample page
+ * Filter wp_list_pages to remove privacy policy
+ */
+function vibe_photo_filter_list_pages($output, $args) {
+	// Remove privacy policy from wp_list_pages output
+	$output = preg_replace('/<li[^>]*page-item-[0-9]+[^>]*>\s*<a[^>]*privacy-policy[^>]*>.*?<\/a>\s*<\/li>/i', '', $output);
+	$output = preg_replace('/<li[^>]*>\s*<a[^>]*>Privacy Policy<\/a>\s*<\/li>/i', '', $output);
+	return $output;
+}
+
+/**
+ * Filter wp_page_menu fallback to remove sample page and privacy policy
  */
 function vibe_photo_filter_page_menu($menu, $args) {
 	// Remove sample page from fallback page menu
 	$menu = preg_replace('/<li[^>]*>\s*<a[^>]*sample-page[^>]*>.*?<\/a>\s*<\/li>/i', '', $menu);
 	$menu = preg_replace('/<li[^>]*>\s*<a[^>]*>.*?sample.*?page.*?<\/a>\s*<\/li>/i', '', $menu);
+	// Remove privacy policy from fallback page menu
+	$menu = preg_replace('/<li[^>]*>\s*<a[^>]*privacy-policy[^>]*>.*?<\/a>\s*<\/li>/i', '', $menu);
+	$menu = preg_replace('/<li[^>]*>\s*<a[^>]*>.*?Privacy Policy.*?<\/a>\s*<\/li>/i', '', $menu);
 	return $menu;
 }
 
@@ -459,22 +486,23 @@ function vibe_photo_get_image_exif() {
 	// Try to get attachment ID from original URL
 	$attachment_id = attachment_url_to_postid($original_url);
 
-	$exif_data = array();	if (!$attachment_id) {
+	$exif_data = array();
+	if (!$attachment_id) {
 		// If attachment_url_to_postid failed, try alternative methods to find the attachment
 		global $wpdb;
-		
+
 		// Try multiple variations of the filename including -scaled versions
 		$filename = basename($original_url);
 		$filename_no_ext = pathinfo($filename, PATHINFO_FILENAME);
 		$filename_ext = pathinfo($filename, PATHINFO_EXTENSION);
-		
+
 		// Try multiple variations of the filename
 		$search_patterns = array(
 			'%' . $filename,                                    // exact: DSCF7743.jpeg
 			'%' . $filename_no_ext . '-scaled.' . $filename_ext, // scaled: DSCF7743-scaled.jpeg
 			'%' . $filename_no_ext . '%.' . $filename_ext        // any variation: DSCF7743-*.jpeg
 		);
-		
+
 		foreach ($search_patterns as $pattern) {
 			$attachments_with_filename = $wpdb->get_results($wpdb->prepare(
 				"SELECT p.ID FROM {$wpdb->posts} p 
@@ -484,7 +512,7 @@ function vibe_photo_get_image_exif() {
 				 LIMIT 1",
 				$pattern
 			));
-			
+
 			if ($attachments_with_filename) {
 				$attachment_id = $attachments_with_filename[0]->ID;
 				break; // Found one, stop searching
@@ -538,12 +566,12 @@ function vibe_photo_get_image_exif() {
 			if (!empty($post->post_title)) {
 				$exif_data['title'] = $post->post_title;
 			}
-			
+
 			// Get caption (post_excerpt)  
 			if (!empty($post->post_excerpt)) {
 				$exif_data['caption'] = $post->post_excerpt;
 			}
-			
+
 			// Get alt text (stored in meta)
 			$alt_text = get_post_meta($attachment_id, '_wp_attachment_image_alt', true);
 			if (!empty($alt_text)) {

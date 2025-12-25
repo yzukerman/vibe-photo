@@ -1,14 +1,14 @@
-=== Vibe Photo Theme v1.0.8 ===
+=== Vibe Photo Theme v1.0.9 ===
 Contributors: Yuval Zukerman and Visual Studio Code Copilot with Claude Sonnet. 
-Tags: photography, portfolio, gallery, responsive, minimal, foundation, lightbox, exif, metadata
+Tags: photography, portfolio, gallery, responsive, minimal, foundation, lightbox, exif, metadata, footer-menu
 Requires at least: 5.0
 Tested up to: 6.3
 Requires PHP: 7.4
-Stable tag: 1.0.8
+Stable tag: 1.0.9
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-A modern, responsive WordPress theme designed specifically for photography portfolios and photo galleries with advanced lightbox functionality and WordPress metadata integration.
+A modern, responsive WordPress theme designed specifically for photography portfolios and photo galleries with advanced lightbox functionality, WordPress metadata integration, and comprehensive menu support.
 
 **Note**: This version will install alongside previous versions without overwriting them, allowing you to safely test the new version.
 
@@ -21,6 +21,10 @@ Vibe Photo Theme is a professional photography theme built with Foundation CSS f
 * **Smart Attachment Detection**: Handles WordPress scaled images for proper metadata retrieval
 * **WordPress Gallery Block Support**: Enhanced Gallery blocks with lightbox functionality
 * **Custom Photo Gallery Post Type**: Dedicated post type for photo galleries
+* **Footer Menu Support**: Separate footer navigation menu location for legal pages and links
+* **Page Template**: Dedicated template for static pages with clean layout
+* **Horizontal Pagination**: Styled page numbers with intuitive navigation
+* **Privacy Policy Filtering**: Automatically removes privacy policy from header menu while keeping it in footer
 * **Responsive Design**: Mobile-first design that looks great on all devices
 * **Foundation CSS Framework**: Built on the solid Foundation by Zurb framework
 * **Social Sharing**: Share photos on Facebook, Twitter, Pinterest, and Tumblr
@@ -138,6 +142,18 @@ Yes, you can modify the CSS variables in style.css or add custom CSS through the
 For support and documentation, please visit the theme's repository or contact the developer.
 
 == Changelog ==
+
+= 1.0.9 =
+* New: Footer menu support - separate navigation location for footer links
+* New: Page template (page.php) for displaying static pages properly
+* New: Horizontal pagination styling with numbered page navigation
+* New: Privacy policy filtering - automatically removes privacy policy from header menu
+* Enhanced: Footer now displays navigation menu above copyright
+* Enhanced: Menu filtering system to handle WordPress automatic page listings
+* Improved: CSS styling for footer navigation with hover effects
+* Improved: Pagination now uses flexbox for consistent horizontal layout
+* Fixed: Pages now display correctly with dedicated template
+* Fixed: Privacy policy link positioning between header and footer
 
 = 1.0.8 =
 * New: WordPress metadata integration - lightbox now displays image titles, captions, and alt text from WordPress attachment data

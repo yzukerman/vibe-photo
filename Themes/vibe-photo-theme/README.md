@@ -1,6 +1,6 @@
-# Vibe Photo Theme v1.0.8
+# Vibe Photo Theme v1.0.9
 
-A modern, responsive WordPress theme designed specifically for photography portfolios and photo galleries with advanced lightbox functionality and WordPress metadata integration.
+A modern, responsive WordPress theme designed specifically for photography portfolios and photo galleries with advanced lightbox functionality, WordPress metadata integration, and comprehensive menu support.
 
 ## Features
 
@@ -9,6 +9,10 @@ A modern, responsive WordPress theme designed specifically for photography portf
 - **Smart Attachment Detection**: Handles WordPress scaled images for proper metadata retrieval
 - **WordPress Gallery Block Support**: Enhanced Gallery blocks with lightbox functionality
 - **Custom Photo Gallery Post Type**: Dedicated post type for photo galleries
+- **Footer Menu Support**: Separate footer navigation menu location for legal pages and links
+- **Page Template**: Dedicated template for static pages with clean layout
+- **Horizontal Pagination**: Styled page numbers with intuitive navigation
+- **Privacy Policy Filtering**: Automatically removes privacy policy from header menu while keeping it in footer
 - **Responsive Design**: Mobile-first design built with Foundation CSS framework
 - **Social Sharing**: Share photos on Facebook, Twitter, Pinterest, and Tumblr
 - **EXIF Data Display**: Shows camera settings and technical details
@@ -61,8 +65,12 @@ You can create galleries in two ways:
 ### Menu Setup
 
 1. Go to **Appearance > Menus**
-2. Create a new menu
-3. Assign it to the "Primary Menu" location
+2. Create menus for your site:
+   - **Primary Menu**: Main navigation in the header
+   - **Footer Menu**: Links in the footer (e.g., Privacy Policy, Terms of Use)
+3. Assign your menus to their respective locations
+
+**Note**: The theme automatically filters the Privacy Policy page from the primary menu and shows it only in the footer menu.
 
 ## Customization
 
@@ -135,7 +143,11 @@ vibe-photo-theme/
 ├── style.css                 # Main stylesheet with theme info
 ├── index.php                 # Main template file
 ├── front-page.php            # Homepage template
+├── page.php                  # Static page template
+├── single.php                # Single post template
 ├── functions.php             # Theme functions and features
+├── header.php                # Header template
+├── footer.php                # Footer template with menu support
 ├── single-photo_gallery.php  # Photo gallery single view
 ├── archive-photo_gallery.php # Photo gallery archive
 ├── screenshot.png            # Theme screenshot
@@ -152,7 +164,21 @@ vibe-photo-theme/
 
 ## Changelog
 
+### Version 1.0.9 (December 25, 2025)
+
+- **New**: Footer menu support - separate navigation location for footer links
+- **New**: Page template (page.php) for displaying static pages properly
+- **New**: Horizontal pagination styling with numbered page navigation
+- **New**: Privacy policy filtering - automatically removes privacy policy from header menu
+- **Enhanced**: Footer now displays navigation menu above copyright
+- **Enhanced**: Menu filtering system to handle WordPress automatic page listings
+- **Improved**: CSS styling for footer navigation with hover effects
+- **Improved**: Pagination now uses flexbox for consistent horizontal layout
+- **Fixed**: Pages now display correctly with dedicated template
+- **Fixed**: Privacy policy link positioning between header and footer
+
 ### Version 1.0.8
+
 - **New**: WordPress metadata integration - lightbox now displays image titles, captions, and alt text from WordPress attachment data
 - **Enhanced**: Smart attachment detection handles WordPress scaled images (-scaled suffix)
 - **Improved**: Conditional field display - metadata fields only appear when they have content
@@ -161,6 +187,7 @@ vibe-photo-theme/
 - **Updated**: CSS optimizations for visual polish
 
 ### Previous Versions
+
 - **1.0.7**: Enhanced lightbox functionality and EXIF data display
 - **1.0.6**: Foundation CSS integration and responsive improvements
 - **1.0.5**: Initial stable release with core functionality
