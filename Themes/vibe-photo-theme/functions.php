@@ -782,7 +782,7 @@ function vibe_photo_get_image_exif() {
 				$exif_data['alt_text'] = $alt_text;
 			}
 		}
-		
+
 		// Get basic file info
 		if ($metadata) {
 			$exif_data['size'] = $metadata['width'] . ' × ' . $metadata['height'] . ' pixels';
@@ -798,8 +798,20 @@ function vibe_photo_get_image_exif() {
 	$file_extension = strtolower(pathinfo($file_path, PATHINFO_EXTENSION));
 	$supported_formats = array('jpg', 'jpeg', 'tif', 'tiff');
 
+	// Add debug info to response
+	$exif_data['debug'] = array(
+		'file_extension' => $file_extension,
+		'exif_function_exists' => function_exists('exif_read_data'),
+		'file_path' => $file_path,
+		'is_supported_format' => in_array($file_extension, $supported_formats)
+	);
+
 	if (function_exists('exif_read_data') && file_exists($file_path) && in_array($file_extension, $supported_formats)) {
 		$exif = @exif_read_data($file_path);
+
+		// Add to debug info
+		$exif_data['debug']['exif_read_success'] = ($exif !== false);
+		$exif_data['debug']['exif_keys_found'] = $exif ? count($exif) : 0;
 
 		// Debug logging for troubleshooting
 		if (!$exif) {
