@@ -757,6 +757,7 @@
     function bindLightboxEvents() {
         var currentIndex = 0;
         var images = [];
+        var enableDeepLinking = true; // Enable URL hash for individual images
 
         console.log('Lightbox: Binding events...');
 
@@ -841,8 +842,11 @@
 
         // Social sharing events
         $(document).on('click', '.copy-link', function(e) {
+            console.log('Copy link button clicked');
             e.preventDefault();
+            e.stopPropagation();
             copyImageLink();
+            return false;
         });
 
         // Social sharing click handlers for better UX
@@ -1155,22 +1159,56 @@
             // Download - direct link to full-size image
             $('.share-btn.download').attr('href', imageUrl);
         }
+        
+        function getImageHash(imageSrc) {
+            // Extract filename from URL without extension
+            var filename = imageSrc.split('/').pop().split('.')[0];
+            // Remove size suffixes like -2560x1280, -scaled
+            filename = filename.replace(/-\d+x\d+$/, '').replace(/-scaled$/, '');
+            return 'image-' + filename;
+        }
 
         function copyImageLink() {
+            // Copy page URL with image hash instead of direct image URL
+            var baseUrl = window.location.origin + window.location.pathname + window.location.search;
+            var imageSrc = $('.lightbox-image').attr('src');
+            var imageHash = getImageHash(imageSrc);
+            var shareUrl = enableDeepLinking && imageHash ? baseUrl + '#' + imageHash : imageSrc;
+
+            console.log('Copying link:', shareUrl);
             
             if (navigator.clipboard) {
                 navigator.clipboard.writeText(shareUrl).then(function() {
+                    console.log('Link copied successfully');
                     showCopySuccess();
+                }).catch(function(err) {
+                    console.error('Failed to copy:', err);
+                    // Fallback to older method
+                    fallbackCopy(shareUrl);
                 });
             } else {
-                // Fallback for older browsers
+                fallbackCopy(shareUrl);
+            }
+        }
+        
+        function fallbackCopy(text) {
+            try {
                 var textArea = document.createElement('textarea');
-                textArea.value = shareUrl;
+                textArea.value = text;
+                textArea.style.position = 'fixed';
+                textArea.style.left = '-999999px';
                 document.body.appendChild(textArea);
                 textArea.select();
-                document.execCommand('copy');
+                var successful = document.execCommand('copy');
                 document.body.removeChild(textArea);
-                showCopySuccess();
+                if (successful) {
+                    console.log('Link copied via fallback');
+                    showCopySuccess();
+                } else {
+                    console.error('Fallback copy failed');
+                }
+            } catch (err) {
+                console.error('Copy error:', err);
             }
         }
 
