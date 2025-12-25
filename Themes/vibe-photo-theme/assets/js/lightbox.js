@@ -321,20 +321,40 @@
             var imageHash = getImageHash(imageSrc);
             var shareUrl = enableDeepLinking && imageHash ? baseUrl + '#' + imageHash : imageSrc;
 
+            console.log('Copying link:', shareUrl);
             
             if (navigator.clipboard) {
                 navigator.clipboard.writeText(shareUrl).then(function() {
+                    console.log('Link copied successfully');
                     showCopySuccess();
+                }).catch(function(err) {
+                    console.error('Failed to copy:', err);
+                    // Fallback to older method
+                    fallbackCopy(shareUrl);
                 });
             } else {
-                // Fallback for older browsers
+                fallbackCopy(shareUrl);
+            }
+        }
+        
+        function fallbackCopy(text) {
+            try {
                 var textArea = document.createElement('textarea');
-                textArea.value = shareUrl;
+                textArea.value = text;
+                textArea.style.position = 'fixed';
+                textArea.style.left = '-999999px';
                 document.body.appendChild(textArea);
                 textArea.select();
-                document.execCommand('copy');
+                var successful = document.execCommand('copy');
                 document.body.removeChild(textArea);
-                showCopySuccess();
+                if (successful) {
+                    console.log('Link copied via fallback');
+                    showCopySuccess();
+                } else {
+                    console.error('Fallback copy failed');
+                }
+            } catch (err) {
+                console.error('Copy error:', err);
             }
         }
 
