@@ -11,24 +11,14 @@
         var enableDeepLinking = true; // Enable URL hash for individual images
 
         // Initialize lightbox for gallery images and WordPress Gallery blocks
-        console.log('Lightbox: Checking for galleries...');
-        console.log('Custom galleries found:', $('.masonry-gallery').length);
-        console.log('Gallery links found:', $('.gallery-link').length);
-        console.log('WordPress galleries found:', $('.vibe-lightbox-gallery').length);
-        console.log('Lightbox images found:', $('.lightbox-image').length);
-        console.log('All wp-block-gallery elements:', $('.wp-block-gallery').length);
-        console.log('All images in wp-block-gallery:', $('.wp-block-gallery img').length);
         
         // Debug: Log what we actually find
         $('.wp-block-gallery').each(function(i) {
-            console.log('Gallery block ' + i + ':', $(this).attr('class'));
             $(this).find('img').each(function(j) {
-                console.log('  Image ' + j + ':', $(this).attr('src'), 'has lightbox class:', $(this).hasClass('lightbox-image'));
             });
         });
         
         function rebuildImageArrayAndOpen($clickedImg) {
-            console.log('Rebuilding image array for clicked image...');
             
             // Clear current images array
             images = [];
@@ -62,7 +52,6 @@
                         }
                     }
                     
-                    console.log('Processing image:', imgSrc, '-> full:', fullSrc);
                     
                     images.push({
                         src: fullSrc,
@@ -80,7 +69,6 @@
                 }
             });
             
-            console.log('Rebuilt image array with', images.length, 'images. Clicked index:', clickedIndex);
             
             // Set current index and open lightbox
             currentIndex = clickedIndex;
@@ -96,7 +84,6 @@
             
             // Debug: Check basic lightbox state
             setTimeout(function() {
-                console.log('Lightbox opened. Navigation links:', {
                     'prev exists': $('.nav-prev').length,
                     'next exists': $('.nav-next').length,
                     'total images': images.length
@@ -137,9 +124,6 @@
             var $lightboxDescription = $('.lightbox-description');
             var $imageCounter = $('.image-counter');
 
-            console.log('Showing image:', image);
-            console.log('Image src:', image.src);
-            console.log('Image thumb:', image.thumb);
 
             // Update title and description
             $lightboxTitle.text(image.title);
@@ -149,7 +133,6 @@
             // Load new image
             var newImg = new Image();
             newImg.onload = function() {
-                console.log('Image loaded successfully:', image.src);
                 $lightboxImage.attr('src', image.src).attr('alt', image.alt);
                 
                 // Optimize image sizing based on aspect ratio
@@ -160,8 +143,6 @@
                 updateSharingLinks(image);
             };
             newImg.onerror = function() {
-                console.log('Failed to load image:', image.src);
-                console.log('Trying thumbnail instead:', image.thumb);
                 // Fallback to thumbnail if full size fails
                 $lightboxImage.attr('src', image.thumb).attr('alt', image.alt);
                 
@@ -251,7 +232,6 @@
                             var exifData = response.data;
                             
                             // Debug: Log the response data
-                            console.log('EXIF Data received:', exifData);
                             
                             // Update each EXIF field if it exists
                             Object.keys(exifData).forEach(function(key) {
@@ -263,15 +243,12 @@
                                     $field.closest('.exif-item').show();
                                     
                                     // Debug: Log what fields are being shown
-                                    console.log('Showing field:', key, 'with value:', exifData[key]);
                                 }
                             });
                         } else {
-                            console.log('No data in response:', response);
                         }
                     },
                     error: function() {
-                        console.log('Could not load EXIF data for image:', imageSrc);
                     }
                 });
             }
@@ -321,14 +298,11 @@
             var imageHash = getImageHash(imageSrc);
             var shareUrl = enableDeepLinking && imageHash ? baseUrl + '#' + imageHash : imageSrc;
 
-            console.log('Copying link:', shareUrl);
             
             if (navigator.clipboard) {
                 navigator.clipboard.writeText(shareUrl).then(function() {
-                    console.log('Link copied successfully');
                     showCopySuccess();
                 }).catch(function(err) {
-                    console.error('Failed to copy:', err);
                     // Fallback to older method
                     fallbackCopy(shareUrl);
                 });
@@ -348,13 +322,10 @@
                 var successful = document.execCommand('copy');
                 document.body.removeChild(textArea);
                 if (successful) {
-                    console.log('Link copied via fallback');
                     showCopySuccess();
                 } else {
-                    console.error('Fallback copy failed');
                 }
             } catch (err) {
-                console.error('Copy error:', err);
             }
         }
 
@@ -368,20 +339,16 @@
         }
         
         if ($('.masonry-gallery').length || $('.gallery-link').length || $('.vibe-lightbox-gallery').length || $('.lightbox-image').length) {
-            console.log('Lightbox: Creating lightbox...');
             createLightbox();
             bindLightboxEvents();
         } else {
-            console.log('Lightbox: No galleries found, checking for wp-block-gallery...');
             if ($('.wp-block-gallery').length) {
-                console.log('Found wp-block-gallery elements:', $('.wp-block-gallery').length);
                 
                 // Enhanced fallback: properly enhance WordPress gallery images
                 $('.wp-block-gallery img').each(function() {
                     var $img = $(this);
                     var imgSrc = $img.attr('src');
                     
-                    console.log('Processing gallery image:', imgSrc);
                     
                     if (!$img.hasClass('lightbox-image') && imgSrc) {
                         // Clean up protocol-relative URLs
@@ -396,7 +363,6 @@
                             fullSrc = imgSrc.replace(/-\d+x\d+\.([^.]+)$/i, '.$1');
                         }
                         
-                        console.log('Adding lightbox to image - thumb:', imgSrc, 'full:', fullSrc);
                         
                         $img.addClass('lightbox-image');
                         $img.attr('data-lightbox', 'gallery');
@@ -410,21 +376,17 @@
                 
                 // Try again after enhancement
                 if ($('.lightbox-image').length > 0) {
-                    console.log('Lightbox: Enhanced images found, creating lightbox...');
                     createLightbox();
                     bindLightboxEvents();
                 } else {
-                    console.log('Lightbox: No images could be enhanced');
                 }
             } else {
-                console.log('Lightbox: No wp-block-gallery elements found');
             }
         }
         
         // Fallback: Add click handlers directly to any wp-block-gallery images
         // This works even if our PHP enhancement didn't work
         $('.wp-block-gallery img').on('click', function(e) {
-            console.log('Direct gallery image clicked:', $(this).attr('src'));
             e.preventDefault();
             e.stopPropagation();
             
@@ -759,7 +721,6 @@
         var images = [];
         var enableDeepLinking = true; // Enable URL hash for individual images
 
-        console.log('Lightbox: Binding events...');
 
         // Collect all gallery images from custom galleries
         $('.gallery-link').each(function(index) {
@@ -784,7 +745,6 @@
             });
         });
 
-        console.log('Custom gallery images found:', $('.gallery-link').length);
 
         // Collect images from WordPress Gallery blocks and enhanced galleries
         $('.lightbox-image').each(function(index) {
@@ -793,8 +753,6 @@
             var imgSrc = $img.attr('src');
             var fullSrc = $img.attr('data-full-src') || imgSrc;
             
-            console.log('Found lightbox image:', imgSrc);
-            console.log('Full size src:', fullSrc);
             
             // Only add images that have a valid src
             if (imgSrc && imgSrc.length > 0) {
@@ -809,18 +767,15 @@
 
                 // Add click handler for WordPress Gallery images
                 $img.on('click', function(e) {
-                    console.log('Image clicked:', imgSrc);
                     e.preventDefault();
                     e.stopPropagation();
                     currentIndex = galleryIndex;
                     openLightbox();
                 });
             } else {
-                console.log('Skipping image with empty src');
             }
         });
 
-        console.log('Total images in lightbox:', images.length);
 
         // Lightbox controls
         $(document).on('click', '.lightbox-overlay-close', closeLightbox);
@@ -842,7 +797,6 @@
 
         // Social sharing events
         $(document).on('click', '.copy-link', function(e) {
-            console.log('Copy link button clicked');
             e.preventDefault();
             e.stopPropagation();
             copyImageLink();
@@ -972,7 +926,6 @@
             
             // Debug: Check basic lightbox state
             setTimeout(function() {
-                console.log('Lightbox opened. Navigation links:', {
                     'prev exists': $('.nav-prev').length,
                     'next exists': $('.nav-next').length,
                     'total images': images.length
@@ -1137,7 +1090,10 @@
         }
 
         function updateSharingLinks(image) {
-            var currentUrl = window.location.href;
+            // Create image-specific URL with hash
+            var baseUrl = window.location.origin + window.location.pathname + window.location.search;
+            var imageHash = getImageHash(image.src);
+            var currentUrl = enableDeepLinking && imageHash ? baseUrl + '#' + imageHash : window.location.href;
             var imageUrl = image.src;
             var title = encodeURIComponent(image.title);
             var description = encodeURIComponent(image.description || 'Check out this photo');
@@ -1175,14 +1131,11 @@
             var imageHash = getImageHash(imageSrc);
             var shareUrl = enableDeepLinking && imageHash ? baseUrl + '#' + imageHash : imageSrc;
 
-            console.log('Copying link:', shareUrl);
             
             if (navigator.clipboard) {
                 navigator.clipboard.writeText(shareUrl).then(function() {
-                    console.log('Link copied successfully');
                     showCopySuccess();
                 }).catch(function(err) {
-                    console.error('Failed to copy:', err);
                     // Fallback to older method
                     fallbackCopy(shareUrl);
                 });
@@ -1202,13 +1155,10 @@
                 var successful = document.execCommand('copy');
                 document.body.removeChild(textArea);
                 if (successful) {
-                    console.log('Link copied via fallback');
                     showCopySuccess();
                 } else {
-                    console.error('Fallback copy failed');
                 }
             } catch (err) {
-                console.error('Copy error:', err);
             }
         }
 
@@ -1222,7 +1172,6 @@
         }
         
         function rebuildImageArrayAndOpen($clickedImg) {
-            console.log('Rebuilding image array for clicked image...');
             
             // Clear current images array
             images = [];
@@ -1260,7 +1209,6 @@
                 }
             });
             
-            console.log('Rebuilt image array with', images.length, 'images. Clicked index:', clickedIndex);
             
             // Set current index and open lightbox
             currentIndex = clickedIndex;
@@ -1321,7 +1269,6 @@
             'object-fit': 'contain'
         });
         
-        console.log('Optimized image size:', {
             original: imgWidth + 'x' + imgHeight,
             target: Math.round(targetWidth) + 'x' + Math.round(targetHeight),
             aspectRatio: aspectRatio.toFixed(2),
