@@ -9,6 +9,7 @@
 </head>
 
 <body <?php body_class(); ?>>
+	<?php wp_body_open(); ?>
 	<header class="site-header">
 		<div class="grid-container">
 			<div class="grid-x grid-padding-x align-justify align-middle">

@@ -70,7 +70,7 @@ function vibe_photo_setup() {
 			'caption',
 		));
 		add_theme_support('title-tag');
-		add_theme_support('custom-logo');
+	add_theme_support('automatic-feed-links');
 		add_theme_support('responsive-embeds');
 
 		// Add theme support for wide and full align images
@@ -1255,8 +1255,19 @@ function vibe_photo_test_gallery_creation() {
 add_action('wp', 'vibe_photo_test_gallery_creation');
 
 /**
- * Custom post type for Photo Galleries
+ * REMOVED FOR WORDPRESS.ORG COMPLIANCE
+ * 
+ * WordPress.org does not allow custom post types in themes.
+ * If you need the Photo Gallery custom post type, it should be moved
+ * to a separate plugin. The code has been commented out below for reference.
+ * 
+ * Note: The single-photo_gallery.php and archive-photo_gallery.php templates
+ * remain in the theme but will not be used without the custom post type.
  */
+
+/*
+ * Custom post type for Photo Galleries
+ *
 function vibe_photo_register_gallery_post_type() {
 	$labels = array(
 		'name'                  => _x('Photo Galleries', 'Post type general name', 'vibe-photo'),
@@ -1293,10 +1304,16 @@ function vibe_photo_register_gallery_post_type() {
 	register_post_type('photo_gallery', $args);
 }
 add_action('init', 'vibe_photo_register_gallery_post_type');
+*/
 
 /**
+ * REMOVED FOR WORDPRESS.ORG COMPLIANCE
+ * 
+ * Flush rewrite rules function was tied to custom post type (not allowed in themes)
+ *
+/*
  * Flush rewrite rules when theme is activated
- */
+ *
 function vibe_photo_flush_rewrite_rules() {
 	// Make sure our post type is registered
 	vibe_photo_register_gallery_post_type();
@@ -1307,6 +1324,7 @@ function vibe_photo_flush_rewrite_rules() {
 	}
 }
 add_action('after_switch_theme', 'vibe_photo_flush_rewrite_rules');
+*/
 
 /**
  * Custom excerpt length for photography posts
@@ -1325,8 +1343,16 @@ function vibe_photo_excerpt_more($more) {
 add_filter('excerpt_more', 'vibe_photo_excerpt_more');
 
 /**
- * Add custom gallery shortcode using Foundation Grid
+ * REMOVED FOR WORDPRESS.ORG COMPLIANCE
+ * 
+ * WordPress.org does not allow shortcodes in themes.
+ * If you need the gallery shortcode, it should be moved to a separate plugin.
+ * The code has been commented out below for reference.
  */
+
+/*
+ * Add custom gallery shortcode using Foundation Grid
+ *
 function vibe_photo_gallery_shortcode($atts) {
 	$atts = shortcode_atts(array(
 		'ids' => '',
@@ -1384,10 +1410,16 @@ function vibe_photo_gallery_shortcode($atts) {
 	return $output;
 }
 add_shortcode('vibe_gallery', 'vibe_photo_gallery_shortcode');
+*/
 
 /**
+ * REMOVED FOR WORDPRESS.ORG COMPLIANCE
+ * 
+ * Meta box functionality was tied to custom post type (not allowed in themes)
+ *
+/*
  * Add custom meta box for gallery images
- */
+ *
 function vibe_photo_add_gallery_meta_box() {
 	add_meta_box(
 		'gallery-images',
@@ -1397,10 +1429,16 @@ function vibe_photo_add_gallery_meta_box() {
 	);
 }
 add_action('add_meta_boxes', 'vibe_photo_add_gallery_meta_box');
+*/
 
 /**
+ * REMOVED FOR WORDPRESS.ORG COMPLIANCE
+ * 
+ * Gallery images meta box callback was tied to custom post type (not allowed in themes)
+ *
+/*
  * Gallery images meta box callback
- */
+ *
 function vibe_photo_gallery_images_callback($post) {
 	wp_nonce_field('vibe_photo_save_gallery_images', 'vibe_photo_gallery_images_nonce');
 
@@ -1471,10 +1509,16 @@ function vibe_photo_gallery_images_callback($post) {
 	</script>
 <?php
 }
+*/
 
 /**
+ * REMOVED FOR WORDPRESS.ORG COMPLIANCE
+ * 
+ * Save gallery images function was tied to custom post type (not allowed in themes)
+ *
+/*
  * Save gallery images meta data
- */
+ *
 function vibe_photo_save_gallery_images($post_id) {
 	if (!isset($_POST['vibe_photo_gallery_images_nonce'])) {
 		return;
@@ -1497,3 +1541,4 @@ function vibe_photo_save_gallery_images($post_id) {
 	}
 }
 add_action('save_post', 'vibe_photo_save_gallery_images');
+*/
