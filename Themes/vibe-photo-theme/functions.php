@@ -807,11 +807,24 @@ function vibe_photo_get_image_exif() {
 	);
 
 	if (function_exists('exif_read_data') && file_exists($file_path) && in_array($file_extension, $supported_formats)) {
+		// WordPress may have created a scaled version - try original first
+		$original_path = $file_path;
+		if (strpos($file_path, '-scaled.') !== false) {
+			$original_path = str_replace('-scaled.', '.', $file_path);
+			if (file_exists($original_path)) {
+				$exif_data['debug']['trying_original'] = true;
+				$file_path = $original_path;
+			}
+		}
+
 		$exif = @exif_read_data($file_path);
 
 		// Add to debug info
 		$exif_data['debug']['exif_read_success'] = ($exif !== false);
 		$exif_data['debug']['exif_keys_found'] = $exif ? count($exif) : 0;
+		if ($exif) {
+			$exif_data['debug']['exif_keys'] = array_keys($exif);
+		}
 
 		// Debug logging for troubleshooting
 		if (!$exif) {
