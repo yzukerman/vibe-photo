@@ -70,7 +70,7 @@ function vibe_photo_setup() {
 			'caption',
 		));
 		add_theme_support('title-tag');
-	add_theme_support('automatic-feed-links');
+		add_theme_support('automatic-feed-links');
 		add_theme_support('responsive-embeds');
 
 		// Add theme support for wide and full align images
@@ -1324,7 +1324,7 @@ function vibe_photo_flush_rewrite_rules() {
 	}
 }
 add_action('after_switch_theme', 'vibe_photo_flush_rewrite_rules');
-*/
+ */
 
 /**
  * Custom excerpt length for photography posts
@@ -1429,7 +1429,7 @@ function vibe_photo_add_gallery_meta_box() {
 	);
 }
 add_action('add_meta_boxes', 'vibe_photo_add_gallery_meta_box');
-*/
+ */
 
 /**
  * REMOVED FOR WORDPRESS.ORG COMPLIANCE
@@ -1509,7 +1509,7 @@ function vibe_photo_gallery_images_callback($post) {
 	</script>
 <?php
 }
-*/
+ */
 
 /**
  * REMOVED FOR WORDPRESS.ORG COMPLIANCE
@@ -1541,4 +1541,4 @@ function vibe_photo_save_gallery_images($post_id) {
 	}
 }
 add_action('save_post', 'vibe_photo_save_gallery_images');
-*/
+ */
