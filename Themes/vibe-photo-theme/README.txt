@@ -1,14 +1,14 @@
-=== Vibe Photo Theme v1.0.9 ===
+=== Vibe Photo Theme v1.0.10 ===
 Contributors: Yuval Zukerman and Visual Studio Code Copilot with Claude Sonnet. 
-Tags: photography, portfolio, gallery, responsive, minimal, foundation, lightbox, exif, metadata, footer-menu
+Tags: photography, portfolio, gallery, responsive, minimal, foundation, lightbox, exif, metadata, footer-menu, archive, categories, tags
 Requires at least: 5.0
 Tested up to: 6.3
 Requires PHP: 7.4
-Stable tag: 1.0.9
+Stable tag: 1.0.10
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-A modern, responsive WordPress theme designed specifically for photography portfolios and photo galleries with advanced lightbox functionality, WordPress metadata integration, and comprehensive menu support.
+A modern, responsive WordPress theme designed specifically for photography portfolios and photo galleries with advanced lightbox functionality, WordPress metadata integration, and comprehensive archive and menu support.
 
 **Note**: This version will install alongside previous versions without overwriting them, allowing you to safely test the new version.
 
@@ -21,10 +21,12 @@ Vibe Photo Theme is a professional photography theme built with Foundation CSS f
 * **Smart Attachment Detection**: Handles WordPress scaled images for proper metadata retrieval
 * **WordPress Gallery Block Support**: Enhanced Gallery blocks with lightbox functionality
 * **Custom Photo Gallery Post Type**: Dedicated post type for photo galleries
+* **Archive Templates**: Beautiful category and tag archive pages with grid layouts
 * **Footer Menu Support**: Separate footer navigation menu location for legal pages and links
 * **Page Template**: Dedicated template for static pages with clean layout
 * **Horizontal Pagination**: Styled page numbers with intuitive navigation
 * **Privacy Policy Filtering**: Automatically removes privacy policy from header menu while keeping it in footer
+* **EXIF Format Support**: Intelligent detection of image formats (JPEG, TIFF) for EXIF reading
 * **Responsive Design**: Mobile-first design that looks great on all devices
 * **Foundation CSS Framework**: Built on the solid Foundation by Zurb framework
 * **Social Sharing**: Share photos on Facebook, Twitter, Pinterest, and Tumblr
@@ -142,6 +144,20 @@ Yes, you can modify the CSS variables in style.css or add custom CSS through the
 For support and documentation, please visit the theme's repository or contact the developer.
 
 == Changelog ==
+
+= 1.0.10 =
+* New: Archive template (archive.php) for category and tag pages
+* New: Styled archive pages with grid layout and post cards
+* Enhanced: Archive pages display title, description, and pagination
+* Improved: EXIF reading now checks file format (JPEG/TIFF only, skips WebP)
+* Fixed: Category and tag pages no longer appear blank
+* Enhanced: Archive post cards with hover effects and thumbnails
+* Improved: Better handling of WebP images (graceful degradation for EXIF)
+
+= 1.0.9.1 =
+* Fixed: Header no longer shows automatic page listings when no menu is assigned
+* Enhanced: Added debug logging for EXIF data troubleshooting
+* Improved: Better error diagnostics for attachment ID detection and file permissions
 
 = 1.0.9 =
 * New: Footer menu support - separate navigation location for footer links

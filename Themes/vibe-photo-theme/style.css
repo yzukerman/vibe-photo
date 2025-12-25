@@ -1,13 +1,13 @@
 /*
-Theme Name: Vibe Photo Theme v1.0.9
-Description: A modern, responsive WordPress theme designed specifically for photography portfolios and photo galleries. Features advanced lightbox with EXIF data, WordPress image metadata integration (titles, captions, alt text), fullscreen viewing, WordPress Gallery block enhancement, custom Photo Gallery post type, footer menu support, page template, horizontal pagination, social sharing, and responsive design built with Foundation CSS framework.
+Theme Name: Vibe Photo Theme v1.0.10
+Description: A modern, responsive WordPress theme designed specifically for photography portfolios and photo galleries. Features advanced lightbox with EXIF data, WordPress image metadata integration (titles, captions, alt text), fullscreen viewing, WordPress Gallery block enhancement, custom Photo Gallery post type, footer menu support, page template, archive templates for categories/tags, horizontal pagination, social sharing, and responsive design built with Foundation CSS framework.
 Author: Yuval Zukerman
 Author URI: https://github.com/Yuval-Zukerman_adi
-Version: 1.0.9
+Version: 1.0.10
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
-Tags: photography, portfolio, gallery, responsive, minimal, foundation, lightscreen, exif, social-sharing, custom-post-type, masonry, one-column, two-columns, three-columns, flexible-header, custom-menu, featured-images, post-thumbnails, translation-ready, fullscreen, metadata, footer-menu
-Text Domain: vibe-photo-v1-0-9
+Tags: photography, portfolio, gallery, responsive, minimal, foundation, lightscreen, exif, social-sharing, custom-post-type, masonry, one-column, two-columns, three-columns, flexible-header, custom-menu, featured-images, post-thumbnails, translation-ready, fullscreen, metadata, footer-menu, categories, tags
+Text Domain: vibe-photo-v1-0-10
 Domain Path: /languages
 Requires at least: 5.0
 Tested up to: 6.3
@@ -338,6 +338,111 @@ img {
 .nav-links .page-numbers.dots:hover {
     background: transparent;
     color: var(--primary-color);
+}
+
+/* Archive Pages */
+.archive-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding: 2rem 0;
+    border-bottom: 2px solid var(--light-gray);
+}
+
+.archive-title {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+}
+
+.archive-description {
+    font-size: 1.1rem;
+    color: var(--dark-gray);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.archive-post-item {
+    margin-bottom: 2rem;
+    background: var(--white);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.archive-post-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
+
+.archive-post-item .post-thumbnail {
+    overflow: hidden;
+}
+
+.archive-post-item .post-thumbnail img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.archive-post-item:hover .post-thumbnail img {
+    transform: scale(1.05);
+}
+
+.archive-post-item .post-content {
+    padding: 1.5rem;
+}
+
+.archive-post-item .post-title {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.archive-post-item .post-title a {
+    color: var(--text-color);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.archive-post-item .post-title a:hover {
+    color: var(--accent-color);
+}
+
+.archive-post-item .post-meta {
+    font-size: 0.9rem;
+    color: var(--dark-gray);
+    margin-bottom: 1rem;
+}
+
+.archive-post-item .post-meta .categories {
+    margin-left: 1rem;
+}
+
+.archive-post-item .post-excerpt {
+    margin-bottom: 1rem;
+    color: var(--text-color);
+}
+
+.archive-post-item .read-more {
+    color: var(--accent-color);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.archive-post-item .read-more:hover {
+    color: var(--primary-color);
+}
+
+.no-posts {
+    text-align: center;
+    padding: 4rem 2rem;
+}
+
+.no-posts h2 {
+    color: var(--primary-color);
+    margin-bottom: 1rem;
 }
 
 /* Foundation Responsive Utilities Override */

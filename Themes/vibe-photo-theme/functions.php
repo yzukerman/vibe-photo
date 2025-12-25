@@ -523,6 +523,7 @@ function vibe_photo_get_image_exif() {
 	if (!$attachment_id) {
 		// Still no attachment ID, work with file directly
 		// If no attachment ID, try to work with the URL directly
+		error_log('VIBE PHOTO: No attachment ID found for: ' . $image_url);
 		$upload_dir = wp_get_upload_dir();
 
 		// Try multiple methods to convert URL to file path
@@ -590,8 +591,20 @@ function vibe_photo_get_image_exif() {
 	}
 
 	// Try to get EXIF data if available
-	if (function_exists('exif_read_data') && file_exists($file_path)) {
+	// Note: exif_read_data() only works with JPEG and TIFF formats, not WebP
+	$file_extension = strtolower(pathinfo($file_path, PATHINFO_EXTENSION));
+	$supported_formats = array('jpg', 'jpeg', 'tif', 'tiff');
+
+	if (function_exists('exif_read_data') && file_exists($file_path) && in_array($file_extension, $supported_formats)) {
 		$exif = @exif_read_data($file_path);
+
+		// Debug logging for troubleshooting
+		if (!$exif) {
+			error_log('VIBE PHOTO: Failed to read EXIF from: ' . $file_path);
+			error_log('VIBE PHOTO: File exists: ' . (file_exists($file_path) ? 'yes' : 'no'));
+			error_log('VIBE PHOTO: File readable: ' . (is_readable($file_path) ? 'yes' : 'no'));
+			error_log('VIBE PHOTO: File size: ' . (file_exists($file_path) ? filesize($file_path) : 'N/A'));
+		}
 
 		if ($exif) {
 			// Camera info

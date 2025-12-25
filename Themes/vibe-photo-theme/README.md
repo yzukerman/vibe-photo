@@ -1,6 +1,6 @@
-# Vibe Photo Theme v1.0.9
+# Vibe Photo Theme v1.0.10
 
-A modern, responsive WordPress theme designed specifically for photography portfolios and photo galleries with advanced lightbox functionality, WordPress metadata integration, and comprehensive menu support.
+A modern, responsive WordPress theme designed specifically for photography portfolios and photo galleries with advanced lightbox functionality, WordPress metadata integration, and comprehensive archive and menu support.
 
 ## Features
 
@@ -9,10 +9,12 @@ A modern, responsive WordPress theme designed specifically for photography portf
 - **Smart Attachment Detection**: Handles WordPress scaled images for proper metadata retrieval
 - **WordPress Gallery Block Support**: Enhanced Gallery blocks with lightbox functionality
 - **Custom Photo Gallery Post Type**: Dedicated post type for photo galleries
+- **Archive Templates**: Beautiful category and tag archive pages with grid layouts
 - **Footer Menu Support**: Separate footer navigation menu location for legal pages and links
 - **Page Template**: Dedicated template for static pages with clean layout
 - **Horizontal Pagination**: Styled page numbers with intuitive navigation
 - **Privacy Policy Filtering**: Automatically removes privacy policy from header menu while keeping it in footer
+- **EXIF Format Support**: Intelligent detection of image formats (JPEG, TIFF) for EXIF reading
 - **Responsive Design**: Mobile-first design built with Foundation CSS framework
 - **Social Sharing**: Share photos on Facebook, Twitter, Pinterest, and Tumblr
 - **EXIF Data Display**: Shows camera settings and technical details
@@ -145,6 +147,7 @@ vibe-photo-theme/
 ├── front-page.php            # Homepage template
 ├── page.php                  # Static page template
 ├── single.php                # Single post template
+├── archive.php               # Category/tag archive template
 ├── functions.php             # Theme functions and features
 ├── header.php                # Header template
 ├── footer.php                # Footer template with menu support
@@ -163,6 +166,22 @@ vibe-photo-theme/
 ```
 
 ## Changelog
+
+### Version 1.0.10 (December 25, 2025)
+
+- **New**: Archive template (archive.php) for category and tag pages
+- **New**: Styled archive pages with grid layout and post cards
+- **Enhanced**: Archive pages display title, description, and pagination
+- **Improved**: EXIF reading now checks file format (JPEG/TIFF only, skips WebP)
+- **Fixed**: Category and tag pages no longer appear blank
+- **Enhanced**: Archive post cards with hover effects and thumbnails
+- **Improved**: Better handling of WebP images (graceful degradation for EXIF)
+
+### Version 1.0.9.1 (December 25, 2025)
+
+- **Fixed**: Header no longer shows automatic page listings when no menu is assigned
+- **Enhanced**: Added debug logging for EXIF data troubleshooting
+- **Improved**: Better error diagnostics for attachment ID detection and file permissions
 
 ### Version 1.0.9 (December 25, 2025)
 

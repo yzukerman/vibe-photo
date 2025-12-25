@@ -30,6 +30,7 @@
 							'menu_id' => 'primary-menu',
 							'container' => false,
 							'menu_class' => 'menu horizontal',
+							'fallback_cb' => false,
 						));
 						?>
 					</nav>
@@ -46,6 +47,7 @@
 							'menu_id' => 'mobile-menu',
 							'container' => false,
 							'menu_class' => 'menu vertical',
+							'fallback_cb' => false,
 						));
 						?>
 					</nav>
