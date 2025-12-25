@@ -746,6 +746,23 @@ function vibe_photo_get_image_exif() {
 		$metadata = wp_get_attachment_metadata($attachment_id);
 		$file_path = get_attached_file($attachment_id);
 
+		// Debug logging
+		error_log('VIBE PHOTO: Attachment ID: ' . $attachment_id);
+		error_log('VIBE PHOTO: File path: ' . $file_path);
+		error_log('VIBE PHOTO: File exists: ' . (file_exists($file_path) ? 'yes' : 'no'));
+
+		// Check if file exists
+		if (!file_exists($file_path)) {
+			wp_send_json_error(array(
+				'message' => 'Image file not found on server',
+				'debug' => array(
+					'attachment_id' => $attachment_id,
+					'file_path' => $file_path
+				)
+			));
+			return;
+		}
+
 		// Get WordPress image title and caption
 		$post = get_post($attachment_id);
 		if ($post) {
@@ -764,15 +781,15 @@ function vibe_photo_get_image_exif() {
 			if (!empty($alt_text)) {
 				$exif_data['alt_text'] = $alt_text;
 			}
-		}		// Get basic file info
+		}
+		
+		// Get basic file info
 		if ($metadata) {
 			$exif_data['size'] = $metadata['width'] . ' × ' . $metadata['height'] . ' pixels';
 
 			// Get file size
-			if (file_exists($file_path)) {
-				$file_size = filesize($file_path);
-				$exif_data['file_size'] = size_format($file_size);
-			}
+			$file_size = filesize($file_path);
+			$exif_data['file_size'] = size_format($file_size);
 		}
 	}
 
