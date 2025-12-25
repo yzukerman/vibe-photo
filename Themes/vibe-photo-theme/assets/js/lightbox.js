@@ -11,15 +11,23 @@
         var enableDeepLinking = true; // Enable URL hash for individual images
 
         // Initialize lightbox for gallery images and WordPress Gallery blocks
-        
+
+
+
+
+
+
+
         // Debug: Log what we actually find
         $('.wp-block-gallery').each(function(i) {
+
             $(this).find('img').each(function(j) {
+
             });
         });
         
         function rebuildImageArrayAndOpen($clickedImg) {
-            
+
             // Clear current images array
             images = [];
             
@@ -51,8 +59,7 @@
                             fullSrc = imgSrc; // Use the same URL if no size pattern found
                         }
                     }
-                    
-                    
+
                     images.push({
                         src: fullSrc,
                         title: $img.attr('alt') || $img.attr('title') || 'Gallery Image ' + (index + 1),
@@ -68,8 +75,7 @@
                     }
                 }
             });
-            
-            
+
             // Set current index and open lightbox
             currentIndex = clickedIndex;
             openLightbox();
@@ -84,10 +90,6 @@
             
             // Debug: Check basic lightbox state
             setTimeout(function() {
-                    'prev exists': $('.nav-prev').length,
-                    'next exists': $('.nav-next').length,
-                    'total images': images.length
-                });
             }, 100);
         }
 
@@ -125,6 +127,7 @@
             var $imageCounter = $('.image-counter');
 
 
+
             // Update title and description
             $lightboxTitle.text(image.title);
             $lightboxDescription.text(image.description);
@@ -133,6 +136,7 @@
             // Load new image
             var newImg = new Image();
             newImg.onload = function() {
+
                 $lightboxImage.attr('src', image.src).attr('alt', image.alt);
                 
                 // Optimize image sizing based on aspect ratio
@@ -143,6 +147,8 @@
                 updateSharingLinks(image);
             };
             newImg.onerror = function() {
+
+
                 // Fallback to thumbnail if full size fails
                 $lightboxImage.attr('src', image.thumb).attr('alt', image.alt);
                 
@@ -232,7 +238,7 @@
                             var exifData = response.data;
                             
                             // Debug: Log the response data
-                            
+
                             // Update each EXIF field if it exists
                             Object.keys(exifData).forEach(function(key) {
                                 var $field = $('[data-exif="' + key + '"]');
@@ -243,12 +249,15 @@
                                     $field.closest('.exif-item').show();
                                     
                                     // Debug: Log what fields are being shown
+
                                 }
                             });
                         } else {
+
                         }
                     },
                     error: function() {
+
                     }
                 });
             }
@@ -298,11 +307,12 @@
             var imageHash = getImageHash(imageSrc);
             var shareUrl = enableDeepLinking && imageHash ? baseUrl + '#' + imageHash : imageSrc;
 
-            
             if (navigator.clipboard) {
                 navigator.clipboard.writeText(shareUrl).then(function() {
+
                     showCopySuccess();
                 }).catch(function(err) {
+
                     // Fallback to older method
                     fallbackCopy(shareUrl);
                 });
@@ -322,10 +332,13 @@
                 var successful = document.execCommand('copy');
                 document.body.removeChild(textArea);
                 if (successful) {
+
                     showCopySuccess();
                 } else {
+
                 }
             } catch (err) {
+
             }
         }
 
@@ -339,17 +352,18 @@
         }
         
         if ($('.masonry-gallery').length || $('.gallery-link').length || $('.vibe-lightbox-gallery').length || $('.lightbox-image').length) {
+
             createLightbox();
             bindLightboxEvents();
         } else {
+
             if ($('.wp-block-gallery').length) {
-                
+
                 // Enhanced fallback: properly enhance WordPress gallery images
                 $('.wp-block-gallery img').each(function() {
                     var $img = $(this);
                     var imgSrc = $img.attr('src');
-                    
-                    
+
                     if (!$img.hasClass('lightbox-image') && imgSrc) {
                         // Clean up protocol-relative URLs
                         if (imgSrc.indexOf('//') === 0) {
@@ -362,8 +376,7 @@
                         if (sizeMatch) {
                             fullSrc = imgSrc.replace(/-\d+x\d+\.([^.]+)$/i, '.$1');
                         }
-                        
-                        
+
                         $img.addClass('lightbox-image');
                         $img.attr('data-lightbox', 'gallery');
                         $img.attr('data-full-src', fullSrc);
@@ -376,17 +389,21 @@
                 
                 // Try again after enhancement
                 if ($('.lightbox-image').length > 0) {
+
                     createLightbox();
                     bindLightboxEvents();
                 } else {
+
                 }
             } else {
+
             }
         }
         
         // Fallback: Add click handlers directly to any wp-block-gallery images
         // This works even if our PHP enhancement didn't work
         $('.wp-block-gallery img').on('click', function(e) {
+
             e.preventDefault();
             e.stopPropagation();
             
@@ -721,7 +738,6 @@
         var images = [];
         var enableDeepLinking = true; // Enable URL hash for individual images
 
-
         // Collect all gallery images from custom galleries
         $('.gallery-link').each(function(index) {
             var $link = $(this);
@@ -745,15 +761,14 @@
             });
         });
 
-
         // Collect images from WordPress Gallery blocks and enhanced galleries
         $('.lightbox-image').each(function(index) {
             var $img = $(this);
             var galleryIndex = images.length + index; // Continue numbering from custom gallery images
             var imgSrc = $img.attr('src');
             var fullSrc = $img.attr('data-full-src') || imgSrc;
-            
-            
+
+
             // Only add images that have a valid src
             if (imgSrc && imgSrc.length > 0) {
                 images.push({
@@ -767,15 +782,16 @@
 
                 // Add click handler for WordPress Gallery images
                 $img.on('click', function(e) {
+
                     e.preventDefault();
                     e.stopPropagation();
                     currentIndex = galleryIndex;
                     openLightbox();
                 });
             } else {
+
             }
         });
-
 
         // Lightbox controls
         $(document).on('click', '.lightbox-overlay-close', closeLightbox);
@@ -797,6 +813,7 @@
 
         // Social sharing events
         $(document).on('click', '.copy-link', function(e) {
+
             e.preventDefault();
             e.stopPropagation();
             copyImageLink();
@@ -926,10 +943,6 @@
             
             // Debug: Check basic lightbox state
             setTimeout(function() {
-                    'prev exists': $('.nav-prev').length,
-                    'next exists': $('.nav-next').length,
-                    'total images': images.length
-                });
             }, 100);
         }
 
@@ -1090,10 +1103,7 @@
         }
 
         function updateSharingLinks(image) {
-            // Create image-specific URL with hash
-            var baseUrl = window.location.origin + window.location.pathname + window.location.search;
-            var imageHash = getImageHash(image.src);
-            var currentUrl = enableDeepLinking && imageHash ? baseUrl + '#' + imageHash : window.location.href;
+            var currentUrl = window.location.href;
             var imageUrl = image.src;
             var title = encodeURIComponent(image.title);
             var description = encodeURIComponent(image.description || 'Check out this photo');
@@ -1131,11 +1141,12 @@
             var imageHash = getImageHash(imageSrc);
             var shareUrl = enableDeepLinking && imageHash ? baseUrl + '#' + imageHash : imageSrc;
 
-            
             if (navigator.clipboard) {
                 navigator.clipboard.writeText(shareUrl).then(function() {
+
                     showCopySuccess();
                 }).catch(function(err) {
+
                     // Fallback to older method
                     fallbackCopy(shareUrl);
                 });
@@ -1155,10 +1166,13 @@
                 var successful = document.execCommand('copy');
                 document.body.removeChild(textArea);
                 if (successful) {
+
                     showCopySuccess();
                 } else {
+
                 }
             } catch (err) {
+
             }
         }
 
@@ -1172,7 +1186,7 @@
         }
         
         function rebuildImageArrayAndOpen($clickedImg) {
-            
+
             // Clear current images array
             images = [];
             
@@ -1208,8 +1222,7 @@
                     }
                 }
             });
-            
-            
+
             // Set current index and open lightbox
             currentIndex = clickedIndex;
             openLightbox();
@@ -1269,12 +1282,6 @@
             'object-fit': 'contain'
         });
         
-            original: imgWidth + 'x' + imgHeight,
-            target: Math.round(targetWidth) + 'x' + Math.round(targetHeight),
-            aspectRatio: aspectRatio.toFixed(2),
-            viewport: viewportWidth + 'x' + viewportHeight,
-            available: availableWidth + 'x' + availableHeight
-        });
     }
 
     // Helper functions for info containers

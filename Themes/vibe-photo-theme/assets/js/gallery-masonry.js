@@ -6,11 +6,10 @@
     'use strict';
 
     $(document).ready(function() {
-        console.log('Gallery JS loaded');
-        console.log('jQuery version:', $.fn.jquery);
-        console.log('Masonry available:', typeof $.fn.masonry !== 'undefined');
-        console.log('ImagesLoaded available:', typeof $.fn.imagesLoaded !== 'undefined');
-        
+
+
+
+
         initializeMasonry();
         initializeLightbox();
         initializeSlideshow();
@@ -26,35 +25,33 @@
      */
     function initializeMasonry() {
         const $masonryContainer = $('.masonry-gallery');
-        
-        console.log('Masonry containers found:', $masonryContainer.length);
-        
+
         if ($masonryContainer.length) {
             // Check if masonry and imagesLoaded are available
             if (typeof $.fn.masonry === 'undefined') {
-                console.error('Masonry library not loaded');
+
                 fallbackMasonryCSS();
                 return;
             }
             
             if (typeof $.fn.imagesLoaded === 'undefined') {
-                console.error('ImagesLoaded library not loaded');
+
                 // Try to initialize without imagesLoaded
                 initMasonryDirect($masonryContainer);
                 return;
             }
             
             // Wait for images to load
-            console.log('Initializing masonry with imagesLoaded...');
+
             $masonryContainer.imagesLoaded(function() {
-                console.log('Images loaded, initializing masonry');
+
                 $masonryContainer.masonry({
                     itemSelector: '.masonry-item',
                     columnWidth: '.masonry-item',
                     percentPosition: true,
                     gutter: 0
                 });
-                console.log('Masonry initialized successfully');
+
             });
         }
     }
@@ -64,14 +61,14 @@
      */
     function initMasonryDirect($container) {
         setTimeout(function() {
-            console.log('Initializing masonry directly...');
+
             $container.masonry({
                 itemSelector: '.masonry-item',
                 columnWidth: '.masonry-item',
                 percentPosition: true,
                 gutter: 0
             });
-            console.log('Direct masonry initialized');
+
         }, 500);
     }
 
@@ -79,7 +76,7 @@
      * Fallback CSS Grid layout when masonry fails
      */
     function fallbackMasonryCSS() {
-        console.log('Using CSS fallback for masonry...');
+
         $('.masonry-gallery').addClass('css-grid-fallback');
     }
 
