@@ -8,6 +8,7 @@
     $(document).ready(function() {
         var currentIndex = 0;
         var images = [];
+        var enableDeepLinking = true; // Enable URL hash for individual images
 
         // Initialize lightbox for gallery images and WordPress Gallery blocks
         console.log('Lightbox: Checking for galleries...');
@@ -106,6 +107,11 @@
         function closeLightbox() {
             $('#vibe-lightbox').removeClass('active');
             $('body').removeClass('lightbox-open');
+            
+            // Clear URL hash when closing lightbox
+            if (enableDeepLinking && window.location.hash) {
+                history.pushState('', document.title, window.location.pathname + window.location.search);
+            }
         }
 
         function showPrevImage() {
@@ -191,6 +197,36 @@
                 $('.lightbox-navigation-bar').show(); // Still show for info buttons
                 $('.nav-prev, .nav-next').hide(); // But hide navigation buttons
             }
+            
+            // Update URL hash for deep linking
+            if (enableDeepLinking) {
+                var imageHash = getImageHash(image.src);
+                if (imageHash && window.location.hash !== '#' + imageHash) {
+                    history.pushState(null, null, '#' + imageHash);
+                }
+            }
+        }
+        
+        function getImageHash(imageSrc) {
+            // Extract filename from URL without extension
+            var filename = imageSrc.split('/').pop().split('.')[0];
+            // Remove size suffixes like -2560x1280, -scaled
+            filename = filename.replace(/-\d+x\d+$/, '').replace(/-scaled$/, '');
+            return 'image-' + filename;
+        }
+        
+        function getImageIndexFromHash() {
+            var hash = window.location.hash.substr(1); // Remove #
+            if (!hash || !hash.startsWith('image-')) return -1;
+            
+            // Try to find matching image by comparing hashes
+            for (var i = 0; i < images.length; i++) {
+                var imageHash = getImageHash(images[i].src);
+                if (imageHash === hash) {
+                    return i;
+                }
+            }
+            return -1;
         }
         
         function loadImageMetadata(imageSrc, imageIndex) {
@@ -252,7 +288,10 @@
         }
 
         function updateSharingLinks(image) {
-            var currentUrl = window.location.href;
+            // Create image-specific URL with hash
+            var baseUrl = window.location.origin + window.location.pathname + window.location.search;
+            var imageHash = getImageHash(image.src);
+            var currentUrl = enableDeepLinking && imageHash ? baseUrl + '#' + imageHash : window.location.href;
             var imageUrl = image.src;
             var title = encodeURIComponent(image.title);
             var description = encodeURIComponent(image.description || 'Check out this photo');
@@ -276,16 +315,21 @@
         }
 
         function copyImageLink() {
-            var imageUrl = $('.lightbox-image').attr('src');
+            // Copy page URL with image hash instead of direct image URL
+            var baseUrl = window.location.origin + window.location.pathname + window.location.search;
+            var imageSrc = $('.lightbox-image').attr('src');
+            var imageHash = getImageHash(imageSrc);
+            var shareUrl = enableDeepLinking && imageHash ? baseUrl + '#' + imageHash : imageSrc;
+
             
             if (navigator.clipboard) {
-                navigator.clipboard.writeText(imageUrl).then(function() {
+                navigator.clipboard.writeText(shareUrl).then(function() {
                     showCopySuccess();
                 });
             } else {
                 // Fallback for older browsers
                 var textArea = document.createElement('textarea');
-                textArea.value = imageUrl;
+                textArea.value = shareUrl;
                 document.body.appendChild(textArea);
                 textArea.select();
                 document.execCommand('copy');
@@ -434,6 +478,59 @@
                 }
             }
         });
+        
+        // Check URL hash on page load for deep linking
+        setTimeout(function() {
+            var hash = window.location.hash.substr(1);
+            if (hash && hash.startsWith('image-')) {
+                // Find all gallery images
+                var $galleryImages = $('.wp-block-gallery img, .vibe-lightbox-gallery img');
+                if ($galleryImages.length > 0) {
+                    // Build images array
+                    images = [];
+                    $galleryImages.each(function() {
+                        var $img = $(this);
+                        var imgSrc = $img.attr('src');
+                        var fullSrc = $img.attr('data-full-src') || imgSrc;
+                        
+                        if (imgSrc && imgSrc.indexOf('//') === 0) {
+                            imgSrc = 'http:' + imgSrc;
+                        }
+                        if (fullSrc && fullSrc.indexOf('//') === 0) {
+                            fullSrc = 'http:' + fullSrc;
+                        }
+                        
+                        if (imgSrc) {
+                            if (!$img.attr('data-full-src')) {
+                                var sizeMatch = imgSrc.match(/-(\d+)x(\d+)\.(jpg|jpeg|png|gif|webp)$/i);
+                                if (sizeMatch) {
+                                    fullSrc = imgSrc.replace(/-\d+x\d+\.([^.]+)$/i, '.$1');
+                                }
+                            }
+                            
+                            images.push({
+                                src: fullSrc,
+                                title: $img.attr('alt') || $img.attr('title') || 'Gallery Image',
+                                description: $img.attr('data-caption') || '',
+                                thumb: imgSrc,
+                                alt: $img.attr('alt') || '',
+                                type: 'wp-gallery'
+                            });
+                        }
+                    });
+                    
+                    // Find matching image index
+                    var imageIndex = getImageIndexFromHash();
+                    if (imageIndex >= 0) {
+                        if ($('#vibe-lightbox').length === 0) {
+                            createLightbox();
+                        }
+                        currentIndex = imageIndex;
+                        openLightbox();
+                    }
+                }
+            }
+        }, 500); // Wait for images to be processed
     });
 
     function createLightbox() {
@@ -862,6 +959,11 @@
         function closeLightbox() {
             $('#vibe-lightbox').removeClass('active');
             $('body').removeClass('lightbox-open');
+            
+            // Clear URL hash when closing lightbox
+            if (enableDeepLinking && window.location.hash) {
+                history.pushState('', document.title, window.location.pathname + window.location.search);
+            }
         }
 
         function showPrevImage() {
@@ -1035,16 +1137,15 @@
         }
 
         function copyImageLink() {
-            var imageUrl = $('.lightbox-image').attr('src');
             
             if (navigator.clipboard) {
-                navigator.clipboard.writeText(imageUrl).then(function() {
+                navigator.clipboard.writeText(shareUrl).then(function() {
                     showCopySuccess();
                 });
             } else {
                 // Fallback for older browsers
                 var textArea = document.createElement('textarea');
-                textArea.value = imageUrl;
+                textArea.value = shareUrl;
                 document.body.appendChild(textArea);
                 textArea.select();
                 document.execCommand('copy');
