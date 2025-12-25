@@ -593,6 +593,10 @@
                             '<span class="exif-label">GPS:</span>' +
                             '<span class="exif-value" data-exif="gps_coordinates">-</span>' +
                         '</div>' +
+                        '<div class="exif-item location-item" style="display: none;">' +
+                            '<span class="exif-label">Location:</span>' +
+                            '<span class="exif-value" data-exif="location">-</span>' +
+                        '</div>' +
                         '<div class="exif-item software-item" style="display: none;">' +
                             '<span class="exif-label">Software:</span>' +
                             '<span class="exif-value" data-exif="software">-</span>' +
@@ -989,6 +993,13 @@
                 $('.gps-item').show();
             } else {
                 $('.gps-item').hide();
+            }
+            
+            if (exifData.location) {
+                $('.exif-value[data-exif="location"]').text(exifData.location);
+                $('.location-item').show();
+            } else {
+                $('.location-item').hide();
             }
             
             if (exifData.software) {

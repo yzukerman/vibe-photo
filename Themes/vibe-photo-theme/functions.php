@@ -462,6 +462,192 @@ function vibe_photo_debug_content_filters() {
 add_action('template_redirect', 'vibe_photo_debug_content_filters');
 
 /**
+ * Register Google Cloud API settings in Media Settings
+ */
+function vibe_photo_register_google_api_settings() {
+	// Register the setting
+	register_setting('media', 'vibe_photo_google_api_key', array(
+		'type' => 'string',
+		'sanitize_callback' => 'sanitize_text_field',
+		'default' => ''
+	));
+
+	// Add settings section
+	add_settings_section(
+		'vibe_photo_google_api_section',
+		__('Vibe Photo - Google Cloud Settings', 'vibe-photo'),
+		'vibe_photo_google_api_section_callback',
+		'media'
+	);
+
+	// Add settings field
+	add_settings_field(
+		'vibe_photo_google_api_key',
+		__('Google Cloud API Key', 'vibe-photo'),
+		'vibe_photo_google_api_key_callback',
+		'media',
+		'vibe_photo_google_api_section'
+	);
+}
+add_action('admin_init', 'vibe_photo_register_google_api_settings');
+
+/**
+ * Settings section callback
+ */
+function vibe_photo_google_api_section_callback() {
+	echo '<p>' . __('Configure Google Cloud API for reverse geocoding (converting GPS coordinates to location names).', 'vibe-photo') . '</p>';
+	echo '<p>' . __('To get an API key:', 'vibe-photo') . '</p>';
+	echo '<ol>';
+	echo '<li>' . __('Go to <a href="https://console.cloud.google.com/" target="_blank">Google Cloud Console</a>', 'vibe-photo') . '</li>';
+	echo '<li>' . __('Create a project or select an existing one', 'vibe-photo') . '</li>';
+	echo '<li>' . __('Enable the "Geocoding API"', 'vibe-photo') . '</li>';
+	echo '<li>' . __('Go to Credentials and create an API key', 'vibe-photo') . '</li>';
+	echo '<li>' . __('Copy the API key and paste it below', 'vibe-photo') . '</li>';
+	echo '</ol>';
+}
+
+/**
+ * API key field callback
+ */
+function vibe_photo_google_api_key_callback() {
+	$api_key = get_option('vibe_photo_google_api_key', '');
+	echo '<input type="text" name="vibe_photo_google_api_key" value="' . esc_attr($api_key) . '" class="regular-text" />';
+	echo '<p class="description">' . __('Your Google Cloud API key for Geocoding API. Leave empty to disable reverse geocoding.', 'vibe-photo') . '</p>';
+}
+
+/**
+ * Reverse geocode coordinates to location name using Google Geocoding API
+ */
+function vibe_photo_reverse_geocode($lat, $lon, $attachment_id = null) {
+	// Get API key from settings
+	$api_key = get_option('vibe_photo_google_api_key', '');
+	
+	// If no API key, return null
+	if (empty($api_key)) {
+		return null;
+	}
+
+	// Check if we have cached location for this attachment
+	if ($attachment_id) {
+		$cached_location = get_post_meta($attachment_id, '_vibe_photo_location', true);
+		if (!empty($cached_location)) {
+			return $cached_location;
+		}
+	}
+
+	// Build API request URL
+	$url = sprintf(
+		'https://maps.googleapis.com/maps/api/geocode/json?latlng=%s,%s&key=%s',
+		$lat,
+		$lon,
+		$api_key
+	);
+
+	// Make API request
+	$response = wp_remote_get($url, array(
+		'timeout' => 10,
+		'sslverify' => true
+	));
+
+	// Check for errors
+	if (is_wp_error($response)) {
+		error_log('VIBE PHOTO: Geocoding API error: ' . $response->get_error_message());
+		return null;
+	}
+
+	// Parse response
+	$body = wp_remote_retrieve_body($response);
+	$data = json_decode($body, true);
+
+	// Check if we got results
+	if (empty($data['results']) || $data['status'] !== 'OK') {
+		error_log('VIBE PHOTO: Geocoding API returned no results. Status: ' . ($data['status'] ?? 'unknown'));
+		return null;
+	}
+
+	// Extract location name
+	// Try to get city, state/province, country format
+	$location_parts = array();
+	$address_components = $data['results'][0]['address_components'];
+	
+	$locality = null;
+	$sublocality = null;
+	$admin_area = null;
+	$country = null;
+	
+	foreach ($address_components as $component) {
+		// Skip Plus Code components
+		if (in_array('plus_code', $component['types'])) {
+			continue;
+		}
+		
+		if (in_array('locality', $component['types'])) {
+			$locality = $component['long_name'];
+		}
+		if (in_array('sublocality', $component['types']) || in_array('sublocality_level_1', $component['types'])) {
+			$sublocality = $component['long_name'];
+		}
+		if (in_array('administrative_area_level_1', $component['types'])) {
+			$admin_area = $component['short_name'];
+		}
+		if (in_array('administrative_area_level_2', $component['types']) && !$locality) {
+			// Use level 2 admin area if no locality found
+			if (!$locality) {
+				$locality = $component['long_name'];
+			}
+		}
+		if (in_array('country', $component['types'])) {
+			$country = $component['long_name'];
+		}
+	}
+
+	// Build location string
+	if ($locality) {
+		$location_parts[] = $locality;
+	} elseif ($sublocality) {
+		$location_parts[] = $sublocality;
+	}
+	if ($admin_area) {
+		$location_parts[] = $admin_area;
+	}
+	if ($country) {
+		$location_parts[] = $country;
+	}
+
+	// If we still have no parts, try to extract from formatted_address, but skip Plus Codes
+	if (empty($location_parts)) {
+		$formatted = $data['results'][0]['formatted_address'];
+		// Check if it's a Plus Code (format: XXXX+XX)
+		if (!preg_match('/^[A-Z0-9]{4,8}\+[A-Z0-9]{2,3}/', $formatted)) {
+			$location_name = $formatted;
+		} else {
+			// If only Plus Code, try next result
+			if (isset($data['results'][1])) {
+				$formatted = $data['results'][1]['formatted_address'];
+				if (!preg_match('/^[A-Z0-9]{4,8}\+[A-Z0-9]{2,3}/', $formatted)) {
+					$location_name = $formatted;
+				}
+			}
+		}
+	} else {
+		$location_name = implode(', ', $location_parts);
+	}
+
+	// If still empty, return null
+	if (empty($location_name)) {
+		error_log('VIBE PHOTO: Could not extract meaningful location from geocoding response');
+		return null;
+	}
+
+	// Cache the result
+	if ($attachment_id && !empty($location_name)) {
+		update_post_meta($attachment_id, '_vibe_photo_location', $location_name);
+	}
+
+	return $location_name;
+}
+
+/**
  * AJAX handler for getting image EXIF data
  */
 function vibe_photo_get_image_exif() {
@@ -776,17 +962,50 @@ function vibe_photo_get_image_exif() {
 				$lat_ref = isset($exif['GPSLatitudeRef']) ? $exif['GPSLatitudeRef'] : '';
 				$lon_ref = isset($exif['GPSLongitudeRef']) ? $exif['GPSLongitudeRef'] : '';
 
-				// Convert DMS to decimal
-				if (is_array($lat) && count($lat) >= 3) {
-					$lat_decimal = $lat[0] + ($lat[1] / 60) + ($lat[2] / 3600);
-					if ($lat_ref == 'S') $lat_decimal = -$lat_decimal;
+			// Helper function to convert GPS rational number to decimal
+			$gps_to_decimal = function($coordinate) {
+				if (is_array($coordinate) && count($coordinate) >= 3) {
+					// Each component might be a rational number like "25/1"
+					$degrees = $coordinate[0];
+					$minutes = $coordinate[1];
+					$seconds = $coordinate[2];
+					
+					// Evaluate fractions
+					if (is_string($degrees) && strpos($degrees, '/') !== false) {
+						$parts = explode('/', $degrees);
+						$degrees = $parts[1] != 0 ? $parts[0] / $parts[1] : 0;
+					}
+					if (is_string($minutes) && strpos($minutes, '/') !== false) {
+						$parts = explode('/', $minutes);
+						$minutes = $parts[1] != 0 ? $parts[0] / $parts[1] : 0;
+					}
+					if (is_string($seconds) && strpos($seconds, '/') !== false) {
+						$parts = explode('/', $seconds);
+						$seconds = $parts[1] != 0 ? $parts[0] / $parts[1] : 0;
+					}
+					
+					return $degrees + ($minutes / 60) + ($seconds / 3600);
+				}
+				return 0;
+			};
 
-					$lon_decimal = $lon[0] + ($lon[1] / 60) + ($lon[2] / 3600);
-					if ($lon_ref == 'W') $lon_decimal = -$lon_decimal;
+			// Convert DMS to decimal
+			if (is_array($lat) && count($lat) >= 3) {
+				$lat_decimal = $gps_to_decimal($lat);
+				if ($lat_ref == 'S') $lat_decimal = -$lat_decimal;
 
-					$exif_data['gps_coordinates'] = round($lat_decimal, 6) . ', ' . round($lon_decimal, 6);
+				$lon_decimal = $gps_to_decimal($lon);
+				if ($lon_ref == 'W') $lon_decimal = -$lon_decimal;
+
+				$exif_data['gps_coordinates'] = round($lat_decimal, 6) . ', ' . round($lon_decimal, 6);
+				
+				// Add reverse geocoding
+				$location_name = vibe_photo_reverse_geocode($lat_decimal, $lon_decimal, $attachment_id);
+				if ($location_name) {
+					$exif_data['location'] = $location_name;
 				}
 			}
+		}
 
 			// Color space
 			if (isset($exif['ColorSpace'])) {
