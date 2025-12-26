@@ -34,6 +34,7 @@ rsync -av --exclude='*.log' \
          --exclude='*.map' \
          --exclude='gulpfile.js' \
          --exclude='webpack.config.js' \
+         --exclude='dist/' \
          $THEME_NAME/ $BUILD_DIR/$VERSIONED_THEME_NAME/
 
 # Create ZIP file
