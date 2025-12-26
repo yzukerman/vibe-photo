@@ -37,7 +37,7 @@
 										<div class="post-excerpt">
 											<?php the_excerpt(); ?>
 										</div>
-										<a href="<?php the_permalink(); ?>" class="read-more"><?php _e('Read More', 'vibe-photo-theme'); ?></a>
+										<a href="<?php the_permalink(); ?>" class="read-more"><?php _e('Read More', 'vibe-photo'); ?></a>
 									</div>
 								</article>
 							</div>
@@ -49,16 +49,16 @@
 						<?php
 						the_posts_pagination(array(
 							'mid_size' => 2,
-							'prev_text' => __('&laquo; Previous', 'vibe-photo-theme'),
-							'next_text' => __('Next &raquo;', 'vibe-photo-theme'),
+							'prev_text' => __('&laquo; Previous', 'vibe-photo'),
+							'next_text' => __('Next &raquo;', 'vibe-photo'),
 						));
 						?>
 					</div>
 
 				<?php else : ?>
 					<div class="no-posts">
-						<h2><?php _e('Nothing Found', 'vibe-photo-theme'); ?></h2>
-						<p><?php _e('It seems we can\'t find what you\'re looking for. Perhaps searching can help.', 'vibe-photo-theme'); ?></p>
+						<h2><?php _e('Nothing Found', 'vibe-photo'); ?></h2>
+						<p><?php _e('It seems we can\'t find what you\'re looking for. Perhaps searching can help.', 'vibe-photo'); ?></p>
 						<?php get_search_form(); ?>
 					</div>
 				<?php endif; ?>

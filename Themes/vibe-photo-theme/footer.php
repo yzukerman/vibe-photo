@@ -13,7 +13,7 @@
 						));
 					}
 					?>
-					<p>&copy; <?php echo date('Y'); ?> <?php bloginfo('name'); ?>. <?php _e('All rights reserved.', 'vibe-photo-theme'); ?></p>
+					<p>&copy; <?php echo date('Y'); ?> <?php bloginfo('name'); ?>. <?php _e('All rights reserved.', 'vibe-photo'); ?></p>
 				</div>
 			</div>
 		</div>

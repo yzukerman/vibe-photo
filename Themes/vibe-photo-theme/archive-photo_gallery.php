@@ -45,7 +45,7 @@ get_header(); ?>
 									<?php else : ?>
 										<div class="placeholder-image">
 											<span class="icon">📷</span>
-											<p><?php _e('No Images', 'vibe-photo-theme'); ?></p>
+											<p><?php _e('No Images', 'vibe-photo'); ?></p>
 										</div>
 									<?php endif; ?>
 
@@ -53,9 +53,9 @@ get_header(); ?>
 										<div class="gallery-info">
 											<h3><?php the_title(); ?></h3>
 											<?php if ($image_count > 0) : ?>
-												<p class="image-count"><?php echo sprintf(_n('%d Photo', '%d Photos', $image_count, 'vibe-photo-theme'), $image_count); ?></p>
+												<p class="image-count"><?php echo sprintf(_n('%d Photo', '%d Photos', $image_count, 'vibe-photo'), $image_count); ?></p>
 											<?php endif; ?>
-											<span class="view-gallery"><?php _e('View Gallery →', 'vibe-photo-theme'); ?></span>
+											<span class="view-gallery"><?php _e('View Gallery →', 'vibe-photo'); ?></span>
 										</div>
 									</div>
 								</a>
@@ -72,7 +72,7 @@ get_header(); ?>
 									<time datetime="<?php echo get_the_date('c'); ?>"><?php echo get_the_date(); ?></time>
 									<?php if ($image_count > 0) : ?>
 										<span class="separator">•</span>
-										<span class="image-count"><?php echo sprintf(_n('%d photo', '%d photos', $image_count, 'vibe-photo-theme'), $image_count); ?></span>
+										<span class="image-count"><?php echo sprintf(_n('%d photo', '%d photos', $image_count, 'vibe-photo'), $image_count); ?></span>
 									<?php endif; ?>
 								</div>
 							</div>
@@ -85,9 +85,9 @@ get_header(); ?>
 					<div class="pagination-wrapper text-center">
 						<?php
 						the_posts_pagination(array(
-							'prev_text' => __('← Previous', 'vibe-photo-theme'),
-							'next_text' => __('Next →', 'vibe-photo-theme'),
-							'before_page_number' => '<span class="screen-reader-text">' . __('Page', 'vibe-photo-theme') . ' </span>',
+							'prev_text' => __('← Previous', 'vibe-photo'),
+							'next_text' => __('Next →', 'vibe-photo'),
+							'before_page_number' => '<span class="screen-reader-text">' . __('Page', 'vibe-photo') . ' </span>',
 						));
 						?>
 					</div>
@@ -96,10 +96,10 @@ get_header(); ?>
 			<?php else : ?>
 				<div class="cell">
 					<div class="callout secondary text-center">
-						<h3><?php _e('No Galleries Found', 'vibe-photo-theme'); ?></h3>
-						<p><?php _e('No photo galleries have been created yet.', 'vibe-photo-theme'); ?></p>
+						<h3><?php _e('No Galleries Found', 'vibe-photo'); ?></h3>
+						<p><?php _e('No photo galleries have been created yet.', 'vibe-photo'); ?></p>
 						<?php if (current_user_can('edit_posts')) : ?>
-							<p><a href="<?php echo admin_url('post-new.php?post_type=photo_gallery'); ?>" class="button photo-button"><?php _e('Create First Gallery', 'vibe-photo-theme'); ?></a></p>
+							<p><a href="<?php echo admin_url('post-new.php?post_type=photo_gallery'); ?>" class="button photo-button"><?php _e('Create First Gallery', 'vibe-photo'); ?></a></p>
 						<?php endif; ?>
 					</div>
 				</div>

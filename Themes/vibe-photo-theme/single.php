@@ -27,7 +27,7 @@
 								<?php the_content(); ?>
 								<?php
 								wp_link_pages(array(
-									'before' => '<div class="page-links">' . __('Pages:', 'vibe-photo-theme'),
+									'before' => '<div class="page-links">' . __('Pages:', 'vibe-photo'),
 									'after'  => '</div>',
 								));
 								?>
@@ -43,35 +43,35 @@
 
 									if ($camera || $lens || $aperture || $shutter_speed || $iso || $location) :
 									?>
-										<h3><?php _e('Photo Details', 'vibe-photo-theme'); ?></h3>
+										<h3><?php _e('Photo Details', 'vibe-photo'); ?></h3>
 										<dl class="metadata-list">
 											<?php if ($camera) : ?>
-												<dt><?php _e('Camera:', 'vibe-photo-theme'); ?></dt>
+												<dt><?php _e('Camera:', 'vibe-photo'); ?></dt>
 												<dd><?php echo esc_html($camera); ?></dd>
 											<?php endif; ?>
 
 											<?php if ($lens) : ?>
-												<dt><?php _e('Lens:', 'vibe-photo-theme'); ?></dt>
+												<dt><?php _e('Lens:', 'vibe-photo'); ?></dt>
 												<dd><?php echo esc_html($lens); ?></dd>
 											<?php endif; ?>
 
 											<?php if ($aperture) : ?>
-												<dt><?php _e('Aperture:', 'vibe-photo-theme'); ?></dt>
+												<dt><?php _e('Aperture:', 'vibe-photo'); ?></dt>
 												<dd><?php echo esc_html($aperture); ?></dd>
 											<?php endif; ?>
 
 											<?php if ($shutter_speed) : ?>
-												<dt><?php _e('Shutter Speed:', 'vibe-photo-theme'); ?></dt>
+												<dt><?php _e('Shutter Speed:', 'vibe-photo'); ?></dt>
 												<dd><?php echo esc_html($shutter_speed); ?></dd>
 											<?php endif; ?>
 
 											<?php if ($iso) : ?>
-												<dt><?php _e('ISO:', 'vibe-photo-theme'); ?></dt>
+												<dt><?php _e('ISO:', 'vibe-photo'); ?></dt>
 												<dd><?php echo esc_html($iso); ?></dd>
 											<?php endif; ?>
 
 											<?php if ($location) : ?>
-												<dt><?php _e('Location:', 'vibe-photo-theme'); ?></dt>
+												<dt><?php _e('Location:', 'vibe-photo'); ?></dt>
 												<dd><?php echo esc_html($location); ?></dd>
 											<?php endif; ?>
 										</dl>
@@ -82,7 +82,7 @@
 							<footer class="entry-footer">
 								<?php if (get_the_tags()) : ?>
 									<div class="tags">
-										<?php the_tags('<span class="tags-label">' . __('Tags:', 'vibe-photo-theme') . '</span> ', ', '); ?>
+										<?php the_tags('<span class="tags-label">' . __('Tags:', 'vibe-photo') . '</span> ', ', '); ?>
 									</div>
 								<?php endif; ?>
 

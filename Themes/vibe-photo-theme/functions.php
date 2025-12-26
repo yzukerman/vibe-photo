@@ -89,8 +89,8 @@ function vibe_photo_setup() {
 	// Register navigation menus
 	if (function_exists('register_nav_menus')) {
 		register_nav_menus(array(
-			'primary' => esc_html__('Primary Menu', 'vibe-photo-theme'),
-			'footer' => esc_html__('Footer Menu', 'vibe-photo-theme'),
+			'primary' => esc_html__('Primary Menu', 'vibe-photo'),
+			'footer' => esc_html__('Footer Menu', 'vibe-photo'),
 		));
 	}
 
@@ -475,7 +475,7 @@ function vibe_photo_register_google_api_settings() {
 	// Add settings section
 	add_settings_section(
 		'vibe_photo_google_api_section',
-		__('Vibe Photo - Google Cloud Settings', 'vibe-photo-theme'),
+		__('Vibe Photo - Google Cloud Settings', 'vibe-photo'),
 		'vibe_photo_google_api_section_callback',
 		'media'
 	);
@@ -483,7 +483,7 @@ function vibe_photo_register_google_api_settings() {
 	// Add settings field
 	add_settings_field(
 		'vibe_photo_google_api_key',
-		__('Google Cloud API Key', 'vibe-photo-theme'),
+		__('Google Cloud API Key', 'vibe-photo'),
 		'vibe_photo_google_api_key_callback',
 		'media',
 		'vibe_photo_google_api_section'
@@ -495,14 +495,14 @@ add_action('admin_init', 'vibe_photo_register_google_api_settings');
  * Settings section callback
  */
 function vibe_photo_google_api_section_callback() {
-	echo '<p>' . __('Configure Google Cloud API for reverse geocoding (converting GPS coordinates to location names).', 'vibe-photo-theme') . '</p>';
-	echo '<p>' . __('To get an API key:', 'vibe-photo-theme') . '</p>';
+	echo '<p>' . __('Configure Google Cloud API for reverse geocoding (converting GPS coordinates to location names).', 'vibe-photo') . '</p>';
+	echo '<p>' . __('To get an API key:', 'vibe-photo') . '</p>';
 	echo '<ol>';
-	echo '<li>' . __('Go to <a href="https://console.cloud.google.com/" target="_blank">Google Cloud Console</a>', 'vibe-photo-theme') . '</li>';
-	echo '<li>' . __('Create a project or select an existing one', 'vibe-photo-theme') . '</li>';
-	echo '<li>' . __('Enable the "Geocoding API"', 'vibe-photo-theme') . '</li>';
-	echo '<li>' . __('Go to Credentials and create an API key', 'vibe-photo-theme') . '</li>';
-	echo '<li>' . __('Copy the API key and paste it below', 'vibe-photo-theme') . '</li>';
+	echo '<li>' . __('Go to <a href="https://console.cloud.google.com/" target="_blank">Google Cloud Console</a>', 'vibe-photo') . '</li>';
+	echo '<li>' . __('Create a project or select an existing one', 'vibe-photo') . '</li>';
+	echo '<li>' . __('Enable the "Geocoding API"', 'vibe-photo') . '</li>';
+	echo '<li>' . __('Go to Credentials and create an API key', 'vibe-photo') . '</li>';
+	echo '<li>' . __('Copy the API key and paste it below', 'vibe-photo') . '</li>';
 	echo '</ol>';
 }
 
@@ -512,7 +512,7 @@ function vibe_photo_google_api_section_callback() {
 function vibe_photo_google_api_key_callback() {
 	$api_key = get_option('vibe_photo_google_api_key', '');
 	echo '<input type="text" name="vibe_photo_google_api_key" value="' . esc_attr($api_key) . '" class="regular-text" />';
-	echo '<p class="description">' . __('Your Google Cloud API key for Geocoding API. Leave empty to disable reverse geocoding.', 'vibe-photo-theme') . '</p>';
+	echo '<p class="description">' . __('Your Google Cloud API key for Geocoding API. Leave empty to disable reverse geocoding.', 'vibe-photo') . '</p>';
 }
 
 /**
@@ -1270,19 +1270,19 @@ add_action('wp', 'vibe_photo_test_gallery_creation');
  *
 function vibe_photo_register_gallery_post_type() {
 	$labels = array(
-		'name'                  => _x('Photo Galleries', 'Post type general name', 'vibe-photo-theme'),
-		'singular_name'         => _x('Photo Gallery', 'Post type singular name', 'vibe-photo-theme'),
-		'menu_name'             => _x('Photo Galleries', 'Admin Menu text', 'vibe-photo-theme'),
-		'name_admin_bar'        => _x('Photo Gallery', 'Add New on Toolbar', 'vibe-photo-theme'),
-		'add_new'               => __('Add New', 'vibe-photo-theme'),
-		'add_new_item'          => __('Add New Photo Gallery', 'vibe-photo-theme'),
-		'new_item'              => __('New Photo Gallery', 'vibe-photo-theme'),
-		'edit_item'             => __('Edit Photo Gallery', 'vibe-photo-theme'),
-		'view_item'             => __('View Photo Gallery', 'vibe-photo-theme'),
-		'all_items'             => __('All Photo Galleries', 'vibe-photo-theme'),
-		'search_items'          => __('Search Photo Galleries', 'vibe-photo-theme'),
-		'not_found'             => __('No photo galleries found.', 'vibe-photo-theme'),
-		'not_found_in_trash'    => __('No photo galleries found in Trash.', 'vibe-photo-theme'),
+		'name'                  => _x('Photo Galleries', 'Post type general name', 'vibe-photo'),
+		'singular_name'         => _x('Photo Gallery', 'Post type singular name', 'vibe-photo'),
+		'menu_name'             => _x('Photo Galleries', 'Admin Menu text', 'vibe-photo'),
+		'name_admin_bar'        => _x('Photo Gallery', 'Add New on Toolbar', 'vibe-photo'),
+		'add_new'               => __('Add New', 'vibe-photo'),
+		'add_new_item'          => __('Add New Photo Gallery', 'vibe-photo'),
+		'new_item'              => __('New Photo Gallery', 'vibe-photo'),
+		'edit_item'             => __('Edit Photo Gallery', 'vibe-photo'),
+		'view_item'             => __('View Photo Gallery', 'vibe-photo'),
+		'all_items'             => __('All Photo Galleries', 'vibe-photo'),
+		'search_items'          => __('Search Photo Galleries', 'vibe-photo'),
+		'not_found'             => __('No photo galleries found.', 'vibe-photo'),
+		'not_found_in_trash'    => __('No photo galleries found in Trash.', 'vibe-photo'),
 	);
 
 	$args = array(
@@ -1423,7 +1423,7 @@ add_shortcode('vibe_gallery', 'vibe_photo_gallery_shortcode');
 function vibe_photo_add_gallery_meta_box() {
 	add_meta_box(
 		'gallery-images',
-		__('Gallery Images', 'vibe-photo-theme'),
+		__('Gallery Images', 'vibe-photo'),
 		'vibe_photo_gallery_images_callback',
 		'photo_gallery'
 	);
@@ -1446,20 +1446,20 @@ function vibe_photo_gallery_images_callback($post) {
 ?>
 	<div class="gallery-images-meta">
 		<p>
-			<label for="gallery_images"><?php _e('Gallery Images (comma-separated image IDs):', 'vibe-photo-theme'); ?></label>
+			<label for="gallery_images"><?php _e('Gallery Images (comma-separated image IDs):', 'vibe-photo'); ?></label>
 			<input type="text"
 				name="gallery_images"
 				id="gallery_images"
 				value="<?php echo esc_attr($gallery_images); ?>"
 				class="large-text"
-				placeholder="<?php _e('e.g., 123,124,125', 'vibe-photo-theme'); ?>" />
+				placeholder="<?php _e('e.g., 123,124,125', 'vibe-photo'); ?>" />
 		</p>
 		<p class="description">
-			<?php _e('Enter image attachment IDs separated by commas. You can find image IDs in the Media Library.', 'vibe-photo-theme'); ?>
+			<?php _e('Enter image attachment IDs separated by commas. You can find image IDs in the Media Library.', 'vibe-photo'); ?>
 		</p>
 		<p>
 			<button type="button" class="button" id="select-gallery-images">
-				<?php _e('Select Images', 'vibe-photo-theme'); ?>
+				<?php _e('Select Images', 'vibe-photo'); ?>
 			</button>
 		</p>
 		<div id="gallery-preview" style="margin-top: 15px;">
@@ -1482,9 +1482,9 @@ function vibe_photo_gallery_images_callback($post) {
 				e.preventDefault();
 
 				var mediaUploader = wp.media({
-					title: '<?php _e('Select Gallery Images', 'vibe-photo-theme'); ?>',
+					title: '<?php _e('Select Gallery Images', 'vibe-photo'); ?>',
 					button: {
-						text: '<?php _e('Add to Gallery', 'vibe-photo-theme'); ?>'
+						text: '<?php _e('Add to Gallery', 'vibe-photo'); ?>'
 					},
 					multiple: true
 				});
