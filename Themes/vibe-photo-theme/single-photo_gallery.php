@@ -157,29 +157,29 @@
 
 								<?php else : ?>
 									<div class="callout warning text-center">
-										<h3><?php _e('No Valid Images Found', 'vibe-photo'); ?></h3>
-										<p><?php _e('The gallery images could not be loaded. Please check that the image IDs are correct.', 'vibe-photo'); ?></p>
+										<h3><?php _e('No Valid Images Found', 'vibe-photo-theme'); ?></h3>
+										<p><?php _e('The gallery images could not be loaded. Please check that the image IDs are correct.', 'vibe-photo-theme'); ?></p>
 										<?php if (current_user_can('edit_post', get_the_ID())) : ?>
-											<p><a href="<?php echo get_edit_post_link(); ?>" class="button"><?php _e('Edit Gallery', 'vibe-photo'); ?></a></p>
+											<p><a href="<?php echo get_edit_post_link(); ?>" class="button"><?php _e('Edit Gallery', 'vibe-photo-theme'); ?></a></p>
 										<?php endif; ?>
 									</div>
 								<?php endif; ?>
 
 							<?php else : ?>
 								<div class="callout secondary text-center">
-									<h3><?php _e('Gallery Setup Required', 'vibe-photo'); ?></h3>
-									<p><?php _e('This gallery doesn\'t have any images assigned yet.', 'vibe-photo'); ?></p>
+									<h3><?php _e('Gallery Setup Required', 'vibe-photo-theme'); ?></h3>
+									<p><?php _e('This gallery doesn\'t have any images assigned yet.', 'vibe-photo-theme'); ?></p>
 									<?php if (current_user_can('edit_post', get_the_ID())) : ?>
-										<p><?php _e('To add images to this gallery:', 'vibe-photo'); ?></p>
+										<p><?php _e('To add images to this gallery:', 'vibe-photo-theme'); ?></p>
 										<ol style="text-align: left; display: inline-block;">
-											<li><?php _e('Edit this gallery', 'vibe-photo'); ?></li>
-											<li><?php _e('Scroll down to the "Gallery Images" section', 'vibe-photo'); ?></li>
-											<li><?php _e('Click "Select Images" to choose photos', 'vibe-photo'); ?></li>
-											<li><?php _e('Save the gallery', 'vibe-photo'); ?></li>
+											<li><?php _e('Edit this gallery', 'vibe-photo-theme'); ?></li>
+											<li><?php _e('Scroll down to the "Gallery Images" section', 'vibe-photo-theme'); ?></li>
+											<li><?php _e('Click "Select Images" to choose photos', 'vibe-photo-theme'); ?></li>
+											<li><?php _e('Save the gallery', 'vibe-photo-theme'); ?></li>
 										</ol>
-										<p><a href="<?php echo get_edit_post_link(); ?>" class="button photo-button"><?php _e('Edit Gallery', 'vibe-photo'); ?></a></p>
+										<p><a href="<?php echo get_edit_post_link(); ?>" class="button photo-button"><?php _e('Edit Gallery', 'vibe-photo-theme'); ?></a></p>
 									<?php else : ?>
-										<p><?php _e('Please contact the site administrator to add images to this gallery.', 'vibe-photo'); ?></p>
+										<p><?php _e('Please contact the site administrator to add images to this gallery.', 'vibe-photo-theme'); ?></p>
 									<?php endif; ?>
 								</div>
 							<?php endif; ?>

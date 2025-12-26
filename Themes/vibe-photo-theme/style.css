@@ -4,10 +4,13 @@ Theme URI: https://github.com/yzukerman/vibe-photo
 Description: A modern, responsive WordPress theme designed specifically for photography portfolios and photo galleries. Features advanced lightbox with EXIF data, WordPress image metadata integration (titles, captions, alt text), fullscreen viewing, WordPress Gallery block enhancement, footer menu support, page template, archive templates for categories/tags, horizontal pagination, reverse geocoding with Google Cloud APIs, deep linking for individual images, social sharing, and responsive design built with Foundation CSS framework.
 Author: Yuval Zukerman
 Author URI: https://github.com/yzukerman
-Version: 1.1.2
+Version: 1.1.3
 License: GNU General Public License v2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Copyright: 2025 Yuval Zukerman
+
+Vibe Photo Theme, Copyright 2025 Yuval Zukerman
+Vibe Photo is distributed under the terms of the GNU GPL
+
 Tags: photography, portfolio, gallery, responsive, minimal, foundation, exif, social-sharing, masonry, one-column, two-columns, three-columns, flexible-header, custom-menu, featured-images, post-thumbnails, translation-ready, fullscreen, metadata, footer-menu, categories, tags, geocoding
 Text Domain: vibe-photo-theme
 Domain Path: /languages

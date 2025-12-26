@@ -56,17 +56,17 @@
 				<div class="pagination">
 					<?php
 					the_posts_pagination(array(
-						'prev_text' => __('Previous', 'vibe-photo'),
-						'next_text' => __('Next', 'vibe-photo'),
-						'before_page_number' => '<span class="meta-nav screen-reader-text">' . __('Page', 'vibe-photo') . ' </span>',
+						'prev_text' => __('Previous', 'vibe-photo-theme'),
+						'next_text' => __('Next', 'vibe-photo-theme'),
+						'before_page_number' => '<span class="meta-nav screen-reader-text">' . __('Page', 'vibe-photo-theme') . ' </span>',
 					));
 					?>
 				</div>
 
 			<?php else : ?>
 				<div class="no-content">
-					<h3><?php _e('No posts found', 'vibe-photo'); ?></h3>
-					<p><?php _e('Check your WordPress Reading Settings. You may need to set "Your homepage displays" to "Your latest posts".', 'vibe-photo'); ?></p>
+					<h3><?php _e('No posts found', 'vibe-photo-theme'); ?></h3>
+					<p><?php _e('Check your WordPress Reading Settings. You may need to set "Your homepage displays" to "Your latest posts".', 'vibe-photo-theme'); ?></p>
 				</div>
 			<?php endif; ?>
 			</section>
@@ -121,7 +121,7 @@
 
 <footer class="site-footer">
 	<div class="container">
-		<p>&copy; <?php echo date('Y'); ?> <?php bloginfo('name'); ?>. <?php _e('All rights reserved.', 'vibe-photo'); ?></p>
+		<p>&copy; <?php echo date('Y'); ?> <?php bloginfo('name'); ?>. <?php _e('All rights reserved.', 'vibe-photo-theme'); ?></p>
 	</div>
 </footer>
 

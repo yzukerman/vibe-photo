@@ -52,16 +52,16 @@
 						'format' => '?paged=%#%',
 						'current' => max(1, get_query_var('paged')),
 						'total' => $posts_query->max_num_pages,
-						'prev_text' => __('Previous', 'vibe-photo'),
-						'next_text' => __('Next', 'vibe-photo'),
+						'prev_text' => __('Previous', 'vibe-photo-theme'),
+						'next_text' => __('Next', 'vibe-photo-theme'),
 					));
 					?>
 				</div>
 
 			<?php else : ?>
 				<div class="no-content">
-					<h3><?php _e('No posts found', 'vibe-photo'); ?></h3>
-					<p><?php _e('You have posts but they are not showing. This might be a configuration issue.', 'vibe-photo'); ?></p>
+					<h3><?php _e('No posts found', 'vibe-photo-theme'); ?></h3>
+					<p><?php _e('You have posts but they are not showing. This might be a configuration issue.', 'vibe-photo-theme'); ?></p>
 				</div>
 			<?php endif; ?>
 			<?php wp_reset_postdata(); ?>
