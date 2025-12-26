@@ -657,7 +657,7 @@ function vibe_photo_get_image_exif() {
 		return;
 	}
 
-	$image_url = sanitize_url($_POST['image_url']);
+	$image_url = esc_url_raw($_POST['image_url']);
 
 	// Fix protocol-relative URLs
 	if (strpos($image_url, '//') === 0) {

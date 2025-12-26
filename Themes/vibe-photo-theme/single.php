@@ -25,64 +25,68 @@
 
 							<div class="content-text">
 								<?php the_content(); ?>
-							</div>
-
-							<!-- Photo Metadata -->
-							<div class="photo-metadata">
 								<?php
-								$camera = get_post_meta(get_the_ID(), '_photo_camera', true);
-								$lens = get_post_meta(get_the_ID(), '_photo_lens', true);
-								$aperture = get_post_meta(get_the_ID(), '_photo_aperture', true);
-								$shutter_speed = get_post_meta(get_the_ID(), '_photo_shutter_speed', true);
-								$iso = get_post_meta(get_the_ID(), '_photo_iso', true);
-								$location = get_post_meta(get_the_ID(), '_photo_location', true);
-
-								if ($camera || $lens || $aperture || $shutter_speed || $iso || $location) :
+								wp_link_pages(array(
+									'before' => '<div class="page-links">' . __('Pages:', 'vibe-photo-theme'),
+									'after'  => '</div>',
+								));
 								?>
-									<h3><?php _e('Photo Details', 'vibe-photo'); ?></h3>
-									<dl class="metadata-list">
-										<?php if ($camera) : ?>
-											<dt><?php _e('Camera:', 'vibe-photo'); ?></dt>
-											<dd><?php echo esc_html($camera); ?></dd>
-										<?php endif; ?>
+								<!-- Photo Metadata -->
+								<div class="photo-metadata">
+									<?php
+									$camera = get_post_meta(get_the_ID(), '_photo_camera', true);
+									$lens = get_post_meta(get_the_ID(), '_photo_lens', true);
+									$aperture = get_post_meta(get_the_ID(), '_photo_aperture', true);
+									$shutter_speed = get_post_meta(get_the_ID(), '_photo_shutter_speed', true);
+									$iso = get_post_meta(get_the_ID(), '_photo_iso', true);
+									$location = get_post_meta(get_the_ID(), '_photo_location', true);
 
-										<?php if ($lens) : ?>
-											<dt><?php _e('Lens:', 'vibe-photo'); ?></dt>
-											<dd><?php echo esc_html($lens); ?></dd>
-										<?php endif; ?>
+									if ($camera || $lens || $aperture || $shutter_speed || $iso || $location) :
+									?>
+										<h3><?php _e('Photo Details', 'vibe-photo'); ?></h3>
+										<dl class="metadata-list">
+											<?php if ($camera) : ?>
+												<dt><?php _e('Camera:', 'vibe-photo'); ?></dt>
+												<dd><?php echo esc_html($camera); ?></dd>
+											<?php endif; ?>
 
-										<?php if ($aperture) : ?>
-											<dt><?php _e('Aperture:', 'vibe-photo'); ?></dt>
-											<dd><?php echo esc_html($aperture); ?></dd>
-										<?php endif; ?>
+											<?php if ($lens) : ?>
+												<dt><?php _e('Lens:', 'vibe-photo'); ?></dt>
+												<dd><?php echo esc_html($lens); ?></dd>
+											<?php endif; ?>
 
-										<?php if ($shutter_speed) : ?>
-											<dt><?php _e('Shutter Speed:', 'vibe-photo'); ?></dt>
-											<dd><?php echo esc_html($shutter_speed); ?></dd>
-										<?php endif; ?>
+											<?php if ($aperture) : ?>
+												<dt><?php _e('Aperture:', 'vibe-photo'); ?></dt>
+												<dd><?php echo esc_html($aperture); ?></dd>
+											<?php endif; ?>
 
-										<?php if ($iso) : ?>
-											<dt><?php _e('ISO:', 'vibe-photo'); ?></dt>
-											<dd><?php echo esc_html($iso); ?></dd>
-										<?php endif; ?>
+											<?php if ($shutter_speed) : ?>
+												<dt><?php _e('Shutter Speed:', 'vibe-photo'); ?></dt>
+												<dd><?php echo esc_html($shutter_speed); ?></dd>
+											<?php endif; ?>
 
-										<?php if ($location) : ?>
-											<dt><?php _e('Location:', 'vibe-photo'); ?></dt>
-											<dd><?php echo esc_html($location); ?></dd>
-										<?php endif; ?>
-									</dl>
-								<?php endif; ?>
-							</div>
-						</div>
+											<?php if ($iso) : ?>
+												<dt><?php _e('ISO:', 'vibe-photo'); ?></dt>
+												<dd><?php echo esc_html($iso); ?></dd>
+											<?php endif; ?>
 
-						<footer class="entry-footer">
-							<?php if (get_the_tags()) : ?>
-								<div class="tags">
-									<?php the_tags('<span class="tags-label">' . __('Tags:', 'vibe-photo') . '</span> ', ', '); ?>
+											<?php if ($location) : ?>
+												<dt><?php _e('Location:', 'vibe-photo'); ?></dt>
+												<dd><?php echo esc_html($location); ?></dd>
+											<?php endif; ?>
+										</dl>
+									<?php endif; ?>
 								</div>
-							<?php endif; ?>
+							</div>
 
-						</footer>
+							<footer class="entry-footer">
+								<?php if (get_the_tags()) : ?>
+									<div class="tags">
+										<?php the_tags('<span class="tags-label">' . __('Tags:', 'vibe-photo') . '</span> ', ', '); ?>
+									</div>
+								<?php endif; ?>
+
+							</footer>
 					</article>
 
 				<?php endwhile; ?>

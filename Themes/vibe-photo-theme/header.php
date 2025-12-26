@@ -14,7 +14,7 @@
 		<div class="grid-container">
 			<div class="grid-x grid-padding-x align-justify align-middle">
 				<div class="cell auto">
-					<a href="<?php echo home_url(); ?>" class="site-logo">
+					<a href="<?php echo esc_url(home_url()); ?>" class="site-logo">
 						<?php bloginfo('name'); ?>
 					</a>
 				</div>
