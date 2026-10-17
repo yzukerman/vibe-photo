@@ -1,9 +1,9 @@
 <?php get_header(); ?>
 
-<main class="site-main">
+<main class="site-main portfolio-post">
 	<div class="grid-container">
 		<div class="grid-x grid-padding-x">
-			<div class="cell large-8 large-offset-2">
+			<div class="cell large-12">
 				<?php while (have_posts()) : the_post(); ?>
 					<article id="post-<?php the_ID(); ?>" <?php post_class('single-photo'); ?>>
 						<header class="entry-header text-center">
@@ -17,12 +17,6 @@
 						</header>
 
 						<div class="entry-content">
-							<?php if (has_post_thumbnail()) : ?>
-								<div class="featured-image text-center">
-									<?php the_post_thumbnail('gallery-large'); ?>
-								</div>
-							<?php endif; ?>
-
 							<div class="content-text">
 								<?php the_content(); ?>
 								<?php
@@ -95,7 +89,7 @@
 
 		<!-- Post Navigation Outside Centered Column -->
 		<div class="grid-x grid-padding-x" style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #eee;">
-			<div class="cell large-8 large-offset-2">
+			<div class="cell large-12">
 				<div class="post-navigation" style="display: flex; justify-content: space-between; align-items: center;">
 					<div class="nav-previous">
 						<?php
@@ -135,7 +129,7 @@
 		</div>
 
 		<div class="grid-x grid-padding-x">
-			<div class="cell large-8 large-offset-2">
+			<div class="cell large-12">
 				<div class="post-comments-spacing" style="margin-top: 3rem;"></div>
 
 				<?php

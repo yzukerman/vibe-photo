@@ -8,6 +8,7 @@
     $(document).ready(function() {
         var currentIndex = 0;
         var images = [];
+        var imageLoadId = 0;
         var enableDeepLinking = true; // Enable URL hash for individual images
 
         // Initialize lightbox for gallery images and WordPress Gallery blocks
@@ -94,7 +95,8 @@
         }
 
         function closeLightbox() {
-            $('#vibe-lightbox').removeClass('active');
+            imageLoadId++;
+            $('#vibe-lightbox').removeClass('active is-loading').attr('aria-busy', 'false');
             $('body').removeClass('lightbox-open');
             
             // Clear URL hash when closing lightbox
@@ -121,7 +123,10 @@
             if (!images[index]) return;
             
             var image = images[index];
-            var $lightboxImage = $('.lightbox-image');
+            var $lightboxImage = $('#vibe-lightbox .lightbox-image');
+            var loadId = ++imageLoadId;
+            var $lightbox = $('#vibe-lightbox');
+            $lightbox.addClass('is-loading').attr('aria-busy', 'true');
             var $lightboxTitle = $('.lightbox-title');
             var $lightboxDescription = $('.lightbox-description');
             var $imageCounter = $('.image-counter');
@@ -136,6 +141,8 @@
             // Load new image
             var newImg = new Image();
             newImg.onload = function() {
+                if (loadId !== imageLoadId) return;
+                $lightbox.removeClass('is-loading').attr('aria-busy', 'false');
 
                 $lightboxImage.attr('src', image.src).attr('alt', image.alt);
                 
@@ -147,6 +154,8 @@
                 updateSharingLinks(image);
             };
             newImg.onerror = function() {
+                if (loadId !== imageLoadId) return;
+                $lightbox.removeClass('is-loading').attr('aria-busy', 'false');
 
 
                 // Fallback to thumbnail if full size fails
@@ -592,6 +601,7 @@
             '<div class="lightbox-container">' +
                 '<div class="lightbox-main">' +
                     '<div class="lightbox-content">' +
+                        '<div class="lightbox-loading" role="status"><span>Loading photo…</span><div class="lightbox-loading-track"><span></span></div></div>' +
                         '<div class="lightbox-image-container">' +
                             '<img src="" alt="" class="lightbox-image">' +
                         '</div>' +
@@ -736,6 +746,7 @@
     function bindLightboxEvents() {
         var currentIndex = 0;
         var images = [];
+        var imageLoadId = 0;
         var enableDeepLinking = true; // Enable URL hash for individual images
 
         // Collect all gallery images from custom galleries
@@ -947,7 +958,8 @@
         }
 
         function closeLightbox() {
-            $('#vibe-lightbox').removeClass('active');
+            imageLoadId++;
+            $('#vibe-lightbox').removeClass('active is-loading').attr('aria-busy', 'false');
             $('body').removeClass('lightbox-open');
             
             // Clear URL hash when closing lightbox
@@ -974,7 +986,10 @@
             if (!images[index]) return;
             
             var image = images[index];
-            var $lightboxImage = $('.lightbox-image');
+            var $lightboxImage = $('#vibe-lightbox .lightbox-image');
+            var loadId = ++imageLoadId;
+            var $lightbox = $('#vibe-lightbox');
+            $lightbox.addClass('is-loading').attr('aria-busy', 'true');
             var $lightboxTitle = $('.lightbox-title');
             var $lightboxDescription = $('.lightbox-description');
             var $imageCounter = $('.image-counter');
@@ -987,6 +1002,8 @@
             // Load new image
             var newImg = new Image();
             newImg.onload = function() {
+                if (loadId !== imageLoadId) return;
+                $lightbox.removeClass('is-loading').attr('aria-busy', 'false');
                 $lightboxImage.attr('src', image.src).attr('alt', image.alt);
                 
                 // Load EXIF data and update sharing links
@@ -1295,7 +1312,10 @@
 
     // Add window resize handler to re-optimize image size when viewport changes
     $(window).on('resize', function() {
-        var $lightboxImage = $('.lightbox-image');
+        var $lightboxImage = $('#vibe-lightbox .lightbox-image');
+            var loadId = ++imageLoadId;
+            var $lightbox = $('#vibe-lightbox');
+            $lightbox.addClass('is-loading').attr('aria-busy', 'true');
         if ($lightboxImage.length && $('#lightbox-modal').is(':visible')) {
             var imgElement = $lightboxImage[0];
             if (imgElement.naturalWidth) {

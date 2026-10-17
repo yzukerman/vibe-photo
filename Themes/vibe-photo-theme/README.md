@@ -1,8 +1,32 @@
-# Vibe Photo Theme v1.0.10
+# Vibe Photo Theme
 
 A modern, responsive WordPress theme designed specifically for photography portfolios and photo galleries with advanced lightbox functionality, WordPress metadata integration, and comprehensive archive and menu support.
 
 Note: Claude Code Sonnet 4.5 developed the code with my guidance. No warranty is implied or otherwise. Use at your own risk.
+
+## Portfolio UI
+
+The homepage presents posts and Photo Gallery entries as a compact grid of square cover images, inspired by Format's Coat template. Each cover has an always-visible title overlay and a “View gallery” label (hidden on the narrowest screens).
+
+- Set a **Featured image** on each post or Photo Gallery entry to include it in the homepage grid. Entries without a featured image are omitted from this grid, but remain accessible at their own URLs.
+- The homepage displays up to **12 entries per page**, newest first, with pagination when needed.
+- Covers are cropped to squares using `object-fit: cover`; original media files are unchanged.
+- The grid uses four columns on wide screens, three on desktops, and two on smaller screens.
+- Clicking a cover opens its post. Clicking an image in the post's gallery opens the lightbox.
+- Regular single posts use a wider content area and no longer repeat the featured cover above the gallery.
+- **Oranienbaum** is used for the site name, cover titles, and regular single-post titles, with sans-serif text for navigation and body copy. The font loads from Google Fonts, with Georgia as a fallback.
+- On mobile, the Menu button sits at the left of the header while the site name stays centered.
+
+### Lightbox loading feedback
+
+An animated bar and “Loading photo…” message appear while the selected full-size image loads. This is an indeterminate activity indicator, not a download percentage. It clears on success or failure; if the full-size request fails, the viewer falls back to the thumbnail. Stale image-load callbacks are ignored when navigating rapidly or closing the viewer. Reduced-motion preferences disable the bar's animation.
+
+### Creating a gallery post
+
+1. Create a post and add a title and optional introduction.
+2. Insert a WordPress **Gallery** block and select your photographs.
+3. Set the post's **Featured image** to choose its homepage cover.
+4. Publish the post and visit the homepage to check the cover and title overlay.
 
 ## Features
 
