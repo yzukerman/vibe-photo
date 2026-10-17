@@ -4,7 +4,7 @@ Tags: photography, portfolio, gallery, responsive, minimal, foundation, lightbox
 Requires at least: 5.0
 Tested up to: 6.3
 Requires PHP: 7.4
-Stable tag: 1.1.5
+Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -88,6 +88,12 @@ Absolutely! The theme is built with a mobile-first approach using Foundation CSS
 Yes, you can modify the CSS variables in style.css or add custom CSS through the WordPress customizer.
 
 == Changelog ==
+
+= 1.2.0 =
+* Image-led homepage with square gallery covers and title overlays.
+* Oranienbaum headings, wider post galleries, and left-aligned mobile menu.
+* Lightbox loading indicator with protection against stale image loads.
+
 
 = 1.0.5 =
 * Added fullscreen viewing capability for lightbox images
