@@ -4,7 +4,7 @@ Tags: photography, portfolio, gallery, responsive, minimal, foundation, lightbox
 Requires at least: 5.0
 Tested up to: 6.3
 Requires PHP: 7.4
-Stable tag: 1.2.0
+Stable tag: 1.20.0.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -88,6 +88,14 @@ Absolutely! The theme is built with a mobile-first approach using Foundation CSS
 Yes, you can modify the CSS variables in style.css or add custom CSS through the WordPress customizer.
 
 == Changelog ==
+
+= 1.20.0.2 =
+* Replace the search label with an accessible monochrome magnifying glass.
+* Position search at the top right with its form opening below the icon.
+
+= 1.20.0.1 =
+* Restore header search on desktop and mobile.
+* Add dedicated search results and no-results pages with an accessible search form.
 
 = 1.2.0 =
 * Image-led homepage with square gallery covers and title overlays.

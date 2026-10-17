@@ -7,7 +7,7 @@ echo "🎨 Packaging Vibe Photo Theme for distribution..."
 
 # Set variables
 THEME_NAME="vibe-photo-theme"
-VERSION="1.2.0"
+VERSION="1.20.0.2"
 VERSIONED_THEME_NAME="${THEME_NAME}-v${VERSION}"
 PACKAGE_NAME="${VERSIONED_THEME_NAME}"
 BUILD_DIR="build"

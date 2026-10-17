@@ -4,7 +4,7 @@ Theme URI: https://github.com/yzukerman/vibe-photo
 Description: A modern, responsive WordPress theme designed specifically for photography portfolios and photo galleries. Features advanced lightbox with EXIF data, WordPress image metadata integration (titles, captions, alt text), fullscreen viewing, WordPress Gallery block enhancement, footer menu support, page template, archive templates for categories/tags, horizontal pagination, reverse geocoding with Google Cloud APIs, deep linking for individual images, social sharing, and responsive design built with Foundation CSS framework.
 Author: Yuval Zukerman
 Author URI: https://github.com/yzukerman
-Version: 1.2.0
+Version: 1.20.0.2
 License: GNU General Public License v2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -1668,3 +1668,28 @@ body { background: #fff; -webkit-font-smoothing: antialiased; }
 .lightbox-loading-track > span { display: block; width: 40%; height: 100%; background: white; animation: photo-loading 1.2s ease-in-out infinite; }
 @keyframes photo-loading { from { transform: translateX(-100%); } to { transform: translateX(350%); } }
 @media (prefers-reduced-motion: reduce) { .lightbox-loading-track > span { animation: none; width: 100%; opacity: .7; } }
+
+/* Native WordPress search, available at every viewport size. */
+.site-search { margin-top: 1rem; font-size: .85rem; }
+.site-search summary { cursor: pointer; width: fit-content; padding: .5rem 0; }
+.portfolio-search-form { display: flex; gap: .5rem; max-width: 36rem; margin: .75rem 0 1.5rem; align-items: stretch; }
+.portfolio-search-form label { flex: 1; min-width: 0; }
+.portfolio-search-form input { margin: 0; height: 44px; box-shadow: none; }
+.portfolio-search-form button { padding: .5rem 1rem; background: #242522; color: white; min-height: 44px; }
+.search-heading { margin-bottom: 2rem; }
+.search-heading h1, .search-result h2 { font-family: 'Oranienbaum', Georgia, serif; font-weight: 400; }
+.search-result { max-width: 48rem; padding: 1.5rem 0; border-bottom: 1px solid #eeeee9; }
+
+/* Search stays at the top-right edge; the form opens beneath the icon. */
+.site-header { padding-right: 4rem; }
+.site-search { position: absolute; top: 1.5rem; right: 1.25rem; margin: 0; z-index: 1001; }
+.site-search summary { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; padding: 0; list-style: none; color: #242522; }
+.site-search summary::-webkit-details-marker { display: none; }
+.site-search summary::marker { content: ''; }
+.site-search summary:hover { background: #f3f3ef; }
+.site-search summary:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+.site-search .portfolio-search-form { position: absolute; right: 0; top: 100%; width: min(25rem, calc(100vw - 2.5rem)); margin: .5rem 0 0; padding: .75rem; background: #fff; border: 1px solid #e5e5df; box-shadow: 0 8px 24px rgba(0,0,0,.1); }
+@media screen and (max-width: 39.9375em) {
+ .site-header { padding-right: 0; }
+ .site-search { top: 1.5rem; right: 1.25rem; }
+}
