@@ -235,7 +235,7 @@ This means users can:
 
 ## 🔄 Version Management
 
-Current version: **1.2.0**
+Current version: **1.20.0.1**
 
 For future updates:
 
