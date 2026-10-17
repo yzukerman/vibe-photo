@@ -39,7 +39,10 @@
 			</div>
 
             <details class="site-search">
-                <summary><?php esc_html_e('Search', 'vibe-photo'); ?></summary>
+                <summary aria-label="<?php esc_attr_e('Search', 'vibe-photo'); ?>">
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg>
+                    <span class="show-for-sr"><?php esc_html_e('Search', 'vibe-photo'); ?></span>
+                </summary>
                 <?php get_search_form(); ?>
             </details>
 
