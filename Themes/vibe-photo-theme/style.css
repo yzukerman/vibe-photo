@@ -1668,3 +1668,14 @@ body { background: #fff; -webkit-font-smoothing: antialiased; }
 .lightbox-loading-track > span { display: block; width: 40%; height: 100%; background: white; animation: photo-loading 1.2s ease-in-out infinite; }
 @keyframes photo-loading { from { transform: translateX(-100%); } to { transform: translateX(350%); } }
 @media (prefers-reduced-motion: reduce) { .lightbox-loading-track > span { animation: none; width: 100%; opacity: .7; } }
+
+/* Native WordPress search, available at every viewport size. */
+.site-search { margin-top: 1rem; font-size: .85rem; }
+.site-search summary { cursor: pointer; width: fit-content; padding: .5rem 0; }
+.portfolio-search-form { display: flex; gap: .5rem; max-width: 36rem; margin: .75rem 0 1.5rem; align-items: stretch; }
+.portfolio-search-form label { flex: 1; min-width: 0; }
+.portfolio-search-form input { margin: 0; height: 44px; box-shadow: none; }
+.portfolio-search-form button { padding: .5rem 1rem; background: #242522; color: white; min-height: 44px; }
+.search-heading { margin-bottom: 2rem; }
+.search-heading h1, .search-result h2 { font-family: 'Oranienbaum', Georgia, serif; font-weight: 400; }
+.search-result { max-width: 48rem; padding: 1.5rem 0; border-bottom: 1px solid #eeeee9; }

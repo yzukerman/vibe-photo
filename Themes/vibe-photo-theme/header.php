@@ -38,6 +38,11 @@
 				</div>
 			</div>
 
+            <details class="site-search">
+                <summary><?php esc_html_e('Search', 'vibe-photo'); ?></summary>
+                <?php get_search_form(); ?>
+            </details>
+
 			<!-- Mobile Navigation -->
 			<div class="grid-x">
 				<div class="cell">
