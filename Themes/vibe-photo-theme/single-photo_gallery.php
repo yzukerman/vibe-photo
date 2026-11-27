@@ -6,6 +6,7 @@
                 <header class="entry-header text-center"><h1 class="entry-title"><?php the_title(); ?></h1></header>
                 <div class="entry-content content-text"><?php the_content(); ?></div>
             </article>
+        <?php if (comments_open() || get_comments_number()) { comments_template(); } ?>
         <?php endwhile; the_post_navigation(); ?>
     </div>
 </main>

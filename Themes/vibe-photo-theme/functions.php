@@ -121,6 +121,11 @@ function vibe_photo_scripts() {
 	wp_enqueue_style('vibe-photo-style', get_stylesheet_uri(), array('foundation-css', 'vibe-photo-fonts'), filemtime(get_stylesheet_directory() . '/style.css'));
 	wp_enqueue_script('foundation-js', get_template_directory_uri() . '/assets/vendor/foundation/foundation.min.js', array('jquery'), '6.8.1', true);
 
+	// Threaded replies only need core's script on open singular discussions.
+	if (is_singular() && comments_open() && get_option('thread_comments')) {
+		wp_enqueue_script('comment-reply');
+	}
+
 	// Add responsive navigation
 	wp_enqueue_script('vibe-photo-navigation', get_template_directory_uri() . '/assets/js/navigation.js', array('jquery', 'foundation-js'), filemtime(get_template_directory() . '/assets/js/navigation.js'), true);
 

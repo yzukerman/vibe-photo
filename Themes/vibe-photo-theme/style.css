@@ -1350,3 +1350,20 @@ a:focus-visible, button:focus-visible, summary:focus-visible, input:focus-visibl
 @media (max-width: 639px) {
     .entry-content .alignleft, .entry-content .alignright { float: none; display: block; margin: 1rem auto; }
 }
+
+/* Core comment markup, including threaded replies and paginated discussions. */
+.comments-area { max-width: 48rem; margin: 3rem auto; padding-top: 2rem; border-top: 1px solid #eeeee9; }
+.comments-title, .comment-reply-title { font-family: 'Oranienbaum', Georgia, serif; font-weight: 400; font-size: 1.8rem; }
+.comment-list, .comment-list .children { list-style: none; margin: 0; padding: 0; }
+.comment-list .children { margin-left: 1.5rem; }
+.comment-body { padding: 1.25rem 0; border-bottom: 1px solid #eeeee9; overflow-wrap: anywhere; }
+.comment-author .avatar { float: left; width: 48px; height: 48px; margin: 0 .75rem .5rem 0; border-radius: 50%; }
+.comment-metadata, .reply { font-size: .85rem; margin: .5rem 0; }
+.comment-content { clear: both; line-height: 1.75; }
+.comment-content::after { content: ''; display: table; clear: both; }
+.comment-form label { display: block; margin-bottom: .35rem; }
+.comment-form input:not([type="checkbox"]):not([type="submit"]), .comment-form textarea { width: 100%; max-width: 100%; }
+.comment-form .submit { padding: .8rem 1.2rem; background: #242522; color: #fff; border: 0; cursor: pointer; min-height: 44px; }
+.comment-form-cookies-consent label { display: inline; }
+.comments-pagination .nav-links { display: flex; flex-wrap: wrap; gap: .75rem; margin: 1.5rem 0; }
+@media (max-width: 639px) { .comment-list .children { margin-left: .75rem; } }
