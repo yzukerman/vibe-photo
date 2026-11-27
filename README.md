@@ -504,3 +504,10 @@ The first directory upload was rejected for a missing `Tested up to` readme head
 Local Plugin Check 2.2.0 additionally identified an unprefixed module variable, discouraged explicit plugin text-domain loading, and direct metadata-query concerns. The loader now prefixes its variable and declares `Domain Path: /languages` for WordPress's on-demand translation loading. Exact local attachment URL lookup now uses core `attachment_url_to_postid()` instead of a direct database query, retaining the visibility and realpath checks.
 
 Validation: Plugin Check's default CLI run on the isolated WordPress 6.7.1 installation returned “Checks complete. No errors found.” Metadata integration tests on the current Local site still passed for valid media, rejected malformed/nonce/external/traversal/missing requests, and protected-parent access; gallery/security smoke tests passed on WordPress 7.1.5. Both versions are documented as exercised configurations, not a complete version matrix. Changed PHP syntax, catalog generation, and ZIP integrity checks passed. `dist/vibe-photo-galleries-v1.0.1.zip` replaces 1.0.0 for the next plugin upload; the historical ZIP remains unchanged. Passing local checks does not guarantee directory approval, and no automatic re-submission was performed.
+
+
+### Footer menu visibility fix (November 27, 2026)
+
+Fixed a legacy footer navigation rule that rendered menu links white on the portfolio footer's white background. Footer menu links now use dark gray, and the horizontal menu wraps when space is limited. Assign a menu under Appearance → Menus → Manage Locations → Footer Menu to display it.
+
+Validation: verified the assigned Pittsburgh Part 1 and Berlin links on the Local site and confirmed their computed text color is `rgb(85, 89, 79)`. `git diff --check` passed. Existing distribution ZIPs have not been rebuilt for this fix.
