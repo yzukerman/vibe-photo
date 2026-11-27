@@ -2,8 +2,9 @@
 Contributors: yzukerman
 Tags: gallery, photography, exif
 Requires at least: 6.7.1
+Tested up to: 7.1
 Requires PHP: 8.2
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -31,6 +32,10 @@ No. Saved content and settings remain. Reactivate to restore custom gallery rout
 Use JPEG (.jpg/.jpeg) for camera settings and GPS metadata. PNG, WebP, GIF, AVIF, and other formats are not read for EXIF, although gallery display and WordPress titles/captions can still work. The reader also permits TIFF, but browser/upload compatibility varies. PHP EXIF support and retained source metadata are required. Google location lookup requires embedded GPS coordinates.
 
 == Changelog ==
+= 1.0.1 =
+* Add the tested WordPress version to the readme.
+* Escape all translated settings output and separate the Console link markup from its translated label.
+
 = 1.0.0 =
 * Extract gallery and viewer functionality from the Vibe Photo theme.
 * Preserve legacy identifiers and settings.

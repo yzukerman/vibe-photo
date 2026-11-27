@@ -164,13 +164,9 @@ function vibe_photo_get_image_exif() {
     $relative = rawurldecode(substr($path, strlen($base_path)));
     $candidates = array($relative, preg_replace('/-\d+x\d+(\.[^.]+)$/', '$1', $relative));
     $candidates[] = preg_replace('/(\.[^.]+)$/', '-scaled$1', $candidates[1]);
-    global $wpdb;
     $attachment_id = 0;
     foreach (array_unique($candidates) as $candidate) {
-        $attachment_id = (int) $wpdb->get_var($wpdb->prepare(
-            "SELECT p.ID FROM {$wpdb->posts} p INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id WHERE p.post_type = 'attachment' AND pm.meta_key = '_wp_attached_file' AND pm.meta_value = %s LIMIT 1",
-            $candidate
-        ));
+        $attachment_id = (int) attachment_url_to_postid($base_url . $candidate);
         if ($attachment_id) break;
     }
     $post = get_post($attachment_id);

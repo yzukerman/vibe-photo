@@ -2,16 +2,17 @@
 /**
  * Plugin Name: Vibe Photo Galleries
  * Description: Photo galleries, an enhanced viewer, EXIF metadata, and optional Google geocoding. Works with Vibe Photo and other themes.
- * Version: 1.0.0
+ * Version: 1.0.1
  * Requires at least: 6.7.1
  * Requires PHP: 8.2
  * Author: Yuval Zukerman
  * License: GPL-2.0-or-later
  * Text Domain: vibe-photo-galleries
+ * Domain Path: /languages
  */
 if (!defined('ABSPATH')) { exit; }
-foreach (array('galleries', 'settings', 'metadata', 'enhancements', 'strings') as $module) {
-    require_once __DIR__ . '/includes/' . $module . '.php';
+foreach (array('galleries', 'settings', 'metadata', 'enhancements', 'strings') as $vibe_photo_galleries_module) {
+    require_once __DIR__ . '/includes/' . $vibe_photo_galleries_module . '.php';
 }
 function vibe_photo_galleries_assets() {
     wp_enqueue_style('vibe-photo-galleries', plugins_url('assets/css/gallery.css', __FILE__), array(), filemtime(__DIR__ . '/assets/css/gallery.css'));
@@ -31,7 +32,4 @@ function vibe_photo_galleries_deactivate() {
 register_activation_hook(__FILE__, 'vibe_photo_galleries_activate');
 register_deactivation_hook(__FILE__, 'vibe_photo_galleries_deactivate');
 
-function vibe_photo_galleries_load_textdomain() {
-    load_plugin_textdomain('vibe-photo-galleries', false, dirname(plugin_basename(__FILE__)) . '/languages');
-}
-add_action('init', 'vibe_photo_galleries_load_textdomain');
+// WordPress loads directory language packs and bundled catalogs on demand.
