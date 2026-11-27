@@ -122,7 +122,7 @@ function vibe_photo_scripts() {
 	wp_enqueue_script('foundation-js', get_template_directory_uri() . '/assets/vendor/foundation/foundation.min.js', array('jquery'), '6.8.1', true);
 
 	// Add responsive navigation
-	wp_enqueue_script('vibe-photo-navigation', get_template_directory_uri() . '/assets/js/navigation.js', array('jquery', 'foundation-js'), '1.0.0', true);
+	wp_enqueue_script('vibe-photo-navigation', get_template_directory_uri() . '/assets/js/navigation.js', array('jquery', 'foundation-js'), filemtime(get_template_directory() . '/assets/js/navigation.js'), true);
 
 	// Initialize Foundation
 	if (function_exists('wp_add_inline_script')) {

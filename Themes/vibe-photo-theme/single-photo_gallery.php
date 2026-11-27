@@ -1,5 +1,5 @@
 <?php get_header(); ?>
-<main id="main-content" class="site-main portfolio-post">
+<main id="main-content" tabindex="-1" class="site-main portfolio-post">
     <div class="grid-container">
         <?php while (have_posts()) : the_post(); ?>
             <article <?php post_class(); ?>>

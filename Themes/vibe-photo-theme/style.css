@@ -1295,3 +1295,17 @@ body { background: #fff; -webkit-font-smoothing: antialiased; }
  .site-header { padding-right: 0; }
  .site-search { top: 1.5rem; right: 1.25rem; }
 }
+
+/* Accessible header navigation. Native details also works without JavaScript. */
+.skip-link { position: absolute; left: 1rem; top: -10rem; z-index: 20000; padding: .75rem 1rem; background: #242522; color: #fff; }
+.skip-link:focus { position: fixed; top: 1rem; color: #fff; }
+a:focus-visible, button:focus-visible, summary:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible { outline: 3px solid #326b9e; outline-offset: 3px; }
+#main-content:focus { outline: none; }
+.mobile-navigation { position: static; margin-top: 1rem; }
+.mobile-menu-toggle { position: absolute; top: 1.5rem; left: 1.25rem; min-height: 44px; padding: .75rem; cursor: pointer; color: #242522; list-style: none; }
+.mobile-menu-toggle::-webkit-details-marker { display: none; }
+.mobile-navigation:not([open]) { margin-top: 0; }
+.mobile-navigation .main-navigation .menu { display: flex; position: static; flex-direction: column; box-shadow: none; background: #fff; }
+.mobile-navigation nav { padding-top: .5rem; border-top: 1px solid #eeeee9; }
+.mobile-navigation .sub-menu { margin-left: 1rem; list-style: none; }
+.main-navigation a { min-height: 44px; }

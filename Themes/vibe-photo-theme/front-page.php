@@ -1,5 +1,5 @@
 <?php get_header(); ?>
-<main id="main-content" class="site-main portfolio-main">
+<main id="main-content" tabindex="-1" class="site-main portfolio-main">
     <div class="grid-container portfolio-container">
         <h1 class="show-for-sr"><?php esc_html_e('Photography collections', 'vibe-photo'); ?></h1>
         <?php

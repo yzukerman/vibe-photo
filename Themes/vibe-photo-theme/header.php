@@ -10,6 +10,7 @@
 
 <body <?php body_class(); ?>>
 	<?php wp_body_open(); ?>
+	<a class="skip-link" href="#main-content"><?php esc_html_e('Skip to content', 'vibe-photo'); ?></a>
 	<header class="site-header">
 		<div class="grid-container">
 			<div class="grid-x grid-padding-x align-justify align-middle">
@@ -21,7 +22,8 @@
 
 				<div class="cell shrink">
 
-					<nav class="main-navigation show-for-medium">
+					<?php if (has_nav_menu('primary')) : ?>
+                    <nav class="main-navigation show-for-medium" aria-label="<?php esc_attr_e('Primary navigation', 'vibe-photo'); ?>">
 						<?php
 						wp_nav_menu(array(
 							'theme_location' => 'primary',
@@ -32,6 +34,7 @@
 						));
 						?>
 					</nav>
+                    <?php endif; ?>
 				</div>
 			</div>
 
@@ -43,21 +46,19 @@
                 <?php get_search_form(); ?>
             </details>
 
-			<!-- Mobile Navigation -->
-			<div class="grid-x">
-				<div class="cell">
-					<nav class="main-navigation hide-for-medium" id="responsive-menu" data-toggler="is-active">
-						<?php
-						wp_nav_menu(array(
-							'theme_location' => 'primary',
-							'menu_id' => 'mobile-menu',
-							'container' => false,
-							'menu_class' => 'menu vertical',
-							'fallback_cb' => false,
-						));
-						?>
-					</nav>
-				</div>
-			</div>
+            <?php if (has_nav_menu('primary')) : ?>
+            <details class="mobile-navigation hide-for-medium">
+                <summary class="mobile-menu-toggle"><?php esc_html_e('Menu', 'vibe-photo'); ?></summary>
+                <nav class="main-navigation" aria-label="<?php esc_attr_e('Mobile navigation', 'vibe-photo'); ?>">
+                    <?php wp_nav_menu(array(
+                        'theme_location' => 'primary',
+                        'menu_id' => 'mobile-menu',
+                        'container' => false,
+                        'menu_class' => 'menu vertical',
+                        'fallback_cb' => false,
+                    )); ?>
+                </nav>
+            </details>
+            <?php endif; ?>
 		</div>
 	</header>

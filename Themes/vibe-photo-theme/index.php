@@ -1,6 +1,6 @@
 <?php get_header(); ?>
 
-<main class="site-main">
+<main id="main-content" tabindex="-1" class="site-main">
 	<div class="grid-container">
 		<!-- Latest Posts Section -->
 		< </main>

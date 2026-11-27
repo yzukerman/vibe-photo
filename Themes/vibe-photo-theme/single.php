@@ -1,6 +1,6 @@
 <?php get_header(); ?>
 
-<main class="site-main portfolio-post">
+<main id="main-content" tabindex="-1" class="site-main portfolio-post">
 	<div class="grid-container">
 		<div class="grid-x grid-padding-x">
 			<div class="cell large-12">

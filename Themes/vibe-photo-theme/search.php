@@ -1,5 +1,5 @@
 <?php get_header(); ?>
-<main class="site-main">
+<main id="main-content" tabindex="-1" class="site-main">
     <div class="grid-container portfolio-container">
         <header class="search-heading">
             <h1 class="entry-title"><?php printf(esc_html__('Search results for: %s', 'vibe-photo'), esc_html(get_search_query())); ?></h1>

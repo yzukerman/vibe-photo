@@ -8,7 +8,7 @@
 
 get_header(); ?>
 
-<main class="site-main">
+<main id="main-content" tabindex="-1" class="site-main">
 	<div class="grid-container">
 		<!-- Galleries Grid -->
 		<div class="grid-x grid-padding-x gallery-archive">>
