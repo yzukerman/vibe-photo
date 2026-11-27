@@ -1,3 +1,8 @@
+<?php
+$primary_locations = get_nav_menu_locations();
+$primary_items = !empty($primary_locations['primary']) ? wp_get_nav_menu_items($primary_locations['primary']) : array();
+$has_primary_items = has_nav_menu('primary') && !empty($primary_items);
+?>
 <!DOCTYPE html>
 <html <?php language_attributes(); ?>>
 
@@ -22,7 +27,7 @@
 
 				<div class="cell shrink">
 
-					<?php if (has_nav_menu('primary')) : ?>
+					<?php if ($has_primary_items) : ?>
                     <nav class="main-navigation show-for-medium" aria-label="<?php esc_attr_e('Primary navigation', 'vibe-photo'); ?>">
 						<?php
 						wp_nav_menu(array(
@@ -46,7 +51,7 @@
                 <?php get_search_form(); ?>
             </details>
 
-            <?php if (has_nav_menu('primary')) : ?>
+            <?php if ($has_primary_items) : ?>
             <details class="mobile-navigation hide-for-medium">
                 <summary class="mobile-menu-toggle"><?php esc_html_e('Menu', 'vibe-photo'); ?></summary>
                 <nav class="main-navigation" aria-label="<?php esc_attr_e('Mobile navigation', 'vibe-photo'); ?>">
