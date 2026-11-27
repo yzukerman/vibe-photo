@@ -27,6 +27,9 @@ No. The plugin includes viewer styling and uses WordPress jQuery. The theme prov
 = Does deactivation delete galleries? =
 No. Saved content and settings remain. Reactivate to restore custom gallery routes and shortcode rendering.
 
+= Which image formats support EXIF? =
+Use JPEG (.jpg/.jpeg) for camera settings and GPS metadata. PNG, WebP, GIF, AVIF, and other formats are not read for EXIF, although gallery display and WordPress titles/captions can still work. The reader also permits TIFF, but browser/upload compatibility varies. PHP EXIF support and retained source metadata are required. Google location lookup requires embedded GPS coordinates.
+
 == Changelog ==
 = 1.0.0 =
 * Extract gallery and viewer functionality from the Vibe Photo theme.
