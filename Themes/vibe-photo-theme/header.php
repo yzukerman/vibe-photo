@@ -19,9 +19,11 @@ $has_primary_items = has_nav_menu('primary') && !empty($primary_items);
 		<div class="grid-container">
 			<div class="grid-x grid-padding-x align-justify align-middle">
 				<div class="cell auto">
-					<a href="<?php echo esc_url(home_url()); ?>" class="site-logo">
-						<?php bloginfo('name'); ?>
-					</a>
+                    <?php if (has_custom_logo()) : ?>
+                        <div class="site-branding-logo"><?php the_custom_logo(); ?></div>
+                    <?php else : ?>
+                        <a href="<?php echo esc_url(home_url('/')); ?>" class="site-logo"><?php bloginfo('name'); ?></a>
+                    <?php endif; ?>
 				</div>
 
 				<div class="cell shrink">
