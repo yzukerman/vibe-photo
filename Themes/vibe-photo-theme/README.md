@@ -35,7 +35,7 @@ This change separates responsibilities; it does not certify directory compliance
 
 The homepage presents posts and Photo Gallery entries as a compact grid of square cover images, inspired by Format's Coat template. Each cover has an always-visible title overlay and a “View gallery” label (hidden on the narrowest screens).
 
-- Set a **Featured image** on each post or Photo Gallery entry to include it in the homepage grid. Entries without a featured image are omitted from this grid, but remain accessible at their own URLs.
+- Set a **Featured image** to choose a homepage cover, or use a gallery with local image attachments for an automatic first-image fallback. Plain entries without either remain outside the grid.
 - The homepage displays up to **12 entries per page**, newest first, with pagination when needed.
 - Covers are cropped to squares using `object-fit: cover`; original media files are unchanged.
 - The grid uses four columns on wide screens, three on desktops, and two on smaller screens.
@@ -435,3 +435,11 @@ Replaced the regular post's duplicated/manual inline JavaScript navigation with 
 All theme/plugin PHP syntax and viewer JavaScript syntax checks passed. Catalog generation completed without placeholder warnings. Public AJAX integration checks verified valid local metadata without debug/path leakage; rejection of invalid nonces, array inputs, external/traversal/missing URLs; and rejection for private/password-protected parents. Temporary access-test posts were removed and the attachment's original parent restored. `tests/security-smoke.php` provides repeatable non-mutating WP-CLI checks for path confinement, API key sanitization, and translated viewer labels.
 
 Live browser checks confirmed gallery opening, one-image arrow navigation, EXIF display, Escape closing, and restored image focus. Theme Check against `vibe-photo` still has no REQUIRED failures or WARNING entries; optional block-pattern/style, header/background, and widget recommendations remain. This targeted source review is not a penetration test, a complete privacy review, or a guarantee of directory approval. No deliberate live Google API integration test or non-English visual test was performed. No version bump, published ZIP, production deployment, or remote push was made.
+
+## Automatic collection cover fallback
+
+Homepage covers now prefer a usable Featured image, then the first usable local image attachment from a WordPress Gallery block (including nested image blocks and legacy gallery IDs), then explicit `[gallery]` / `[vibe_gallery]` IDs, then saved `_gallery_images` selections. The fallback renders a cover without writing or overwriting `_thumbnail_id`. Set a Featured image whenever you want to control the cover explicitly.
+
+The grid query now includes published posts with gallery content or saved gallery images as well as posts with featured images. The eligibility condition is scoped to the cover-grid query, keeping WordPress SQL pagination rather than loading every post into PHP. Plain posts without a featured image or gallery remain excluded. Invalid/deleted or external-only gallery images may leave a text-only tile; this fallback uses local image attachment IDs, not arbitrary remote images. Shortcodes without explicit image IDs are not resolved into attached-media covers in this version.
+
+Validation on Local: More gallery (post 208), previously missing because it has no Featured image, now appears with a gallery-image cover. Existing Pittsburgh covers retain their Featured images. Hello world stays excluded. Changed PHP syntax, whitespace, featured-image precedence, and query isolation checks passed. Repeat non-mutating checks with `wp eval-file /path/to/repo/tests/cover-smoke.php`. No saved Featured images were changed; no release/version bump, distribution rebuild, or push was made.
