@@ -489,7 +489,7 @@ Run `node --test tests/fullscreen-close.test.cjs` for regression coverage of del
 
 The theme no longer reads `_gallery_images` or parses `[vibe_gallery]` storage itself. It handles Featured images and native WordPress galleries, then exposes `vibe_photo_collection_image_ids`, `vibe_photo_collection_image_count`, and `vibe_photo_collection_query_extra_where` presentation filters. The companion plugin supplies its legacy metadata/shortcode cover candidates, counts, and cover-grid eligibility through those filters. Custom post type templates may remain in the theme; registration and storage stay in the plugin. Without the plugin, native Gallery block covers remain available.
 
-Final validation packages are `dist/vibe-photo-v1.3.zip` and `dist/vibe-photo-galleries-v1.0.0.zip`, each with one stable installation folder. Historical deployment ZIPs are retained separately and should not be used for directory submission. Install the theme and plugin separately. The theme can be submitted on its own; do not recommend automatic installation or claim a WordPress.org plugin listing before the companion plugin is approved there.
+Final validation packages are `dist/themes/vibe-photo-v1.3.zip` and `dist/plugins/vibe-photo-galleries-v1.0.0.zip`, each with one stable installation folder. Historical deployment ZIPs are retained separately and should not be used for directory submission. Install the theme and plugin separately. The theme can be submitted on its own; do not recommend automatic installation or claim a WordPress.org plugin listing before the companion plugin is approved there.
 
 Release checks use the exact ZIPs in the isolated WordPress 6.7.1 / PHP 8.2.29 harness, with clean component directories and separate test data. The repository's cover, gallery, security, template, and fullscreen lifecycle tests are the repeatable checks; Theme Check must have no REQUIRED or WARNING entries. A release validation report accompanies the downloadable artifacts. Test success is not a guarantee of directory acceptance or a full browser/device/security certification. No WordPress.org submission or production deployment is authorized by this preparation step.
 
@@ -503,7 +503,7 @@ The first directory upload was rejected for a missing `Tested up to` readme head
 
 Local Plugin Check 2.2.0 additionally identified an unprefixed module variable, discouraged explicit plugin text-domain loading, and direct metadata-query concerns. The loader now prefixes its variable and declares `Domain Path: /languages` for WordPress's on-demand translation loading. Exact local attachment URL lookup now uses core `attachment_url_to_postid()` instead of a direct database query, retaining the visibility and realpath checks.
 
-Validation: Plugin Check's default CLI run on the isolated WordPress 6.7.1 installation returned “Checks complete. No errors found.” Metadata integration tests on the current Local site still passed for valid media, rejected malformed/nonce/external/traversal/missing requests, and protected-parent access; gallery/security smoke tests passed on WordPress 7.1.5. Both versions are documented as exercised configurations, not a complete version matrix. Changed PHP syntax, catalog generation, and ZIP integrity checks passed. `dist/vibe-photo-galleries-v1.0.1.zip` replaces 1.0.0 for the next plugin upload; the historical ZIP remains unchanged. Passing local checks does not guarantee directory approval, and no automatic re-submission was performed.
+Validation: Plugin Check's default CLI run on the isolated WordPress 6.7.1 installation returned “Checks complete. No errors found.” Metadata integration tests on the current Local site still passed for valid media, rejected malformed/nonce/external/traversal/missing requests, and protected-parent access; gallery/security smoke tests passed on WordPress 7.1.5. Both versions are documented as exercised configurations, not a complete version matrix. Changed PHP syntax, catalog generation, and ZIP integrity checks passed. `dist/plugins/vibe-photo-galleries-v1.0.1.zip` replaces 1.0.0 for the next plugin upload; the historical ZIP remains unchanged. Passing local checks does not guarantee directory approval, and no automatic re-submission was performed.
 
 
 ### Footer menu visibility fix (November 27, 2026)
@@ -511,3 +511,15 @@ Validation: Plugin Check's default CLI run on the isolated WordPress 6.7.1 insta
 Fixed a legacy footer navigation rule that rendered menu links white on the portfolio footer's white background. Footer menu links now use dark gray, and the horizontal menu wraps when space is limited. Assign a menu under Appearance → Menus → Manage Locations → Footer Menu to display it.
 
 Validation: verified the assigned Pittsburgh Part 1 and Berlin links on the Local site and confirmed their computed text color is `rgb(85, 89, 79)`. `git diff --check` passed. Existing distribution ZIPs have not been rebuilt for this fix.
+
+
+### Rebuilt submission theme distribution (November 27, 2026)
+
+Rebuilt `dist/themes/vibe-photo-v1.3.zip` from the restored submission branch to include the footer menu contrast and wrapping fix. The submission version remains 1.3. The gallery plugin package remains 1.0.1. Verified ZIP integrity, the `vibe-photo/` installation directory, and byte-for-byte agreement with the packaged theme source files.
+
+
+### Separate distribution directories (November 27, 2026)
+
+Installable theme ZIPs, including historical releases, now live in `dist/themes/`; gallery plugin ZIPs live in `dist/plugins/`. Current packages are `dist/themes/vibe-photo-v1.3.zip` and `dist/plugins/vibe-photo-galleries-v1.0.1.zip`. Archive contents and release versions are unchanged by this move.
+
+Run `python3 tools/package.py theme` or `python3 tools/package.py plugin` from the repository root to build into the respective directory. `--output` still accepts an explicit destination. The historical shell theme packager also targets the repository's `dist/themes/` directory. Existing release ZIPs are never overwritten by the Python packager. Validation confirmed moved ZIP checksums are unchanged, archive integrity passes, and both packaging destinations work.

@@ -11,12 +11,12 @@ VERSION="1.3"
 VERSIONED_THEME_NAME="${THEME_NAME}-v${VERSION}"
 PACKAGE_NAME="${VERSIONED_THEME_NAME}"
 BUILD_DIR="build"
-DIST_DIR="dist"
+DIST_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)/dist/themes"
 
 # Create build directory
 echo "📁 Creating build directory..."
 mkdir -p $BUILD_DIR
-mkdir -p $DIST_DIR
+mkdir -p "$DIST_DIR"
 
 # Copy theme files (excluding development files)
 echo "📋 Copying theme files..."
@@ -40,7 +40,7 @@ rsync -av --exclude='*.log' \
 # Create ZIP file
 echo "📦 Creating distribution ZIP file..."
 cd $BUILD_DIR
-zip -r "../${DIST_DIR}/${PACKAGE_NAME}.zip" $VERSIONED_THEME_NAME/
+zip -r "${DIST_DIR}/${PACKAGE_NAME}.zip" $VERSIONED_THEME_NAME/
 cd ..
 
 # Cleanup

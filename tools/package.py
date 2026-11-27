@@ -8,9 +8,11 @@ import zipfile
 ROOT = Path(__file__).resolve().parents[1]
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('component', choices=['theme', 'plugin'])
-parser.add_argument('--output', type=Path, default=ROOT / 'dist')
+parser.add_argument('--output', type=Path, help='Override the component distribution directory')
 args = parser.parse_args()
 is_theme = args.component == 'theme'
+if args.output is None:
+    args.output = ROOT / 'dist' / ('themes' if is_theme else 'plugins')
 source = ROOT / ('Themes/vibe-photo-theme' if is_theme else 'Plugins/vibe-photo-galleries')
 slug = 'vibe-photo' if is_theme else 'vibe-photo-galleries'
 header = source / ('style.css' if is_theme else 'vibe-photo-galleries.php')
