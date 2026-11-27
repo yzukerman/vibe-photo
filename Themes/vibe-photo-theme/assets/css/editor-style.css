@@ -1,0 +1,22 @@
+/* Content styles only: WordPress scopes these to the editor canvas. */
+body {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color: #242522;
+    background: #fff;
+    line-height: 1.75;
+}
+.wp-block { max-width: 42rem; }
+.wp-block[data-align="wide"] { max-width: 80rem; }
+.wp-block[data-align="full"] { max-width: none; }
+h1, h2, h3, h4, h5, h6, .editor-post-title__input {
+    font-family: 'Oranienbaum', Georgia, serif;
+    font-weight: 400;
+    line-height: 1.2;
+}
+a { color: #242522; text-decoration: underline; text-underline-offset: .15em; }
+a:focus-visible { outline: 3px solid #326b9e; outline-offset: 3px; }
+p { line-height: 1.85; }
+img { max-width: 100%; height: auto; }
+.wp-block-image img, .wp-block-gallery img { border-radius: 0; }
+figcaption, .wp-caption-text { color: #55594f; font-size: .875rem; line-height: 1.6; }
+blockquote { border-left: 3px solid #686d60; padding-left: 1.25rem; color: #41433d; }

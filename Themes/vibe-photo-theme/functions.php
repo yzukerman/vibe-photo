@@ -78,6 +78,8 @@ function vibe_photo_setup() {
 
 		// Add theme support for editor styles
 		add_theme_support('editor-styles');
+		add_theme_support('wp-block-styles');
+		add_editor_style(array('assets/fonts/fonts.css', 'assets/css/editor-style.css'));
 
 		// Add theme support for custom line height
 		add_theme_support('custom-line-height');
