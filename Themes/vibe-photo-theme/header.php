@@ -20,9 +20,6 @@
 				</div>
 
 				<div class="cell shrink">
-					<button class="menu-toggle hide-for-medium" data-toggle="responsive-menu">
-						<span class="fa fa-bars"></span> Menu
-					</button>
 
 					<nav class="main-navigation show-for-medium">
 						<?php
