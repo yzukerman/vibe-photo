@@ -253,14 +253,14 @@ function vibe_photo_collection_cover_id($post_id) {
         return $found;
     };
     $ids = array_merge($ids, $find_gallery_images(parse_blocks($post->post_content)));
-    if (preg_match_all('/' . get_shortcode_regex(array('gallery', 'vibe_gallery')) . '/s', $post->post_content, $matches, PREG_SET_ORDER)) {
+    if (preg_match_all('/' . get_shortcode_regex(array('gallery')) . '/s', $post->post_content, $matches, PREG_SET_ORDER)) {
         foreach ($matches as $match) {
             if ($match[1] === '[' && $match[6] === ']') continue;
             $atts = shortcode_parse_atts($match[3]);
             if (is_array($atts)) $ids = array_merge($ids, explode(',', $atts['ids'] ?? $atts['include'] ?? ''));
         }
     }
-    $ids = array_merge($ids, explode(',', (string) get_post_meta($post_id, '_gallery_images', true)));
+    $ids = apply_filters('vibe_photo_collection_image_ids', $ids, $post_id);
     foreach (array_unique(array_map('absint', $ids)) as $id) {
         if ($id && wp_attachment_is_image($id) && wp_get_attachment_image_src($id, 'large')) return $id;
     }
@@ -272,11 +272,15 @@ function vibe_photo_collection_query_where($where, $query) {
     if (!$query->get('vibe_photo_cover_grid')) return $where;
     global $wpdb;
     $where .= $wpdb->prepare(
-        " AND (EXISTS (SELECT 1 FROM {$wpdb->postmeta} cover_meta WHERE cover_meta.post_id = {$wpdb->posts}.ID AND cover_meta.meta_key IN ('_thumbnail_id', '_gallery_images') AND cover_meta.meta_value NOT IN ('', '0')) OR {$wpdb->posts}.post_content LIKE %s OR {$wpdb->posts}.post_content LIKE %s OR {$wpdb->posts}.post_content LIKE %s)",
+        " AND (EXISTS (SELECT 1 FROM {$wpdb->postmeta} cover_meta WHERE cover_meta.post_id = {$wpdb->posts}.ID AND cover_meta.meta_key = '_thumbnail_id' AND cover_meta.meta_value NOT IN ('', '0')) OR {$wpdb->posts}.post_content LIKE %s OR {$wpdb->posts}.post_content LIKE %s)",
         '%' . $wpdb->esc_like('<!-- wp:gallery') . '%',
-        '%' . $wpdb->esc_like('[gallery') . '%',
-        '%' . $wpdb->esc_like('[vibe_gallery') . '%'
+        '%' . $wpdb->esc_like('[gallery') . '%'
     );
+    $extra = apply_filters('vibe_photo_collection_query_extra_where', '', $query);
+    if ($extra) {
+        // Wrap the existing cover predicate with plugin-provided alternatives.
+        $where = substr($where, 0, -1) . $extra . ')';
+    }
     return $where;
 }
 add_filter('posts_where', 'vibe_photo_collection_query_where', 10, 2);

@@ -74,3 +74,31 @@ function vibe_photo_save_gallery_images($post_id) {
     }
 }
 add_action('save_post_photo_gallery', 'vibe_photo_save_gallery_images');
+
+/** Supply legacy/plugin gallery cover data without coupling themes to storage. */
+function vibe_photo_galleries_collection_ids($ids, $post_id) {
+    $post = get_post($post_id);
+    if (!$post) return $ids;
+    if (preg_match_all('/' . get_shortcode_regex(array('vibe_gallery')) . '/s', $post->post_content, $matches, PREG_SET_ORDER)) {
+        foreach ($matches as $match) {
+            if ($match[1] === '[' && $match[6] === ']') continue;
+            $atts = shortcode_parse_atts($match[3]);
+            if (is_array($atts)) $ids = array_merge($ids, explode(',', $atts['ids'] ?? ''));
+        }
+    }
+    return array_merge($ids, explode(',', (string) get_post_meta($post_id, '_gallery_images', true)));
+}
+add_filter('vibe_photo_collection_image_ids', 'vibe_photo_galleries_collection_ids', 10, 2);
+function vibe_photo_galleries_collection_count($count, $post_id) {
+    $ids = array_filter(array_unique(array_map('absint', vibe_photo_galleries_collection_ids(array(), $post_id))));
+    return $ids ? count($ids) : $count;
+}
+add_filter('vibe_photo_collection_image_count', 'vibe_photo_galleries_collection_count', 10, 2);
+function vibe_photo_galleries_collection_where($where, $query) {
+    global $wpdb;
+    return $where . $wpdb->prepare(
+        " OR EXISTS (SELECT 1 FROM {$wpdb->postmeta} gallery_meta WHERE gallery_meta.post_id = {$wpdb->posts}.ID AND gallery_meta.meta_key = '_gallery_images' AND gallery_meta.meta_value NOT IN ('', '0')) OR {$wpdb->posts}.post_content LIKE %s",
+        '%' . $wpdb->esc_like('[vibe_gallery') . '%'
+    );
+}
+add_filter('vibe_photo_collection_query_extra_where', 'vibe_photo_galleries_collection_where', 10, 2);

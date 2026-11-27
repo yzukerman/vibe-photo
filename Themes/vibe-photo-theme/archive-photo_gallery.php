@@ -14,25 +14,9 @@ get_header(); ?>
 		<div class="grid-x grid-padding-x gallery-archive">
 			<?php if (have_posts()) : ?>
 				<?php while (have_posts()) : the_post();
-					$gallery_images = get_post_meta(get_the_ID(), '_gallery_images', true);
-					$image_count = 0;
-					$featured_image = '';
-
-					// Get image count and featured image
-					if (!empty($gallery_images)) {
-						$image_ids = explode(',', $gallery_images);
-						$image_ids = array_filter(array_map('trim', $image_ids));
-						$image_count = count($image_ids);
-
-						if (!empty($image_ids[0]) && is_numeric($image_ids[0])) {
-							$featured_image = wp_get_attachment_image_src($image_ids[0], 'gallery-medium');
-						}
-					}
-
-					// Fallback to post thumbnail
-					if (empty($featured_image) && has_post_thumbnail()) {
-						$featured_image = wp_get_attachment_image_src(get_post_thumbnail_id(), 'gallery-medium');
-					}
+                    $image_count = absint(apply_filters('vibe_photo_collection_image_count', 0, get_the_ID()));
+                    $cover_id = vibe_photo_collection_cover_id(get_the_ID());
+                    $featured_image = $cover_id ? wp_get_attachment_image_src($cover_id, 'large') : false;
 				?>
 					<div class="cell medium-6 large-4">
 						<article class="gallery-card">

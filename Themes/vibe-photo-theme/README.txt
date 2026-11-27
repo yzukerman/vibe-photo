@@ -13,9 +13,12 @@ This theme is free software, and you may redistribute it under the GPL2+.
 
 A modern, responsive WordPress theme designed specifically for photography portfolios and photo galleries with advanced lightbox functionality, WordPress metadata integration, and comprehensive archive and menu support.
 
-**Note**: This version will install alongside previous versions without overwriting them, allowing you to safely test the new version.
+**Note**: Directory packages use the stable vibe-photo folder and replace an installed copy of the same slug. Back up your site before updates.
 
 == Description ==
+
+Submission release 1.3: this theme provides portfolio presentation and works with native WordPress posts and Gallery blocks. Advanced viewer, EXIF/geocoding, sharing, custom Photo Gallery posts, and legacy gallery shortcodes are supplied by the separate optional Vibe Photo Galleries plugin. They are not included in the theme ZIP. See README.md for current installation and compatibility details; historical changelog feature descriptions may refer to the earlier integrated implementation.
+
 
 Vibe Photo Theme is a professional photography theme built with Foundation CSS framework. It features:
 
@@ -88,6 +91,13 @@ Absolutely! The theme is built with a mobile-first approach using Foundation CSS
 Yes, you can modify the CSS variables in style.css or add custom CSS through the WordPress customizer.
 
 == Changelog ==
+
+= 1.3 =
+* Separate optional gallery functionality into a companion plugin.
+* Add local assets, accessible navigation, custom logo, comments, editor styles, and cover fallbacks.
+* Repair templates, licensing, translations, and metadata access boundaries.
+* Test the packaged baseline on WordPress 6.7.1 and PHP 8.2.29.
+
 
 = 1.20.0.3 =
 * Remove the unused mobile Menu button while retaining the centered site title and search control.
