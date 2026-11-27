@@ -341,3 +341,7 @@ The malformed fallback template and manual title output are separate pending fix
 ### Empty-menu follow-up
 
 An assigned menu can still contain zero saved links. The header now requires both a Primary Menu assignment and nonempty menu items before showing desktop navigation or the mobile Menu disclosure. This prevents a mobile button that opens an empty panel. To populate a menu, select it in Appearance > Menus, add pages or Custom Links using Add to Menu, and click Save Menu. Desktop shows the links directly; the mobile disclosure appears below 640px. Local inspection confirmed the reported Test Menu had no saved items even with legacy theme filtering bypassed. HTTP validation confirmed empty navigation controls are now omitted.
+
+### Local menu persistence diagnosis
+
+Follow-up inspection found the owner's Pittsburgh Part 1 and Berlin links as draft `nav_menu_item` posts with orphan metadata and no menu relationships. Thus the editor showed entries while the published menu API returned none; the links were not absent from the database. Local repair attached those existing items to Test Menu and published them in their existing order without changing their destinations. HTTP checks confirmed both desktop and mobile menu markup includes both links. This was a Local database correction, not a theme rendering fix or production change. Menu editor visibility alone does not prove items have been published and attached to a menu.
