@@ -59,6 +59,7 @@ if (function_exists('get_template_directory_uri')) {
  * - All other wp_* functions are WordPress core functions
  */
 function vibe_photo_setup() {
+	load_theme_textdomain('vibe-photo', get_template_directory() . '/languages');
 	// Add theme support for various features
 	if (function_exists('add_theme_support')) {
 		add_theme_support('post-thumbnails');

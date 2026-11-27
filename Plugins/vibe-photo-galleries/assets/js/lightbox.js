@@ -4,6 +4,25 @@
  */
 (function($) {
     'use strict';
+    function t(message) {
+        return window.vibePhotoStrings && Object.prototype.hasOwnProperty.call(window.vibePhotoStrings, message) ? window.vibePhotoStrings[message] : message;
+    }
+    function translateViewer() {
+        $('#vibe-lightbox').find('*').addBack().each(function() {
+            var $element = $(this);
+            ['aria-label', 'title'].forEach(function(attribute) {
+                var value = $element.attr(attribute);
+                if (value) $element.attr(attribute, t(value));
+            });
+            $element.contents().each(function() {
+                if (this.nodeType === 3) {
+                    var value = this.nodeValue.trim();
+                    if (value) this.nodeValue = this.nodeValue.replace(value, t(value));
+                }
+            });
+        });
+    }
+
 
     // Both gallery entry paths share one keyboard/controller session.
     var activeLightbox = null;
@@ -135,7 +154,7 @@
 
                     images.push({
                         src: fullSrc,
-                        title: $img.attr('alt') || $img.attr('title') || 'Gallery Image ' + (index + 1),
+                        title: $img.attr('alt') || $img.attr('title') || t('Gallery Image ') + (index + 1),
                         description: $img.attr('data-caption') || '',
                         thumb: imgSrc,
                         alt: $img.attr('alt') || '',
@@ -210,7 +229,7 @@
             // Update title and description
             $lightboxTitle.text(image.title);
             $lightboxDescription.text(image.description);
-            $imageCounter.text((index + 1) + ' of ' + images.length);
+            $imageCounter.text(t('%1$s of %2$s').replace('%1$s', index + 1).replace('%2$s', images.length));
             
             // Load new image
             var newImg = new Image();
@@ -363,7 +382,7 @@
             var currentUrl = enableDeepLinking && imageHash ? baseUrl + '#' + imageHash : window.location.href;
             var imageUrl = image.src;
             var title = encodeURIComponent(image.title);
-            var description = encodeURIComponent(image.description || 'Check out this photo');
+            var description = encodeURIComponent(image.description || t('Check out this photo'));
             var hashtags = encodeURIComponent('photography,gallery');
 
             // Update sharing URLs with functional links
@@ -428,7 +447,7 @@
         function showCopySuccess() {
             var $copyBtn = $('.copy-link .share-text');
             var originalText = $copyBtn.text();
-            $copyBtn.text('Copied!');
+            $copyBtn.text(t('Copied!'));
             setTimeout(function() {
                 $copyBtn.text(originalText);
             }, 2000);
@@ -486,7 +505,7 @@
         $('.wp-block-gallery img, .vibe-lightbox-gallery img, img[data-lightbox]').each(function() {
             var $image = $(this);
             if (!$image.closest('a, button').length) {
-                $image.attr({ tabindex: '0', role: 'button', 'aria-label': 'Open photo: ' + ($image.attr('alt') || 'Gallery image') });
+                $image.attr({ tabindex: '0', role: 'button', 'aria-label': t('Open photo: ') + ($image.attr('alt') || t('Gallery image')) });
             }
         });
         $(document).on('keydown.vibePhotoGallery', '.wp-block-gallery img[role="button"], .vibe-lightbox-gallery img[role="button"], img[data-lightbox][role="button"]', function(e) {
@@ -576,7 +595,7 @@
                             
                             images.push({
                                 src: fullSrc,
-                                title: $img.attr('alt') || $img.attr('title') || 'Gallery Image',
+                                title: $img.attr('alt') || $img.attr('title') || t('Gallery Image'),
                                 description: $img.attr('data-caption') || '',
                                 thumb: imgSrc,
                                 alt: $img.attr('alt') || '',
@@ -799,6 +818,7 @@
         
         $('head').append(styles);
         $('body').append(lightboxHTML);
+        translateViewer();
     }
 
     function bindLightboxEvents() {
@@ -815,7 +835,7 @@
             
             images.push({
                 src: $link.attr('href'),
-                title: $img.attr('alt') || $link.attr('title') || 'Untitled',
+                title: $img.attr('alt') || $link.attr('title') || t('Untitled'),
                 description: $link.attr('data-caption') || $parent.find('.image-caption p').text() || '',
                 thumb: $img.attr('src'),
                 alt: $img.attr('alt') || '',
@@ -842,7 +862,7 @@
             if (imgSrc && imgSrc.length > 0) {
                 images.push({
                     src: fullSrc,
-                    title: $img.attr('alt') || $img.attr('title') || 'Gallery Image',
+                    title: $img.attr('alt') || $img.attr('title') || t('Gallery Image'),
                     description: $img.attr('data-caption') || '',
                     thumb: imgSrc,
                     alt: $img.attr('alt') || '',
@@ -879,7 +899,7 @@
             // Allow default behavior but add some visual feedback
             var $btn = $(this);
             var originalText = $btn.find('.share-text').text();
-            $btn.find('.share-text').text('Opening...');
+            $btn.find('.share-text').text(t('Opening...'));
             
             setTimeout(function() {
                 $btn.find('.share-text').text(originalText);
@@ -937,7 +957,7 @@
                 } else if (lightboxElement.msRequestFullscreen) {
                     lightboxElement.msRequestFullscreen();
                 }
-                $fullscreenBtn.addClass('active').html('⛶ Exit Fullscreen');
+                $fullscreenBtn.addClass('active').text(t('⛶ Exit Fullscreen'));
             } else {
                 // Exit fullscreen
                 if (document.exitFullscreen) {
@@ -949,7 +969,7 @@
                 } else if (document.msExitFullscreen) {
                     document.msExitFullscreen();
                 }
-                $fullscreenBtn.removeClass('active').html('⛶ Fullscreen');
+                $fullscreenBtn.removeClass('active').text(t('⛶ Fullscreen'));
             }
         }
 
@@ -960,10 +980,10 @@
             if (!document.fullscreenElement && !document.webkitFullscreenElement && 
                 !document.mozFullScreenElement && !document.msFullscreenElement) {
                 // Exited fullscreen
-                $fullscreenBtn.removeClass('active').html('⛶ Fullscreen');
+                $fullscreenBtn.removeClass('active').text(t('⛶ Fullscreen'));
             } else {
                 // Entered fullscreen
-                $fullscreenBtn.addClass('active').html('⛶ Exit Fullscreen');
+                $fullscreenBtn.addClass('active').text(t('⛶ Exit Fullscreen'));
             }
         });
 
@@ -1023,7 +1043,7 @@
             // Update title and description
             $lightboxTitle.text(image.title);
             $lightboxDescription.text(image.description);
-            $imageCounter.text((index + 1) + ' of ' + images.length);
+            $imageCounter.text(t('%1$s of %2$s').replace('%1$s', index + 1).replace('%2$s', images.length));
             
             // Load new image
             var newImg = new Image();
@@ -1084,7 +1104,7 @@
                         if (response.success && response.data) {
                             updateExifData(response.data);
                         } else {
-                            $('.exif-value[data-exif="camera"]').text('EXIF data not available');
+                            $('.exif-value[data-exif="camera"]').text(t('EXIF data not available'));
                         }
                     },
                     error: function(xhr, status, error) {
@@ -1149,7 +1169,7 @@
             var currentUrl = window.location.href;
             var imageUrl = image.src;
             var title = encodeURIComponent(image.title);
-            var description = encodeURIComponent(image.description || 'Check out this photo');
+            var description = encodeURIComponent(image.description || t('Check out this photo'));
             var hashtags = encodeURIComponent('photography,gallery');
 
             // Update sharing URLs with functional links
@@ -1222,7 +1242,7 @@
         function showCopySuccess() {
             var $copyBtn = $('.copy-link .share-text');
             var originalText = $copyBtn.text();
-            $copyBtn.text('Copied!');
+            $copyBtn.text(t('Copied!'));
             setTimeout(function() {
                 $copyBtn.text(originalText);
             }, 2000);
@@ -1252,7 +1272,7 @@
                 if (imgSrc) {
                     images.push({
                         src: fullSrc,
-                        title: $img.attr('alt') || $img.attr('title') || 'Gallery Image ' + (index + 1),
+                        title: $img.attr('alt') || $img.attr('title') || t('Gallery Image ') + (index + 1),
                         description: $img.attr('data-caption') || '',
                         thumb: imgSrc,
                         alt: $img.attr('alt') || '',

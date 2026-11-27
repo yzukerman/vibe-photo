@@ -4,6 +4,7 @@ if (!defined('ABSPATH')) { exit; }
 function vibe_photo_reverse_geocode($lat, $lon, $attachment_id = null) {
 	// Get API key from settings
 	$api_key = get_option('vibe_photo_google_api_key', '');
+    if (!is_numeric($lat) || !is_numeric($lon) || abs((float) $lat) > 90 || abs((float) $lon) > 180 || !is_string($api_key)) return null;
 
 	// If no API key, return null
 	if (empty($api_key)) {
@@ -23,18 +24,18 @@ function vibe_photo_reverse_geocode($lat, $lon, $attachment_id = null) {
 		'https://maps.googleapis.com/maps/api/geocode/json?latlng=%s,%s&key=%s',
 		$lat,
 		$lon,
-		$api_key
+		rawurlencode($api_key)
 	);
 
 	// Make API request
 	$response = wp_remote_get($url, array(
 		'timeout' => 10,
+        'limit_response_size' => 262144,
 		'sslverify' => true
 	));
 
 	// Check for errors
-	if (is_wp_error($response)) {
-		error_log('VIBE PHOTO: Geocoding API error: ' . $response->get_error_message());
+	if (is_wp_error($response) || wp_remote_retrieve_response_code($response) !== 200) {
 		return null;
 	}
 
@@ -44,7 +45,6 @@ function vibe_photo_reverse_geocode($lat, $lon, $attachment_id = null) {
 
 	// Check if we got results
 	if (empty($data['results']) || $data['status'] !== 'OK') {
-		error_log('VIBE PHOTO: Geocoding API returned no results. Status: ' . ($data['status'] ?? 'unknown'));
 		return null;
 	}
 
@@ -118,7 +118,6 @@ function vibe_photo_reverse_geocode($lat, $lon, $attachment_id = null) {
 
 	// If still empty, return null
 	if (empty($location_name)) {
-		error_log('VIBE PHOTO: Could not extract meaningful location from geocoding response');
 		return null;
 	}
 
@@ -133,194 +132,91 @@ function vibe_photo_reverse_geocode($lat, $lon, $attachment_id = null) {
 /**
  * AJAX handler for getting image EXIF data
  */
+
+/** Reject missing files and symlinks escaping the real uploads directory. */
+function vibe_photo_galleries_safe_file($path) {
+    $uploads = wp_get_upload_dir();
+    $base = realpath($uploads['basedir']);
+    $file = is_string($path) ? realpath($path) : false;
+    if (!$base || !$file || !is_file($file) || !is_readable($file) || strpos(wp_normalize_path($file), trailingslashit(wp_normalize_path($base))) !== 0) return false;
+    return $file;
+}
+
 function vibe_photo_get_image_exif() {
-	// Verify nonce
-	if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'vibe_photo_nonce')) {
-		wp_send_json_error('Invalid nonce');
-		return;
-	}
-
-	$image_url = isset($_POST['image_url']) ? esc_url_raw(wp_unslash($_POST['image_url'])) : '';
-	$uploads = wp_get_upload_dir();
-	if (!$image_url || strpos($image_url, trailingslashit($uploads['baseurl'])) !== 0 || strpos(rawurldecode($image_url), '..') !== false) {
-		wp_send_json_error('Only local media-library images are supported.');
-		return;
-	}
-
-	// Fix protocol-relative URLs
-	if (strpos($image_url, '//') === 0) {
-		$image_url = 'http:' . $image_url;
-	}
-
-	// Convert resized image URL to original URL for attachment lookup
-	$original_url = $image_url;
-	// Remove size dimensions (e.g., -683x1024.jpeg -> .jpeg)
-	$original_url = preg_replace('/-\d+x\d+(\.[^.]+)$/', '$1', $original_url);
-
-	// Try to get attachment ID from original URL
-	$attachment_id = attachment_url_to_postid($original_url);
-
-	$exif_data = array();
-	if (!$attachment_id) {
-		// If attachment_url_to_postid failed, try alternative methods to find the attachment
-		global $wpdb;
-
-		// Try multiple variations of the filename including -scaled versions
-		$filename = basename($original_url);
-		$filename_no_ext = pathinfo($filename, PATHINFO_FILENAME);
-		$filename_ext = pathinfo($filename, PATHINFO_EXTENSION);
-
-		// Try multiple variations of the filename
-		$search_patterns = array(
-			'%' . $filename,                                    // exact: DSCF7743.jpeg
-			'%' . $filename_no_ext . '-scaled.' . $filename_ext, // scaled: DSCF7743-scaled.jpeg
-			'%' . $filename_no_ext . '%.' . $filename_ext        // any variation: DSCF7743-*.jpeg
-		);
-
-		foreach ($search_patterns as $pattern) {
-			$attachments_with_filename = $wpdb->get_results($wpdb->prepare(
-				"SELECT p.ID FROM {$wpdb->posts} p 
-				 LEFT JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id 
-				 WHERE p.post_type = 'attachment' AND pm.meta_key = '_wp_attached_file' 
-				 AND pm.meta_value LIKE %s 
-				 LIMIT 1",
-				$pattern
-			));
-
-			if ($attachments_with_filename) {
-				$attachment_id = $attachments_with_filename[0]->ID;
-				break; // Found one, stop searching
-			}
-		}
-	}
-
-	if (!$attachment_id) {
-		// Still no attachment ID, work with file directly
-		// If no attachment ID, try to work with the URL directly
-		error_log('VIBE PHOTO: No attachment ID found for: ' . $image_url);
-		$upload_dir = wp_get_upload_dir();
-
-		// Try multiple methods to convert URL to file path
-		$file_path = str_replace($upload_dir['baseurl'], $upload_dir['basedir'], $image_url);
-
-		// If that didn't work, try extracting just the relative path
-		if (!file_exists($file_path)) {
-			// Extract the path after /wp-content/uploads/
-			if (preg_match('/\/wp-content\/uploads\/(.+)$/', $image_url, $matches)) {
-				$relative_path = $matches[1];
-				$file_path = $upload_dir['basedir'] . '/' . $relative_path;
-			}
-		}
-
-		if (file_exists($file_path)) {
-			// Get basic file info without WordPress metadata
-			$image_size = getimagesize($file_path);
-			if ($image_size) {
-				$exif_data['size'] = $image_size[0] . ' × ' . $image_size[1] . ' pixels';
-			}
-
-			$file_size = filesize($file_path);
-			if ($file_size) {
-				$exif_data['file_size'] = size_format($file_size);
-			}
-		} else {
-			wp_send_json_error(array(
-				'message' => 'Image file not found'
-			));
-			return;
-		}
-	} else {
-		// Get image metadata from WordPress
-		$metadata = wp_get_attachment_metadata($attachment_id);
-		$file_path = get_attached_file($attachment_id);
-
-		// Debug logging
-		error_log('VIBE PHOTO: Attachment ID: ' . $attachment_id);
-		error_log('VIBE PHOTO: File path: ' . $file_path);
-		error_log('VIBE PHOTO: File exists: ' . (file_exists($file_path) ? 'yes' : 'no'));
-
-		// Check if file exists
-		if (!file_exists($file_path)) {
-			wp_send_json_error(array(
-				'message' => 'Image file not found on server',
-				'debug' => array(
-					'attachment_id' => $attachment_id,
-					'file_path' => $file_path
-				)
-			));
-			return;
-		}
-
-		// Get WordPress image title and caption
-		$post = get_post($attachment_id);
-		if ($post) {
-			// Get title (post_title)
-			if (!empty($post->post_title)) {
-				$exif_data['title'] = $post->post_title;
-			}
-
-			// Get caption (post_excerpt)  
-			if (!empty($post->post_excerpt)) {
-				$exif_data['caption'] = $post->post_excerpt;
-			}
-
-			// Get alt text (stored in meta)
-			$alt_text = get_post_meta($attachment_id, '_wp_attachment_image_alt', true);
-			if (!empty($alt_text)) {
-				$exif_data['alt_text'] = $alt_text;
-			}
-		}
-
-		// Get basic file info
-		if ($metadata) {
-			$exif_data['size'] = $metadata['width'] . ' × ' . $metadata['height'] . ' pixels';
-
-			// Get file size
-			$file_size = filesize($file_path);
-			$exif_data['file_size'] = size_format($file_size);
-		}
-	}
+	if (!isset($_POST['nonce']) || !is_string($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'vibe_photo_nonce')) {
+        wp_send_json_error(__('Invalid request.', 'vibe-photo-galleries'));
+        return;
+    }
+    if (!isset($_POST['image_url']) || !is_string($_POST['image_url'])) {
+        wp_send_json_error(__('Invalid image URL.', 'vibe-photo-galleries'));
+        return;
+    }
+    $image_url = esc_url_raw(wp_unslash($_POST['image_url']));
+    $uploads = wp_get_upload_dir();
+    $base_url = trailingslashit($uploads['baseurl']);
+    if (strpos($image_url, $base_url) !== 0 || strpos(rawurldecode($image_url), '..') !== false) {
+        wp_send_json_error(__('Only local media-library images are supported.', 'vibe-photo-galleries'));
+        return;
+    }
+    // Resolve exact upload-relative filenames; never search by a partial basename.
+    $path = wp_parse_url($image_url, PHP_URL_PATH);
+    $base_path = trailingslashit(wp_parse_url($base_url, PHP_URL_PATH));
+    $relative = rawurldecode(substr($path, strlen($base_path)));
+    $candidates = array($relative, preg_replace('/-\d+x\d+(\.[^.]+)$/', '$1', $relative));
+    $candidates[] = preg_replace('/(\.[^.]+)$/', '-scaled$1', $candidates[1]);
+    global $wpdb;
+    $attachment_id = 0;
+    foreach (array_unique($candidates) as $candidate) {
+        $attachment_id = (int) $wpdb->get_var($wpdb->prepare(
+            "SELECT p.ID FROM {$wpdb->posts} p INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id WHERE p.post_type = 'attachment' AND pm.meta_key = '_wp_attached_file' AND pm.meta_value = %s LIMIT 1",
+            $candidate
+        ));
+        if ($attachment_id) break;
+    }
+    $post = get_post($attachment_id);
+    $parent = $post && $post->post_parent ? get_post($post->post_parent) : null;
+    if (!$post || !wp_attachment_is_image($attachment_id) || $post->post_status === 'trash' || post_password_required($post) ||
+        ($post->post_status !== 'inherit' && $post->post_status !== 'publish' && !current_user_can('read_post', $attachment_id)) ||
+        ($parent && ((!is_post_publicly_viewable($parent) && !current_user_can('read_post', $parent->ID)) || post_password_required($parent)))) {
+        wp_send_json_error(__('Image metadata is unavailable.', 'vibe-photo-galleries'));
+        return;
+    }
+    $file_path = vibe_photo_galleries_safe_file(get_attached_file($attachment_id));
+    if (!$file_path) {
+        wp_send_json_error(__('Image metadata is unavailable.', 'vibe-photo-galleries'));
+        return;
+    }
+    $metadata = wp_get_attachment_metadata($attachment_id);
+    $exif_data = array();
+    foreach (array('title' => $post->post_title, 'caption' => $post->post_excerpt, 'alt_text' => get_post_meta($attachment_id, '_wp_attachment_image_alt', true)) as $key => $value) {
+        if ($value !== '') $exif_data[$key] = wp_strip_all_tags($value);
+    }
+    if (isset($metadata['width'], $metadata['height'])) {
+        $exif_data['size'] = absint($metadata['width']) . ' × ' . absint($metadata['height']) . ' pixels';
+    }
+    $exif_data['file_size'] = size_format(filesize($file_path));
 
 	// Try to get EXIF data if available
 	// Note: exif_read_data() only works with JPEG and TIFF formats, not WebP
 	$file_extension = strtolower(pathinfo($file_path, PATHINFO_EXTENSION));
 	$supported_formats = array('jpg', 'jpeg', 'tif', 'tiff');
 
-	// Add debug info to response
-	$exif_data['debug'] = array(
-		'file_extension' => $file_extension,
-		'exif_function_exists' => function_exists('exif_read_data'),
-		'file_path' => $file_path,
-		'is_supported_format' => in_array($file_extension, $supported_formats)
-	);
 
 	if (function_exists('exif_read_data') && file_exists($file_path) && in_array($file_extension, $supported_formats)) {
 		// WordPress may have created a scaled version - try original first
 		$original_path = $file_path;
 		if (strpos($file_path, '-scaled.') !== false) {
 			$original_path = str_replace('-scaled.', '.', $file_path);
-			if (file_exists($original_path)) {
-				$exif_data['debug']['trying_original'] = true;
-				$file_path = $original_path;
+			if (vibe_photo_galleries_safe_file($original_path)) {
+				$file_path = vibe_photo_galleries_safe_file($original_path);
 			}
 		}
 
 		$exif = @exif_read_data($file_path);
 
 		// Add to debug info
-		$exif_data['debug']['exif_read_success'] = ($exif !== false);
-		$exif_data['debug']['exif_keys_found'] = $exif ? count($exif) : 0;
-		if ($exif) {
-			$exif_data['debug']['exif_keys'] = array_keys($exif);
-		}
 
 		// Debug logging for troubleshooting
-		if (!$exif) {
-			error_log('VIBE PHOTO: Failed to read EXIF from: ' . $file_path);
-			error_log('VIBE PHOTO: File exists: ' . (file_exists($file_path) ? 'yes' : 'no'));
-			error_log('VIBE PHOTO: File readable: ' . (is_readable($file_path) ? 'yes' : 'no'));
-			error_log('VIBE PHOTO: File size: ' . (file_exists($file_path) ? filesize($file_path) : 'N/A'));
-		}
 
 		if ($exif) {
 			// Camera info
@@ -432,57 +328,57 @@ function vibe_photo_get_image_exif() {
 			if (isset($exif['Flash'])) {
 				$flash_value = intval($exif['Flash']);
 				$flash_descriptions = array(
-					0 => 'No Flash',
-					1 => 'Flash Fired',
-					5 => 'Flash Fired, Return not detected',
-					7 => 'Flash Fired, Return detected',
-					8 => 'On, Did not fire',
-					9 => 'On, Fired',
-					13 => 'On, Return not detected',
-					15 => 'On, Return detected',
-					16 => 'Off, Did not fire',
-					24 => 'Auto, Did not fire',
-					25 => 'Auto, Fired',
-					29 => 'Auto, Fired, Return not detected',
-					31 => 'Auto, Fired, Return detected',
-					32 => 'No flash function',
-					65 => 'Red-eye reduction, Fired',
-					69 => 'Red-eye reduction, Fired, Return not detected',
-					71 => 'Red-eye reduction, Fired, Return detected',
-					73 => 'Red-eye reduction, On, Fired',
-					77 => 'Red-eye reduction, On, Fired, Return not detected',
-					79 => 'Red-eye reduction, On, Fired, Return detected',
-					89 => 'Red-eye reduction, Auto, Fired',
-					93 => 'Red-eye reduction, Auto, Fired, Return not detected',
-					95 => 'Red-eye reduction, Auto, Fired, Return detected'
+					0 => __('No Flash', 'vibe-photo-galleries'),
+					1 => __('Flash Fired', 'vibe-photo-galleries'),
+					5 => __('Flash Fired, Return not detected', 'vibe-photo-galleries'),
+					7 => __('Flash Fired, Return detected', 'vibe-photo-galleries'),
+					8 => __('On, Did not fire', 'vibe-photo-galleries'),
+					9 => __('On, Fired', 'vibe-photo-galleries'),
+					13 => __('On, Return not detected', 'vibe-photo-galleries'),
+					15 => __('On, Return detected', 'vibe-photo-galleries'),
+					16 => __('Off, Did not fire', 'vibe-photo-galleries'),
+					24 => __('Auto, Did not fire', 'vibe-photo-galleries'),
+					25 => __('Auto, Fired', 'vibe-photo-galleries'),
+					29 => __('Auto, Fired, Return not detected', 'vibe-photo-galleries'),
+					31 => __('Auto, Fired, Return detected', 'vibe-photo-galleries'),
+					32 => __('No flash function', 'vibe-photo-galleries'),
+					65 => __('Red-eye reduction, Fired', 'vibe-photo-galleries'),
+					69 => __('Red-eye reduction, Fired, Return not detected', 'vibe-photo-galleries'),
+					71 => __('Red-eye reduction, Fired, Return detected', 'vibe-photo-galleries'),
+					73 => __('Red-eye reduction, On, Fired', 'vibe-photo-galleries'),
+					77 => __('Red-eye reduction, On, Fired, Return not detected', 'vibe-photo-galleries'),
+					79 => __('Red-eye reduction, On, Fired, Return detected', 'vibe-photo-galleries'),
+					89 => __('Red-eye reduction, Auto, Fired', 'vibe-photo-galleries'),
+					93 => __('Red-eye reduction, Auto, Fired, Return not detected', 'vibe-photo-galleries'),
+					95 => __('Red-eye reduction, Auto, Fired, Return detected', 'vibe-photo-galleries')
 				);
-				$exif_data['flash'] = isset($flash_descriptions[$flash_value]) ? $flash_descriptions[$flash_value] : 'Unknown';
+				$exif_data['flash'] = isset($flash_descriptions[$flash_value]) ? $flash_descriptions[$flash_value] : __('Unknown', 'vibe-photo-galleries');
 			}
 
 			// White balance
 			if (isset($exif['WhiteBalance'])) {
-				$wb_values = array(0 => 'Auto', 1 => 'Manual');
-				$exif_data['white_balance'] = isset($wb_values[$exif['WhiteBalance']]) ? $wb_values[$exif['WhiteBalance']] : 'Unknown';
+				$wb_values = array(0 => __('Auto', 'vibe-photo-galleries'), 1 => __('Manual', 'vibe-photo-galleries'));
+				$exif_data['white_balance'] = isset($wb_values[$exif['WhiteBalance']]) ? $wb_values[$exif['WhiteBalance']] : __('Unknown', 'vibe-photo-galleries');
 			}
 
 			// Exposure mode
 			if (isset($exif['ExposureMode'])) {
-				$exposure_modes = array(0 => 'Auto', 1 => 'Manual', 2 => 'Auto bracket');
-				$exif_data['exposure_mode'] = isset($exposure_modes[$exif['ExposureMode']]) ? $exposure_modes[$exif['ExposureMode']] : 'Unknown';
+				$exposure_modes = array(0 => __('Auto', 'vibe-photo-galleries'), 1 => __('Manual', 'vibe-photo-galleries'), 2 => __('Auto bracket', 'vibe-photo-galleries'));
+				$exif_data['exposure_mode'] = isset($exposure_modes[$exif['ExposureMode']]) ? $exposure_modes[$exif['ExposureMode']] : __('Unknown', 'vibe-photo-galleries');
 			}
 
 			// Metering mode
 			if (isset($exif['MeteringMode'])) {
 				$metering_modes = array(
-					0 => 'Unknown',
-					1 => 'Average',
-					2 => 'Center-weighted average',
-					3 => 'Spot',
-					4 => 'Multi-spot',
-					5 => 'Pattern',
-					6 => 'Partial'
+					0 => __('Unknown', 'vibe-photo-galleries'),
+					1 => __('Average', 'vibe-photo-galleries'),
+					2 => __('Center-weighted average', 'vibe-photo-galleries'),
+					3 => __('Spot', 'vibe-photo-galleries'),
+					4 => __('Multi-spot', 'vibe-photo-galleries'),
+					5 => __('Pattern', 'vibe-photo-galleries'),
+					6 => __('Partial', 'vibe-photo-galleries')
 				);
-				$exif_data['metering_mode'] = isset($metering_modes[$exif['MeteringMode']]) ? $metering_modes[$exif['MeteringMode']] : 'Unknown';
+				$exif_data['metering_mode'] = isset($metering_modes[$exif['MeteringMode']]) ? $metering_modes[$exif['MeteringMode']] : __('Unknown', 'vibe-photo-galleries');
 			}
 
 			// GPS coordinates if available
@@ -539,8 +435,8 @@ function vibe_photo_get_image_exif() {
 
 			// Color space
 			if (isset($exif['ColorSpace'])) {
-				$color_spaces = array(1 => 'sRGB', 65535 => 'Uncalibrated');
-				$exif_data['color_space'] = isset($color_spaces[$exif['ColorSpace']]) ? $color_spaces[$exif['ColorSpace']] : 'Unknown';
+				$color_spaces = array(1 => __('sRGB', 'vibe-photo-galleries'), 65535 => __('Uncalibrated', 'vibe-photo-galleries'));
+				$exif_data['color_space'] = isset($color_spaces[$exif['ColorSpace']]) ? $color_spaces[$exif['ColorSpace']] : __('Unknown', 'vibe-photo-galleries');
 			}
 
 			// Software/Camera firmware

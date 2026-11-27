@@ -67,8 +67,8 @@ function vibe_photo_galleries_meta_box_content($post) {
 }
 function vibe_photo_save_gallery_images($post_id) {
     if (get_post_type($post_id) !== 'photo_gallery' || wp_is_post_revision($post_id) || (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE)) { return; }
-    if (!isset($_POST['vibe_photo_gallery_images_nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['vibe_photo_gallery_images_nonce'])), 'vibe_photo_save_gallery_images') || !current_user_can('edit_post', $post_id)) { return; }
-    if (isset($_POST['gallery_images'])) {
+    if (!isset($_POST['vibe_photo_gallery_images_nonce']) || !is_string($_POST['vibe_photo_gallery_images_nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['vibe_photo_gallery_images_nonce'])), 'vibe_photo_save_gallery_images') || !current_user_can('edit_post', $post_id)) { return; }
+    if (isset($_POST['gallery_images']) && is_string($_POST['gallery_images'])) {
         $ids = array_filter(array_map('absint', explode(',', sanitize_text_field(wp_unslash($_POST['gallery_images'])))));
         update_post_meta($post_id, '_gallery_images', implode(',', $ids));
     }

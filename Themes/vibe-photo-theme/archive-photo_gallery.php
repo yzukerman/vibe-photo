@@ -11,7 +11,7 @@ get_header(); ?>
 <main id="main-content" tabindex="-1" class="site-main">
 	<div class="grid-container">
 		<!-- Galleries Grid -->
-		<div class="grid-x grid-padding-x gallery-archive">>
+		<div class="grid-x grid-padding-x gallery-archive">
 			<?php if (have_posts()) : ?>
 				<?php while (have_posts()) : the_post();
 					$gallery_images = get_post_meta(get_the_ID(), '_gallery_images', true);
@@ -53,7 +53,7 @@ get_header(); ?>
 										<div class="gallery-info">
 											<h3><?php the_title(); ?></h3>
 											<?php if ($image_count > 0) : ?>
-												<p class="image-count"><?php echo sprintf(_n('%d Photo', '%d Photos', $image_count, 'vibe-photo'), $image_count); ?></p>
+												<p class="image-count"><?php /* translators: %d: number of photos. */ echo esc_html(sprintf(_n('%d Photo', '%d Photos', $image_count, 'vibe-photo'), $image_count)); ?></p>
 											<?php endif; ?>
 											<span class="view-gallery"><?php _e('View Gallery →', 'vibe-photo'); ?></span>
 										</div>
@@ -72,7 +72,7 @@ get_header(); ?>
 									<time datetime="<?php echo get_the_date('c'); ?>"><?php echo get_the_date(); ?></time>
 									<?php if ($image_count > 0) : ?>
 										<span class="separator">•</span>
-										<span class="image-count"><?php echo sprintf(_n('%d photo', '%d photos', $image_count, 'vibe-photo'), $image_count); ?></span>
+										<span class="image-count"><?php /* translators: %d: number of photos. */ echo esc_html(sprintf(_n('%d photo', '%d photos', $image_count, 'vibe-photo'), $image_count)); ?></span>
 									<?php endif; ?>
 								</div>
 							</div>
@@ -99,7 +99,7 @@ get_header(); ?>
 						<h3><?php _e('No Galleries Found', 'vibe-photo'); ?></h3>
 						<p><?php _e('No photo galleries have been created yet.', 'vibe-photo'); ?></p>
 						<?php if (current_user_can('edit_posts')) : ?>
-							<p><a href="<?php echo admin_url('post-new.php?post_type=photo_gallery'); ?>" class="button photo-button"><?php _e('Create First Gallery', 'vibe-photo'); ?></a></p>
+							<p><a href="<?php echo esc_url(admin_url('post-new.php?post_type=photo_gallery')); ?>" class="button photo-button"><?php _e('Create First Gallery', 'vibe-photo'); ?></a></p>
 						<?php endif; ?>
 					</div>
 				</div>

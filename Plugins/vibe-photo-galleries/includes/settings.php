@@ -5,7 +5,7 @@ function vibe_photo_register_google_api_settings() {
 	// Register the setting
 	register_setting('media', 'vibe_photo_google_api_key', array(
 		'type' => 'string',
-		'sanitize_callback' => 'sanitize_text_field',
+		'sanitize_callback' => 'vibe_photo_galleries_sanitize_api_key',
 		'default' => ''
 	));
 
@@ -48,7 +48,12 @@ function vibe_photo_google_api_section_callback() {
  */
 function vibe_photo_google_api_key_callback() {
 	$api_key = get_option('vibe_photo_google_api_key', '');
-	echo '<input type="text" name="vibe_photo_google_api_key" value="' . esc_attr($api_key) . '" class="regular-text" />';
+	echo '<input autocomplete="off" type="password" name="vibe_photo_google_api_key" value="' . esc_attr($api_key) . '" class="regular-text" />';
 	echo '<p class="description">' . __('Your Google Cloud API key for Geocoding API. Leave empty to disable reverse geocoding.', 'vibe-photo-galleries') . '</p>';
 }
 
+
+/** Settings API may receive malformed array inputs from a crafted form. */
+function vibe_photo_galleries_sanitize_api_key($value) {
+    return is_string($value) ? sanitize_text_field($value) : '';
+}

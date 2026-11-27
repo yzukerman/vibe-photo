@@ -10,6 +10,7 @@ if (post_password_required()) {
             <?php
             $vibe_photo_comment_count = get_comments_number();
             printf(
+                /* translators: %s: localized comment count. */
                 esc_html(_n('%s comment', '%s comments', $vibe_photo_comment_count, 'vibe-photo')),
                 esc_html(number_format_i18n($vibe_photo_comment_count))
             );

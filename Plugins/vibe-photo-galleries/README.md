@@ -82,3 +82,25 @@ Theme and companion plugin code are licensed GPL v2 or later; each component inc
 On 2026-11-27, Yuval Zukerman confirmed copyright ownership of all six photographs visible in the supplied screenshot and authorized distribution of the screenshot, including the photographs reproduced within it, under GPL v2 or later. Attribution: **Photographs and screenshot © 2026 Yuval Zukerman**. The original full-resolution photographs are not included or separately licensed by this grant. The owner also confirmed there are no additional uncredited third-party assets beyond the dependencies already identified. This resolves the previously noted owner-permission question; it does not certify a full independent provenance/security review.
 
 The theme's abbreviated GPL notice was replaced with the complete license text already included in the companion plugin. Asset/source/license documentation and the screenshot checksum were updated. Temporary package checks verified both components contain full license texts and the theme contains the screenshot and resource inventory. No runtime behavior, license of Foundation/Oranienbaum, version number, published distribution, or remote branch was changed.
+
+## Translation and security review fixes
+
+### Metadata endpoint and settings
+
+The public EXIF endpoint now validates scalar nonce/URL inputs, resolves exact upload-relative Media Library filenames (including resized/scaled variants), and requires an image attachment. Arbitrary file fallback and partial-basename database searches were removed. Real filesystem paths must remain within the real uploads directory, preventing symlink escape. Unauthenticated requests cannot retrieve metadata for private, unpublished, or password-protected parent content. Password-protected attachments and trashed media are rejected. Responses no longer contain debug arrays, absolute file paths, or EXIF diagnostic keys; routine server-path logging was removed.
+
+These checks intentionally support local Media Library images only. Offloaded media, external image hosts, and files not registered as attachments are not supported by this endpoint. Public unattached image metadata remains available by design. GPS can still be shown for public images; the plugin documentation explains that disclosure. The nonce is an anti-CSRF/request check, not a substitute for attachment visibility checks.
+
+Google lookups now validate coordinate ranges, encode the API key in the fixed Google endpoint URL, bound response size, and reject non-200 responses. The key field is masked and disables autocomplete; a scalar-only settings sanitizer avoids array-input errors. Gallery ID-save inputs likewise reject malformed arrays before normalization. These changes do not add a geocoding billing quota/rate limit; API key restrictions and billing controls remain the site owner's responsibility.
+
+### Translation and template output
+
+Added normal theme/plugin text-domain loading hooks and generated `languages/vibe-photo.pot` and `languages/vibe-photo-galleries.pot` catalogs. The plugin maps viewer labels, accessibility labels, loading/status messages, image counters, fullscreen text, and fallback names through literal PHP gettext messages and passes the translated map to JavaScript. Static viewer translations are applied as text/attributes, not injected as HTML; user image titles and captions remain user content. EXIF descriptive lookup values now use gettext. No finished non-English translations are supplied.
+
+Replaced the regular post's duplicated/manual inline JavaScript navigation with translated core post-navigation links, removed its debug output, escaped the archive admin URL and image counts, and removed a stray gallery-archive markup character. Placeholder messages include translator context. Other legacy/unused scripts and less common editor/content paths still need broader review before claiming full translation coverage.
+
+### Validation and limits
+
+All theme/plugin PHP syntax and viewer JavaScript syntax checks passed. Catalog generation completed without placeholder warnings. Public AJAX integration checks verified valid local metadata without debug/path leakage; rejection of invalid nonces, array inputs, external/traversal/missing URLs; and rejection for private/password-protected parents. Temporary access-test posts were removed and the attachment's original parent restored. `tests/security-smoke.php` provides repeatable non-mutating WP-CLI checks for path confinement, API key sanitization, and translated viewer labels.
+
+Live browser checks confirmed gallery opening, one-image arrow navigation, EXIF display, Escape closing, and restored image focus. Theme Check against `vibe-photo` still has no REQUIRED failures or WARNING entries; optional block-pattern/style, header/background, and widget recommendations remain. This targeted source review is not a penetration test, a complete privacy review, or a guarantee of directory approval. No deliberate live Google API integration test or non-English visual test was performed. No version bump, published ZIP, production deployment, or remote push was made.

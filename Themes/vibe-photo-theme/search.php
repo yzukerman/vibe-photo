@@ -2,7 +2,7 @@
 <main id="main-content" tabindex="-1" class="site-main">
     <div class="grid-container portfolio-container">
         <header class="search-heading">
-            <h1 class="entry-title"><?php printf(esc_html__('Search results for: %s', 'vibe-photo'), esc_html(get_search_query())); ?></h1>
+            <h1 class="entry-title"><?php /* translators: %s: visitor search query. */ printf(esc_html__('Search results for: %s', 'vibe-photo'), esc_html(get_search_query())); ?></h1>
             <?php get_search_form(); ?>
         </header>
         <?php if (have_posts()) : ?>
