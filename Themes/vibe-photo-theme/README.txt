@@ -225,3 +225,11 @@ This includes, but is not limited to:
 * Any other commercial damages or losses
 
 By installing and using this theme, you acknowledge that you have read this disclaimer and agree to use the theme at your own risk.
+
+
+== Copyright and resource licenses ==
+Theme code copyright 2025–2026 Yuval Zukerman. Licensed GNU GPL v2 or later; full GPL v2 text in LICENSE.
+Photographs and screenshot © 2026 Yuval Zukerman. The screenshot.jpg image, including photograph reproductions within it, is licensed GPL v2 or later with the owner's authorization. Original full-resolution photograph files are not included or separately licensed by this grant.
+Foundation Sites 6.8.1: MIT, copyright ZURB, Inc.; license in assets/vendor/foundation/LICENSE.
+Oranienbaum Regular: SIL OFL 1.1, copyright Oleg Pospelov and Jovanny Lemonad; license in assets/fonts/oranienbaum/OFL.txt.
+See ASSETS.md for source URLs, attribution, and checksums.
