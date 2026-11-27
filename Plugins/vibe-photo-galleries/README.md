@@ -50,3 +50,14 @@ Repeat registration checks using `wp eval-file /path/to/repo/tests/gallery-smoke
 Additional checks: EXIF AJAX succeeded for a local uploaded image and rejected invalid nonces and external URLs. Separate theme and plugin ZIPs were built in a temporary directory and passed integrity checks; these are validation builds, not published releases. The plugin readme documents the optional Google service and public GPS metadata.
 
 The companion plugin includes the complete GNU GPL v2 license text in `LICENSE`, sourced from https://www.gnu.org/licenses/old-licenses/gpl-2.0.txt. Its code is licensed GPL v2 or later.
+
+## Google location lookup setup
+
+1. Activate **Vibe Photo Galleries** under **WP Admin → Plugins**.
+2. In your Google Cloud project, enable the **Geocoding API** and create an API key authorized to use it. Google may require billing to be enabled.
+3. In WordPress, open **Settings → Media → Vibe Photo - Google Cloud Settings**.
+4. Paste the key into **Google Cloud API Key**, then click **Save Changes**.
+
+The plugin uses GPS coordinates embedded in photographs to request place names from Google's Geocoding API. It does not determine the visitor's location or add GPS coordinates to photographs. Images without GPS metadata cannot provide a location for this lookup. Google receives the photo coordinates and API key when a lookup is made; results may be cached in attachment metadata.
+
+Leave the key empty, or remove it and save, to disable Google requests. Removing the key does not erase previously cached location names. Never commit an API key to this repository or include it in a distribution ZIP.
