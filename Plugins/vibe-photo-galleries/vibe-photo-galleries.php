@@ -3,8 +3,8 @@
  * Plugin Name: Vibe Photo Galleries
  * Description: Photo galleries, an enhanced viewer, EXIF metadata, and optional Google geocoding. Works with Vibe Photo and other themes.
  * Version: 1.0.0
- * Requires at least: 5.0
- * Requires PHP: 7.4
+ * Requires at least: 6.7.1
+ * Requires PHP: 8.2
  * Author: Yuval Zukerman
  * License: GPL-2.0-or-later
  * Text Domain: vibe-photo-galleries
