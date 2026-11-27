@@ -15,7 +15,7 @@ The homepage presents posts and Photo Gallery entries as a compact grid of squar
 - Clicking a cover opens its post. Clicking an image in the post's gallery opens the lightbox.
 - Regular single posts use a wider content area and no longer repeat the featured cover above the gallery.
 - **Oranienbaum** is used for the site name, cover titles, and regular single-post titles, with sans-serif text for navigation and body copy. The font loads from Google Fonts, with Georgia as a fallback.
-- On mobile, the Menu button sits at the left of the header while the site name stays centered.
+- On mobile, the site name stays centered with search at the top right. The unused Menu button has been removed.
 
 ### Lightbox loading feedback
 
