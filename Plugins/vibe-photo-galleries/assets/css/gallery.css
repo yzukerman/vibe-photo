@@ -399,3 +399,11 @@
 
 #vibe-lightbox *, #vibe-lightbox *::before, #vibe-lightbox *::after { box-sizing: border-box; }
 #vibe-lightbox button { cursor: pointer; }
+
+/* Keyboard focus is visible on viewer controls and image triggers. */
+#vibe-lightbox :focus-visible,
+.wp-block-gallery img[role="button"]:focus-visible,
+.vibe-lightbox-gallery img[role="button"]:focus-visible {
+    outline: 3px solid #6cbcff;
+    outline-offset: 4px;
+}

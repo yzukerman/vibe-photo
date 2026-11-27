@@ -5,6 +5,78 @@
 (function($) {
     'use strict';
 
+    // Both gallery entry paths share one keyboard/controller session.
+    var activeLightbox = null;
+    var returnFocus = null;
+    var backgroundState = [];
+
+    function beginKeyboardSession(controller) {
+        if (!activeLightbox) {
+            returnFocus = document.activeElement;
+            backgroundState = [];
+            $('body').children().not('#vibe-lightbox, script, style, link').each(function() {
+                backgroundState.push({ element: this, inert: this.inert });
+                this.inert = true;
+            });
+        }
+        activeLightbox = controller;
+        $('#vibe-lightbox').attr('aria-hidden', 'false');
+        $('#vibe-lightbox .lightbox-overlay-close').trigger('focus');
+    }
+
+    function endKeyboardSession() {
+        activeLightbox = null;
+        backgroundState.forEach(function(item) { item.element.inert = item.inert; });
+        backgroundState = [];
+        $('#vibe-lightbox').attr('aria-hidden', 'true');
+        if (returnFocus && document.documentElement.contains(returnFocus)) {
+            returnFocus.focus();
+        }
+        returnFocus = null;
+    }
+
+    $(document).on('keydown.vibePhotoViewer', function(e) {
+        if (!activeLightbox || !$('#vibe-lightbox').hasClass('active')) return;
+        if (e.key === 'Escape') {
+            e.preventDefault();
+            activeLightbox.close();
+            return;
+        }
+        if (e.key === 'Tab') {
+            var $focusable = $('#vibe-lightbox').find('a[href], button, input, select, textarea, [tabindex]')
+                .filter(':visible').not(':disabled, [tabindex="-1"]');
+            var first = $focusable[0];
+            var last = $focusable[$focusable.length - 1];
+            if (!$focusable.length) { e.preventDefault(); return; }
+            if (!$.contains($('#vibe-lightbox')[0], document.activeElement) ||
+                (e.shiftKey && document.activeElement === first) ||
+                (!e.shiftKey && document.activeElement === last)) {
+                e.preventDefault();
+                (e.shiftKey ? last : first).focus();
+            }
+            return;
+        }
+        // Let text editing and browser/assistive-technology shortcuts keep their keys.
+        if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey ||
+            $(e.target).closest('input, textarea, select, [contenteditable]:not([contenteditable="false"])').length) return;
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+            e.preventDefault();
+            if (e.key === 'ArrowLeft') activeLightbox.previous();
+            else activeLightbox.next();
+        }
+    });
+    $(document).on('click.vibePhotoViewer', '#vibe-lightbox .lightbox-overlay-close, #vibe-lightbox .nav-prev, #vibe-lightbox .nav-next', function(e) {
+        if (!activeLightbox) return;
+        e.preventDefault();
+        if ($(this).hasClass('nav-prev')) activeLightbox.previous();
+        else if ($(this).hasClass('nav-next')) activeLightbox.next();
+        else activeLightbox.close();
+    });
+    $(document).on('click.vibePhotoViewer', '#vibe-lightbox', function(e) {
+        if (e.target === this && activeLightbox) activeLightbox.close();
+    });
+
+
     $(document).ready(function() {
         var currentIndex = 0;
         var images = [];
@@ -88,6 +160,7 @@
             showImage(currentIndex);
             $('#vibe-lightbox').addClass('active');
             $('body').addClass('lightbox-open');
+            beginKeyboardSession({ previous: showPrevImage, next: showNextImage, close: closeLightbox });
             
             // Debug: Check basic lightbox state
             setTimeout(function() {
@@ -98,6 +171,7 @@
             imageLoadId++;
             $('#vibe-lightbox').removeClass('active is-loading').attr('aria-busy', 'false');
             $('body').removeClass('lightbox-open');
+            endKeyboardSession();
             
             // Clear URL hash when closing lightbox
             if (enableDeepLinking && window.location.hash) {
@@ -409,6 +483,19 @@
             }
         }
         
+        $('.wp-block-gallery img, .vibe-lightbox-gallery img, img[data-lightbox]').each(function() {
+            var $image = $(this);
+            if (!$image.closest('a, button').length) {
+                $image.attr({ tabindex: '0', role: 'button', 'aria-label': 'Open photo: ' + ($image.attr('alt') || 'Gallery image') });
+            }
+        });
+        $(document).on('keydown.vibePhotoGallery', '.wp-block-gallery img[role="button"], .vibe-lightbox-gallery img[role="button"], img[data-lightbox][role="button"]', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                $(this).trigger('click');
+            }
+        });
+
         // Fallback: Add click handlers directly to any wp-block-gallery images
         // This works even if our PHP enhancement didn't work
         $('.wp-block-gallery img').on('click', function(e) {
@@ -418,6 +505,7 @@
             
             // Create a simple lightbox for this image
             var $img = $(this);
+            if ($img.is('[tabindex]')) $img.trigger('focus');
             var imgSrc = $img.attr('src');
             
             if (imgSrc) {
@@ -453,39 +541,9 @@
         });
         
         // Lightbox controls
-        $(document).on('click', '.lightbox-overlay-close', closeLightbox);
-        $(document).on('click', '.nav-prev', function(e) {
-            e.preventDefault();
-            showPrevImage();
-        });
-        $(document).on('click', '.nav-next', function(e) {
-            e.preventDefault();
-            showNextImage();
-        });
 
-        // Close on overlay click
-        $(document).on('click', '.lightbox-overlay', function(e) {
-            if (e.target === this) {
-                closeLightbox();
-            }
-        });
 
-        // Keyboard navigation
-        $(document).on('keydown', function(e) {
-            if ($('#vibe-lightbox').hasClass('active')) {
-                switch(e.keyCode) {
-                    case 27: // Escape
-                        closeLightbox();
-                        break;
-                    case 37: // Left arrow
-                        showPrevImage();
-                        break;
-                    case 39: // Right arrow
-                        showNextImage();
-                        break;
-                }
-            }
-        });
+
         
         // Check URL hash on page load for deep linking
         setTimeout(function() {
@@ -595,7 +653,7 @@
             '}' +
             '</style>';
         
-        var lightboxHTML = '<div id="vibe-lightbox" class="lightbox-overlay">' +
+        var lightboxHTML = '<div id="vibe-lightbox" class="lightbox-overlay" role="dialog" aria-modal="true" aria-label="Photo viewer" aria-hidden="true">' +
             '<!-- Additional close button in top-right corner -->' +
             '<button class="lightbox-overlay-close" aria-label="Close lightbox">&times;</button>' +
             '<div class="lightbox-container">' +
@@ -805,22 +863,7 @@
         });
 
         // Lightbox controls
-        $(document).on('click', '.lightbox-overlay-close', closeLightbox);
-        $(document).on('click', '.nav-prev', function(e) {
-            e.preventDefault();
-            showPrevImage();
-        });
-        $(document).on('click', '.nav-next', function(e) {
-            e.preventDefault();
-            showNextImage();
-        });
 
-        // Close on overlay click
-        $(document).on('click', '.lightbox-overlay', function(e) {
-            if (e.target === this) {
-                closeLightbox();
-            }
-        });
 
         // Social sharing events
         $(document).on('click', '.copy-link', function(e) {
@@ -924,26 +967,7 @@
             }
         });
 
-        // Keyboard navigation
-        $(document).on('keydown', function(e) {
-            if ($('#vibe-lightbox').hasClass('active')) {
-                switch(e.keyCode) {
-                    case 27: // Escape
-                        closeLightbox();
-                        break;
-                    case 37: // Left arrow
-                        showPrevImage();
-                        break;
-                    case 39: // Right arrow
-                        showNextImage();
-                        break;
-                    case 122: // F11 for fullscreen toggle
-                        e.preventDefault();
-                        toggleFullscreen();
-                        break;
-                }
-            }
-        });
+
 
         function openLightbox() {
             if (images.length === 0) return;
@@ -951,6 +975,7 @@
             showImage(currentIndex);
             $('#vibe-lightbox').addClass('active');
             $('body').addClass('lightbox-open');
+            beginKeyboardSession({ previous: showPrevImage, next: showNextImage, close: closeLightbox });
             
             // Debug: Check basic lightbox state
             setTimeout(function() {
@@ -961,6 +986,7 @@
             imageLoadId++;
             $('#vibe-lightbox').removeClass('active is-loading').attr('aria-busy', 'false');
             $('body').removeClass('lightbox-open');
+            endKeyboardSession();
             
             // Clear URL hash when closing lightbox
             if (enableDeepLinking && window.location.hash) {
