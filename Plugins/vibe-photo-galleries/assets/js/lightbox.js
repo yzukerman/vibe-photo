@@ -4,6 +4,146 @@
  */
 (function($) {
     'use strict';
+    function t(message) {
+        return window.vibePhotoStrings && Object.prototype.hasOwnProperty.call(window.vibePhotoStrings, message) ? window.vibePhotoStrings[message] : message;
+    }
+    function translateViewer() {
+        $('#vibe-lightbox').find('*').addBack().each(function() {
+            var $element = $(this);
+            ['aria-label', 'title'].forEach(function(attribute) {
+                var value = $element.attr(attribute);
+                if (value) $element.attr(attribute, t(value));
+            });
+            $element.contents().each(function() {
+                if (this.nodeType === 3) {
+                    var value = this.nodeValue.trim();
+                    if (value) this.nodeValue = this.nodeValue.replace(value, t(value));
+                }
+            });
+        });
+    }
+
+
+    // Both gallery entry paths share one keyboard/controller session.
+    var activeLightbox = null;
+    var returnFocus = null;
+    var backgroundState = [];
+
+    function beginKeyboardSession(controller) {
+        if (!activeLightbox) {
+            returnFocus = document.activeElement;
+            backgroundState = [];
+            $('body').children().not('#vibe-lightbox, script, style, link').each(function() {
+                backgroundState.push({ element: this, inert: this.inert });
+                this.inert = true;
+            });
+        }
+        activeLightbox = controller;
+        $('#vibe-lightbox').attr('aria-hidden', 'false');
+        $('#vibe-lightbox .lightbox-overlay-close').trigger('focus');
+    }
+
+    function endKeyboardSession() {
+        activeLightbox = null;
+        backgroundState.forEach(function(item) { item.element.inert = item.inert; });
+        backgroundState = [];
+        $('#vibe-lightbox').attr('aria-hidden', 'true');
+        if (returnFocus && document.documentElement.contains(returnFocus)) {
+            returnFocus.focus();
+        }
+        returnFocus = null;
+    }
+
+
+    var fullscreenOperation = Promise.resolve();
+    var closingViewer = false;
+    function fullscreenElement() {
+        return document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
+    }
+    function syncFullscreenButton() {
+        var viewer = document.getElementById('vibe-lightbox');
+        var expanded = !!(viewer && fullscreenElement() === viewer);
+        $('#vibe-lightbox .fullscreen-btn').toggleClass('active', expanded)
+            .text(t(expanded ? '⛶ Exit Fullscreen' : '⛶ Fullscreen'));
+    }
+    function exitViewerFullscreen() {
+        var viewer = document.getElementById('vibe-lightbox');
+        if (!viewer || fullscreenElement() !== viewer) return Promise.resolve();
+        var exit = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen;
+        if (!exit) return Promise.reject(new Error('Fullscreen exit unavailable'));
+        return Promise.resolve(exit.call(document));
+    }
+    function requestViewerClose() {
+        if (closingViewer || !activeLightbox) return;
+        closingViewer = true;
+        var controller = activeLightbox;
+        // A close can arrive before an asynchronous enter request has settled.
+        fullscreenOperation.catch(function() {}).then(exitViewerFullscreen).then(function() {
+            if (controller === activeLightbox) controller.close();
+        }).catch(function(error) {
+            // Keep the fullscreen element visible if the browser rejects exit.
+            console.warn('Vibe Photo fullscreen exit failed', error);
+        }).then(function() {
+            closingViewer = false;
+            syncFullscreenButton();
+        });
+    }
+    $(document).on('click.vibePhotoFullscreen', '#vibe-lightbox .fullscreen-btn', function(e) {
+        e.preventDefault();
+        if (closingViewer) return;
+        var viewer = document.getElementById('vibe-lightbox');
+        var request = viewer.requestFullscreen || viewer.webkitRequestFullscreen || viewer.mozRequestFullScreen || viewer.msRequestFullscreen;
+        try {
+            fullscreenOperation = fullscreenElement() === viewer ? exitViewerFullscreen() :
+                (request ? Promise.resolve(request.call(viewer)) : Promise.reject(new Error('Fullscreen unavailable')));
+        } catch (error) { fullscreenOperation = Promise.reject(error); }
+        fullscreenOperation = fullscreenOperation.catch(function(error) {
+            console.warn('Vibe Photo fullscreen request failed', error);
+        }).then(syncFullscreenButton);
+    });
+    $(document).on('fullscreenchange.vibePhotoFullscreen webkitfullscreenchange.vibePhotoFullscreen mozfullscreenchange.vibePhotoFullscreen MSFullscreenChange.vibePhotoFullscreen', syncFullscreenButton);
+
+    $(document).on('keydown.vibePhotoViewer', function(e) {
+        if (!activeLightbox || !$('#vibe-lightbox').hasClass('active')) return;
+        if (e.key === 'Escape') {
+            e.preventDefault();
+            requestViewerClose();
+            return;
+        }
+        if (e.key === 'Tab') {
+            var $focusable = $('#vibe-lightbox').find('a[href], button, input, select, textarea, [tabindex]')
+                .filter(':visible').not(':disabled, [tabindex="-1"]');
+            var first = $focusable[0];
+            var last = $focusable[$focusable.length - 1];
+            if (!$focusable.length) { e.preventDefault(); return; }
+            if (!$.contains($('#vibe-lightbox')[0], document.activeElement) ||
+                (e.shiftKey && document.activeElement === first) ||
+                (!e.shiftKey && document.activeElement === last)) {
+                e.preventDefault();
+                (e.shiftKey ? last : first).focus();
+            }
+            return;
+        }
+        // Let text editing and browser/assistive-technology shortcuts keep their keys.
+        if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey ||
+            $(e.target).closest('input, textarea, select, [contenteditable]:not([contenteditable="false"])').length) return;
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+            e.preventDefault();
+            if (e.key === 'ArrowLeft') activeLightbox.previous();
+            else activeLightbox.next();
+        }
+    });
+    $(document).on('click.vibePhotoViewer', '#vibe-lightbox .lightbox-overlay-close, #vibe-lightbox .nav-prev, #vibe-lightbox .nav-next', function(e) {
+        if (!activeLightbox) return;
+        e.preventDefault();
+        if ($(this).hasClass('nav-prev')) activeLightbox.previous();
+        else if ($(this).hasClass('nav-next')) activeLightbox.next();
+        else requestViewerClose();
+    });
+    $(document).on('click.vibePhotoViewer', '#vibe-lightbox', function(e) {
+        if (e.target === this && activeLightbox) requestViewerClose();
+    });
+
 
     $(document).ready(function() {
         var currentIndex = 0;
@@ -63,7 +203,7 @@
 
                     images.push({
                         src: fullSrc,
-                        title: $img.attr('alt') || $img.attr('title') || 'Gallery Image ' + (index + 1),
+                        title: $img.attr('alt') || $img.attr('title') || t('Gallery Image ') + (index + 1),
                         description: $img.attr('data-caption') || '',
                         thumb: imgSrc,
                         alt: $img.attr('alt') || '',
@@ -88,6 +228,7 @@
             showImage(currentIndex);
             $('#vibe-lightbox').addClass('active');
             $('body').addClass('lightbox-open');
+            beginKeyboardSession({ previous: showPrevImage, next: showNextImage, close: closeLightbox });
             
             // Debug: Check basic lightbox state
             setTimeout(function() {
@@ -98,6 +239,7 @@
             imageLoadId++;
             $('#vibe-lightbox').removeClass('active is-loading').attr('aria-busy', 'false');
             $('body').removeClass('lightbox-open');
+            endKeyboardSession();
             
             // Clear URL hash when closing lightbox
             if (enableDeepLinking && window.location.hash) {
@@ -136,7 +278,7 @@
             // Update title and description
             $lightboxTitle.text(image.title);
             $lightboxDescription.text(image.description);
-            $imageCounter.text((index + 1) + ' of ' + images.length);
+            $imageCounter.text(t('%1$s of %2$s').replace('%1$s', index + 1).replace('%2$s', images.length));
             
             // Load new image
             var newImg = new Image();
@@ -289,7 +431,7 @@
             var currentUrl = enableDeepLinking && imageHash ? baseUrl + '#' + imageHash : window.location.href;
             var imageUrl = image.src;
             var title = encodeURIComponent(image.title);
-            var description = encodeURIComponent(image.description || 'Check out this photo');
+            var description = encodeURIComponent(image.description || t('Check out this photo'));
             var hashtags = encodeURIComponent('photography,gallery');
 
             // Update sharing URLs with functional links
@@ -354,7 +496,7 @@
         function showCopySuccess() {
             var $copyBtn = $('.copy-link .share-text');
             var originalText = $copyBtn.text();
-            $copyBtn.text('Copied!');
+            $copyBtn.text(t('Copied!'));
             setTimeout(function() {
                 $copyBtn.text(originalText);
             }, 2000);
@@ -409,6 +551,19 @@
             }
         }
         
+        $('.wp-block-gallery img, .vibe-lightbox-gallery img, img[data-lightbox]').each(function() {
+            var $image = $(this);
+            if (!$image.closest('a, button').length) {
+                $image.attr({ tabindex: '0', role: 'button', 'aria-label': t('Open photo: ') + ($image.attr('alt') || t('Gallery image')) });
+            }
+        });
+        $(document).on('keydown.vibePhotoGallery', '.wp-block-gallery img[role="button"], .vibe-lightbox-gallery img[role="button"], img[data-lightbox][role="button"]', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                $(this).trigger('click');
+            }
+        });
+
         // Fallback: Add click handlers directly to any wp-block-gallery images
         // This works even if our PHP enhancement didn't work
         $('.wp-block-gallery img').on('click', function(e) {
@@ -418,6 +573,7 @@
             
             // Create a simple lightbox for this image
             var $img = $(this);
+            if ($img.is('[tabindex]')) $img.trigger('focus');
             var imgSrc = $img.attr('src');
             
             if (imgSrc) {
@@ -453,39 +609,9 @@
         });
         
         // Lightbox controls
-        $(document).on('click', '.lightbox-overlay-close', closeLightbox);
-        $(document).on('click', '.nav-prev', function(e) {
-            e.preventDefault();
-            showPrevImage();
-        });
-        $(document).on('click', '.nav-next', function(e) {
-            e.preventDefault();
-            showNextImage();
-        });
 
-        // Close on overlay click
-        $(document).on('click', '.lightbox-overlay', function(e) {
-            if (e.target === this) {
-                closeLightbox();
-            }
-        });
 
-        // Keyboard navigation
-        $(document).on('keydown', function(e) {
-            if ($('#vibe-lightbox').hasClass('active')) {
-                switch(e.keyCode) {
-                    case 27: // Escape
-                        closeLightbox();
-                        break;
-                    case 37: // Left arrow
-                        showPrevImage();
-                        break;
-                    case 39: // Right arrow
-                        showNextImage();
-                        break;
-                }
-            }
-        });
+
         
         // Check URL hash on page load for deep linking
         setTimeout(function() {
@@ -518,7 +644,7 @@
                             
                             images.push({
                                 src: fullSrc,
-                                title: $img.attr('alt') || $img.attr('title') || 'Gallery Image',
+                                title: $img.attr('alt') || $img.attr('title') || t('Gallery Image'),
                                 description: $img.attr('data-caption') || '',
                                 thumb: imgSrc,
                                 alt: $img.attr('alt') || '',
@@ -595,7 +721,7 @@
             '}' +
             '</style>';
         
-        var lightboxHTML = '<div id="vibe-lightbox" class="lightbox-overlay">' +
+        var lightboxHTML = '<div id="vibe-lightbox" class="lightbox-overlay" role="dialog" aria-modal="true" aria-label="Photo viewer" aria-hidden="true">' +
             '<!-- Additional close button in top-right corner -->' +
             '<button class="lightbox-overlay-close" aria-label="Close lightbox">&times;</button>' +
             '<div class="lightbox-container">' +
@@ -741,6 +867,7 @@
         
         $('head').append(styles);
         $('body').append(lightboxHTML);
+        translateViewer();
     }
 
     function bindLightboxEvents() {
@@ -757,7 +884,7 @@
             
             images.push({
                 src: $link.attr('href'),
-                title: $img.attr('alt') || $link.attr('title') || 'Untitled',
+                title: $img.attr('alt') || $link.attr('title') || t('Untitled'),
                 description: $link.attr('data-caption') || $parent.find('.image-caption p').text() || '',
                 thumb: $img.attr('src'),
                 alt: $img.attr('alt') || '',
@@ -784,7 +911,7 @@
             if (imgSrc && imgSrc.length > 0) {
                 images.push({
                     src: fullSrc,
-                    title: $img.attr('alt') || $img.attr('title') || 'Gallery Image',
+                    title: $img.attr('alt') || $img.attr('title') || t('Gallery Image'),
                     description: $img.attr('data-caption') || '',
                     thumb: imgSrc,
                     alt: $img.attr('alt') || '',
@@ -805,22 +932,7 @@
         });
 
         // Lightbox controls
-        $(document).on('click', '.lightbox-overlay-close', closeLightbox);
-        $(document).on('click', '.nav-prev', function(e) {
-            e.preventDefault();
-            showPrevImage();
-        });
-        $(document).on('click', '.nav-next', function(e) {
-            e.preventDefault();
-            showNextImage();
-        });
 
-        // Close on overlay click
-        $(document).on('click', '.lightbox-overlay', function(e) {
-            if (e.target === this) {
-                closeLightbox();
-            }
-        });
 
         // Social sharing events
         $(document).on('click', '.copy-link', function(e) {
@@ -836,7 +948,7 @@
             // Allow default behavior but add some visual feedback
             var $btn = $(this);
             var originalText = $btn.find('.share-text').text();
-            $btn.find('.share-text').text('Opening...');
+            $btn.find('.share-text').text(t('Opening...'));
             
             setTimeout(function() {
                 $btn.find('.share-text').text(originalText);
@@ -872,85 +984,13 @@
             $('.info-btn[data-target="' + target + '"]').removeClass('active');
         });
 
-        // Fullscreen functionality
-        $(document).on('click', '.fullscreen-btn', function(e) {
-            e.preventDefault();
-            toggleFullscreen();
-        });
-
-        function toggleFullscreen() {
-            var lightboxElement = document.getElementById('vibe-lightbox');
-            var $fullscreenBtn = $('.fullscreen-btn');
-            
-            if (!document.fullscreenElement && !document.webkitFullscreenElement && 
-                !document.mozFullScreenElement && !document.msFullscreenElement) {
-                // Enter fullscreen
-                if (lightboxElement.requestFullscreen) {
-                    lightboxElement.requestFullscreen();
-                } else if (lightboxElement.webkitRequestFullscreen) {
-                    lightboxElement.webkitRequestFullscreen();
-                } else if (lightboxElement.mozRequestFullScreen) {
-                    lightboxElement.mozRequestFullScreen();
-                } else if (lightboxElement.msRequestFullscreen) {
-                    lightboxElement.msRequestFullscreen();
-                }
-                $fullscreenBtn.addClass('active').html('⛶ Exit Fullscreen');
-            } else {
-                // Exit fullscreen
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                } else if (document.webkitExitFullscreen) {
-                    document.webkitExitFullscreen();
-                } else if (document.mozCancelFullScreen) {
-                    document.mozCancelFullScreen();
-                } else if (document.msExitFullscreen) {
-                    document.msExitFullscreen();
-                }
-                $fullscreenBtn.removeClass('active').html('⛶ Fullscreen');
-            }
-        }
-
-        // Listen for fullscreen change events
-        $(document).on('fullscreenchange webkitfullscreenchange mozfullscreenchange MSFullscreenChange', function() {
-            var $fullscreenBtn = $('.fullscreen-btn');
-            
-            if (!document.fullscreenElement && !document.webkitFullscreenElement && 
-                !document.mozFullScreenElement && !document.msFullscreenElement) {
-                // Exited fullscreen
-                $fullscreenBtn.removeClass('active').html('⛶ Fullscreen');
-            } else {
-                // Entered fullscreen
-                $fullscreenBtn.addClass('active').html('⛶ Exit Fullscreen');
-            }
-        });
-
-        // Keyboard navigation
-        $(document).on('keydown', function(e) {
-            if ($('#vibe-lightbox').hasClass('active')) {
-                switch(e.keyCode) {
-                    case 27: // Escape
-                        closeLightbox();
-                        break;
-                    case 37: // Left arrow
-                        showPrevImage();
-                        break;
-                    case 39: // Right arrow
-                        showNextImage();
-                        break;
-                    case 122: // F11 for fullscreen toggle
-                        e.preventDefault();
-                        toggleFullscreen();
-                        break;
-                }
-            }
-        });
-
         function openLightbox() {
             if (images.length === 0) return;
             
             showImage(currentIndex);
             $('#vibe-lightbox').addClass('active');
             $('body').addClass('lightbox-open');
+            beginKeyboardSession({ previous: showPrevImage, next: showNextImage, close: closeLightbox });
             
             // Debug: Check basic lightbox state
             setTimeout(function() {
@@ -961,6 +1001,7 @@
             imageLoadId++;
             $('#vibe-lightbox').removeClass('active is-loading').attr('aria-busy', 'false');
             $('body').removeClass('lightbox-open');
+            endKeyboardSession();
             
             // Clear URL hash when closing lightbox
             if (enableDeepLinking && window.location.hash) {
@@ -997,7 +1038,7 @@
             // Update title and description
             $lightboxTitle.text(image.title);
             $lightboxDescription.text(image.description);
-            $imageCounter.text((index + 1) + ' of ' + images.length);
+            $imageCounter.text(t('%1$s of %2$s').replace('%1$s', index + 1).replace('%2$s', images.length));
             
             // Load new image
             var newImg = new Image();
@@ -1058,7 +1099,7 @@
                         if (response.success && response.data) {
                             updateExifData(response.data);
                         } else {
-                            $('.exif-value[data-exif="camera"]').text('EXIF data not available');
+                            $('.exif-value[data-exif="camera"]').text(t('EXIF data not available'));
                         }
                     },
                     error: function(xhr, status, error) {
@@ -1123,7 +1164,7 @@
             var currentUrl = window.location.href;
             var imageUrl = image.src;
             var title = encodeURIComponent(image.title);
-            var description = encodeURIComponent(image.description || 'Check out this photo');
+            var description = encodeURIComponent(image.description || t('Check out this photo'));
             var hashtags = encodeURIComponent('photography,gallery');
 
             // Update sharing URLs with functional links
@@ -1196,7 +1237,7 @@
         function showCopySuccess() {
             var $copyBtn = $('.copy-link .share-text');
             var originalText = $copyBtn.text();
-            $copyBtn.text('Copied!');
+            $copyBtn.text(t('Copied!'));
             setTimeout(function() {
                 $copyBtn.text(originalText);
             }, 2000);
@@ -1226,7 +1267,7 @@
                 if (imgSrc) {
                     images.push({
                         src: fullSrc,
-                        title: $img.attr('alt') || $img.attr('title') || 'Gallery Image ' + (index + 1),
+                        title: $img.attr('alt') || $img.attr('title') || t('Gallery Image ') + (index + 1),
                         description: $img.attr('data-caption') || '',
                         thumb: imgSrc,
                         alt: $img.attr('alt') || '',

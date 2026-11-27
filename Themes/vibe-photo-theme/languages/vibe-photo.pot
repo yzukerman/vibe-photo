@@ -1,0 +1,271 @@
+# Copyright (C) 2026 Yuval Zukerman
+# This file is distributed under the GNU General Public License v2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: Vibe Photo 1.20.0.3\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/theme/vibe-photo-theme\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-11-27T18:23:50+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: vibe-photo\n"
+
+#. Theme Name of the theme
+#: style.css
+msgid "Vibe Photo"
+msgstr ""
+
+#. Theme URI of the theme
+#: style.css
+msgid "https://github.com/yzukerman/vibe-photo"
+msgstr ""
+
+#. Description of the theme
+#: style.css
+msgid "A modern, responsive WordPress theme designed specifically for photography portfolios and photo galleries. Features advanced lightbox with EXIF data, WordPress image metadata integration (titles, captions, alt text), fullscreen viewing, WordPress Gallery block enhancement, footer menu support, page template, archive templates for categories/tags, horizontal pagination, reverse geocoding with Google Cloud APIs, deep linking for individual images, social sharing, and responsive design built with Foundation CSS framework."
+msgstr ""
+
+#. Author of the theme
+#: style.css
+msgid "Yuval Zukerman"
+msgstr ""
+
+#. Author URI of the theme
+#: style.css
+msgid "https://github.com/yzukerman"
+msgstr ""
+
+#: archive-photo_gallery.php:48
+msgid "No Images"
+msgstr ""
+
+#. translators: %d: number of photos.
+#: archive-photo_gallery.php:56
+#, php-format
+msgid "%d Photo"
+msgid_plural "%d Photos"
+msgstr[0] ""
+msgstr[1] ""
+
+#: archive-photo_gallery.php:58
+msgid "View Gallery →"
+msgstr ""
+
+#. translators: %d: number of photos.
+#: archive-photo_gallery.php:75
+#, php-format
+msgid "%d photo"
+msgid_plural "%d photos"
+msgstr[0] ""
+msgstr[1] ""
+
+#: archive-photo_gallery.php:88
+msgid "← Previous"
+msgstr ""
+
+#: archive-photo_gallery.php:89
+msgid "Next →"
+msgstr ""
+
+#: archive-photo_gallery.php:90
+msgid "Page"
+msgstr ""
+
+#: archive-photo_gallery.php:99
+msgid "No Galleries Found"
+msgstr ""
+
+#: archive-photo_gallery.php:100
+msgid "No photo galleries have been created yet."
+msgstr ""
+
+#: archive-photo_gallery.php:102
+msgid "Create First Gallery"
+msgstr ""
+
+#: archive.php:40
+msgid "Read More"
+msgstr ""
+
+#: archive.php:52
+msgid "&laquo; Previous"
+msgstr ""
+
+#: archive.php:53
+msgid "Next &raquo;"
+msgstr ""
+
+#: archive.php:60
+msgid "Nothing Found"
+msgstr ""
+
+#: archive.php:61
+msgid "It seems we can't find what you're looking for. Perhaps searching can help."
+msgstr ""
+
+#: comments.php:7
+msgid "Comments"
+msgstr ""
+
+#. translators: %s: localized comment count.
+#: comments.php:14
+#, php-format
+msgid "%s comment"
+msgid_plural "%s comments"
+msgstr[0] ""
+msgstr[1] ""
+
+#: comments.php:27
+msgid "Previous comments"
+msgstr ""
+
+#: comments.php:28
+msgid "Next comments"
+msgstr ""
+
+#: comments.php:31
+msgid "Comments are closed."
+msgstr ""
+
+#: footer.php:16
+msgid "All rights reserved."
+msgstr ""
+
+#: front-page.php:4
+msgid "Photography collections"
+msgstr ""
+
+#: front-page.php:23
+msgid "View gallery"
+msgstr ""
+
+#: front-page.php:30
+msgid "Collections"
+msgstr ""
+
+#: front-page.php:34
+#: index.php:31
+msgid "Previous"
+msgstr ""
+
+#: front-page.php:35
+#: index.php:32
+msgid "Next"
+msgstr ""
+
+#: front-page.php:39
+msgid "Collections will appear here when published posts have a featured image or a gallery."
+msgstr ""
+
+#: functions.php:101
+msgid "Primary Menu"
+msgstr ""
+
+#: functions.php:102
+msgid "Footer Menu"
+msgstr ""
+
+#: header.php:17
+msgid "Skip to content"
+msgstr ""
+
+#: header.php:32
+msgid "Primary navigation"
+msgstr ""
+
+#: header.php:48
+#: header.php:50
+#: searchform.php:6
+msgid "Search"
+msgstr ""
+
+#: header.php:57
+msgid "Menu"
+msgstr ""
+
+#: header.php:58
+msgid "Mobile navigation"
+msgstr ""
+
+#: index.php:6
+msgid "Page not found"
+msgstr ""
+
+#: index.php:7
+msgid "That page could not be found. Try searching for a photograph or story."
+msgstr ""
+
+#: index.php:10
+msgid "Latest posts"
+msgstr ""
+
+#: index.php:35
+msgid "No posts found. Try another search or return later for new photographs."
+msgstr ""
+
+#: page.php:17
+#: single.php:24
+msgid "Pages:"
+msgstr ""
+
+#. translators: %s: visitor search query.
+#: search.php:5
+#, php-format
+msgid "Search results for: %s"
+msgstr ""
+
+#: search.php:19
+msgid "No results found. Try another word or phrase."
+msgstr ""
+
+#: searchform.php:3
+msgid "Search the site"
+msgstr ""
+
+#: searchform.php:4
+msgid "Search photographs and stories…"
+msgstr ""
+
+#: single.php:40
+msgid "Photo Details"
+msgstr ""
+
+#: single.php:43
+msgid "Camera:"
+msgstr ""
+
+#: single.php:48
+msgid "Lens:"
+msgstr ""
+
+#: single.php:53
+msgid "Aperture:"
+msgstr ""
+
+#: single.php:58
+msgid "Shutter Speed:"
+msgstr ""
+
+#: single.php:63
+msgid "ISO:"
+msgstr ""
+
+#: single.php:68
+msgid "Location:"
+msgstr ""
+
+#: single.php:79
+msgid "Tags:"
+msgstr ""
+
+#: single.php:91
+msgid "← Previous post"
+msgstr ""
+
+#: single.php:92
+msgid "Next post →"
+msgstr ""

@@ -1,27 +1,35 @@
+<?php
+$primary_locations = get_nav_menu_locations();
+$primary_items = !empty($primary_locations['primary']) ? wp_get_nav_menu_items($primary_locations['primary']) : array();
+$has_primary_items = has_nav_menu('primary') && !empty($primary_items);
+?>
 <!DOCTYPE html>
 <html <?php language_attributes(); ?>>
 
 <head>
 	<meta charset="<?php bloginfo('charset'); ?>">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title><?php wp_title('|', true, 'right'); ?><?php bloginfo('name'); ?></title>
 	<?php wp_head(); ?>
 </head>
 
 <body <?php body_class(); ?>>
 	<?php wp_body_open(); ?>
+	<a class="skip-link" href="#main-content"><?php esc_html_e('Skip to content', 'vibe-photo'); ?></a>
 	<header class="site-header">
 		<div class="grid-container">
 			<div class="grid-x grid-padding-x align-justify align-middle">
 				<div class="cell auto">
-					<a href="<?php echo esc_url(home_url()); ?>" class="site-logo">
-						<?php bloginfo('name'); ?>
-					</a>
+                    <?php if (has_custom_logo()) : ?>
+                        <div class="site-branding-logo"><?php the_custom_logo(); ?></div>
+                    <?php else : ?>
+                        <a href="<?php echo esc_url(home_url('/')); ?>" class="site-logo"><?php bloginfo('name'); ?></a>
+                    <?php endif; ?>
 				</div>
 
 				<div class="cell shrink">
 
-					<nav class="main-navigation show-for-medium">
+					<?php if ($has_primary_items) : ?>
+                    <nav class="main-navigation show-for-medium" aria-label="<?php esc_attr_e('Primary navigation', 'vibe-photo'); ?>">
 						<?php
 						wp_nav_menu(array(
 							'theme_location' => 'primary',
@@ -32,6 +40,7 @@
 						));
 						?>
 					</nav>
+                    <?php endif; ?>
 				</div>
 			</div>
 
@@ -43,21 +52,19 @@
                 <?php get_search_form(); ?>
             </details>
 
-			<!-- Mobile Navigation -->
-			<div class="grid-x">
-				<div class="cell">
-					<nav class="main-navigation hide-for-medium" id="responsive-menu" data-toggler="is-active">
-						<?php
-						wp_nav_menu(array(
-							'theme_location' => 'primary',
-							'menu_id' => 'mobile-menu',
-							'container' => false,
-							'menu_class' => 'menu vertical',
-							'fallback_cb' => false,
-						));
-						?>
-					</nav>
-				</div>
-			</div>
+            <?php if ($has_primary_items) : ?>
+            <details class="mobile-navigation hide-for-medium">
+                <summary class="mobile-menu-toggle"><?php esc_html_e('Menu', 'vibe-photo'); ?></summary>
+                <nav class="main-navigation" aria-label="<?php esc_attr_e('Mobile navigation', 'vibe-photo'); ?>">
+                    <?php wp_nav_menu(array(
+                        'theme_location' => 'primary',
+                        'menu_id' => 'mobile-menu',
+                        'container' => false,
+                        'menu_class' => 'menu vertical',
+                        'fallback_cb' => false,
+                    )); ?>
+                </nav>
+            </details>
+            <?php endif; ?>
 		</div>
 	</header>

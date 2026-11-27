@@ -1,0 +1,8 @@
+/* Oranienbaum Regular — SIL Open Font License 1.1; see oranienbaum/OFL.txt. */
+@font-face {
+    font-family: 'Oranienbaum';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('./oranienbaum/Oranienbaum-Regular.ttf') format('truetype');
+}

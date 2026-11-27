@@ -1,10 +1,10 @@
 === Vibe Photo ===
 Contributors: Yuval Zukerman and Visual Studio Code Copilot with Claude Sonnet. 
 Tags: photography, portfolio, gallery, responsive, minimal, foundation, lightbox, exif, metadata, footer-menu, archive, categories, tags
-Requires at least: 5.0
-Tested up to: 6.3
-Requires PHP: 7.4
-Stable tag: 1.20.0.3
+Requires at least: 6.7.1
+Tested up to: 6.7
+Requires PHP: 8.2
+Stable tag: 1.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -13,9 +13,12 @@ This theme is free software, and you may redistribute it under the GPL2+.
 
 A modern, responsive WordPress theme designed specifically for photography portfolios and photo galleries with advanced lightbox functionality, WordPress metadata integration, and comprehensive archive and menu support.
 
-**Note**: This version will install alongside previous versions without overwriting them, allowing you to safely test the new version.
+**Note**: Directory packages use the stable vibe-photo folder and replace an installed copy of the same slug. Back up your site before updates.
 
 == Description ==
+
+Submission release 1.3: this theme provides portfolio presentation and works with native WordPress posts and Gallery blocks. Advanced viewer, EXIF/geocoding, sharing, custom Photo Gallery posts, and legacy gallery shortcodes are supplied by the separate optional Vibe Photo Galleries plugin. They are not included in the theme ZIP. See README.md for current installation and compatibility details; historical changelog feature descriptions may refer to the earlier integrated implementation.
+
 
 Vibe Photo Theme is a professional photography theme built with Foundation CSS framework. It features:
 
@@ -88,6 +91,13 @@ Absolutely! The theme is built with a mobile-first approach using Foundation CSS
 Yes, you can modify the CSS variables in style.css or add custom CSS through the WordPress customizer.
 
 == Changelog ==
+
+= 1.3 =
+* Separate optional gallery functionality into a companion plugin.
+* Add local assets, accessible navigation, custom logo, comments, editor styles, and cover fallbacks.
+* Repair templates, licensing, translations, and metadata access boundaries.
+* Test the packaged baseline on WordPress 6.7.1 and PHP 8.2.29.
+
 
 = 1.20.0.3 =
 * Remove the unused mobile Menu button while retaining the centered site title and search control.
@@ -225,3 +235,11 @@ This includes, but is not limited to:
 * Any other commercial damages or losses
 
 By installing and using this theme, you acknowledge that you have read this disclaimer and agree to use the theme at your own risk.
+
+
+== Copyright and resource licenses ==
+Theme code copyright 2025–2026 Yuval Zukerman. Licensed GNU GPL v2 or later; full GPL v2 text in LICENSE.
+Photographs and screenshot © 2026 Yuval Zukerman. The screenshot.jpg image, including photograph reproductions within it, is licensed GPL v2 or later with the owner's authorization. Original full-resolution photograph files are not included or separately licensed by this grant.
+Foundation Sites 6.8.1: MIT, copyright ZURB, Inc.; license in assets/vendor/foundation/LICENSE.
+Oranienbaum Regular: SIL OFL 1.1, copyright Oleg Pospelov and Jovanny Lemonad; license in assets/fonts/oranienbaum/OFL.txt.
+See ASSETS.md for source URLs, attribution, and checksums.

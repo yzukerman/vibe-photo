@@ -5,8 +5,6 @@
     'use strict';
 
     $(document).ready(function() {
-        // Initialize Foundation
-        $(document).foundation();
         
         initializeMobileMenu();
         initializeSmoothScroll();
@@ -15,40 +13,30 @@
     });
 
     function initializeMobileMenu() {
-        // Mobile menu toggle functionality using Foundation's toggler
-        $('.menu-toggle').on('click', function(e) {
-            e.preventDefault();
-            
-            const targetMenu = $('#responsive-menu');
-            targetMenu.foundation('toggle');
+        var menu = document.querySelector('.mobile-navigation');
+        if (!menu) return;
+        var toggle = menu.querySelector('summary');
+        function closeMenu(restoreFocus) {
+            menu.open = false;
+            if (restoreFocus) toggle.focus();
+        }
+        $(menu).on('keydown', function(e) {
+            if (e.key === 'Escape' && menu.open) {
+                e.preventDefault();
+                closeMenu(true);
+            }
         });
-
-        // Close mobile menu when clicking outside
         $(document).on('click', function(e) {
-            const target = $(e.target);
-            const mobileMenu = $('#responsive-menu');
-            
-            if (!target.closest('.menu-toggle').length && 
-                !target.closest('#responsive-menu').length && 
-                mobileMenu.hasClass('is-active')) {
-                mobileMenu.foundation('close');
-            }
+            if (menu.open && !menu.contains(e.target)) closeMenu(false);
         });
-
-        // Close menu when clicking on menu items
-        $('.main-navigation a').on('click', function() {
-            const mobileMenu = $('#responsive-menu');
-            if (mobileMenu.hasClass('is-active')) {
-                mobileMenu.foundation('close');
-            }
-        });
-
-        // Handle window resize - close mobile menu on desktop view
+        $(menu).find('a').on('click', function() { closeMenu(false); });
         $(window).on('resize', function() {
-            if ($(window).width() >= 640) { // Foundation's medium breakpoint
-                const mobileMenu = $('#responsive-menu');
-                if (mobileMenu.hasClass('is-active')) {
-                    mobileMenu.foundation('close');
+            if (window.matchMedia('(min-width: 640px)').matches && menu.open) {
+                var containedFocus = menu.contains(document.activeElement);
+                closeMenu(false);
+                if (containedFocus) {
+                    var desktopLink = document.querySelector('#primary-menu a');
+                    if (desktopLink) desktopLink.focus();
                 }
             }
         });
@@ -56,7 +44,7 @@
 
     function initializeSmoothScroll() {
         // Smooth scroll for anchor links
-        $('a[href*="#"]:not([href="#"])').on('click', function() {
+        $('a[href*="#"]:not([href="#"]):not(.skip-link)').on('click', function() {
             if (location.pathname.replace(/^\//, '') == this.pathname.replace(/^\//, '') && location.hostname == this.hostname) {
                 var target = $(this.hash);
                 target = target.length ? target : $('[name=' + this.hash.slice(1) + ']');
@@ -109,15 +97,10 @@
         });
     }
 
-    // Add keyboard navigation support
-    $('.main-navigation a').on('keydown', function(e) {
-        if (e.which === 13 || e.which === 32) {
-            e.preventDefault();
-            $(this)[0].click();
-        }
+    // Native links retain their standard keyboard behavior.
+    $(document).on('click', '.skip-link', function() {
+        var content = document.getElementById('main-content');
+        if (content) content.focus();
     });
-
-    // Foundation is initialized automatically for most components
-    // No manual equalizer initialization needed
 
 })(jQuery);
