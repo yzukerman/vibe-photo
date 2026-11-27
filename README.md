@@ -376,3 +376,13 @@ Replaced the old screenshot with the site owner's supplied `yuvalzukerman.com_pa
 ### JPEG screenshot optimization
 
 The current theme preview is `screenshot.jpg`, copied unchanged from the owner-supplied `yuvalzukerman.com_page_2.jpg`. It is a progressive JPEG at 1200 × 900 (4:3), approximately 233 KiB, replacing the 1.3 MiB PNG. The obsolete PNG was removed so WordPress uses the JPEG. Dimensions, format, and appearance were checked; screenshot-photograph licensing confirmation remains pending. No release package was rebuilt.
+
+## Theme Check cleanup: debug files, tags, and core CSS
+
+Removed `debug-gallery.php` and `clear-location-cache.php` from the theme source. These were development utilities, including hard-coded WordPress loading and cache mutation, not presentation templates. Historical ZIPs remain unchanged; the packagers retain their defensive exclusions.
+
+The stylesheet header now uses only `photography`, `portfolio`, `grid-layout`, `one-column`, `custom-menu`, and `featured-images`. Unsupported custom tags and claims not yet validated (such as flexible headers and translation readiness) were removed. Tag reference: https://make.wordpress.org/themes/handbook/review/required/theme-tags/ . Full internationalization remains pending; removing a tag is not a replacement for translating visible strings.
+
+Added WordPress-generated class styling for `.screen-reader-text` (visually hidden normally, visible on focus), captions, gallery captions, left/right/center alignment, sticky post titles, and author comments. Content floats clear after the entry; floated images stack on narrow screens. Screen-reader labels remain available to assistive technology rather than using `display: none`. Author-comment styling will apply when the planned theme-owned comments template is implemented.
+
+Validation: a temporary theme ZIP passed integrity checks, excluded both deleted utilities, and contained `screenshot.jpg`. Checks confirmed all requested core classes exist, and homepage/post/search HTTP responses loaded without visible fatal errors. Git whitespace checks passed. Caption/alignment edge cases still need a full Theme Unit Test visual pass; this does not claim all Theme Check recommendations are resolved. No version bump, published distribution rebuild, or remote push was made.
