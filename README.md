@@ -511,3 +511,8 @@ Validation: Plugin Check's default CLI run on the isolated WordPress 6.7.1 insta
 Fixed a legacy footer navigation rule that rendered menu links white on the portfolio footer's white background. Footer menu links now use dark gray, and the horizontal menu wraps when space is limited. Assign a menu under Appearance → Menus → Manage Locations → Footer Menu to display it.
 
 Validation: verified the assigned Pittsburgh Part 1 and Berlin links on the Local site and confirmed their computed text color is `rgb(85, 89, 79)`. `git diff --check` passed. Existing distribution ZIPs have not been rebuilt for this fix.
+
+
+### Rebuilt submission theme distribution (November 27, 2026)
+
+Rebuilt `dist/vibe-photo-v1.3.zip` from the restored submission branch to include the footer menu contrast and wrapping fix. The submission version remains 1.3. The gallery plugin package remains 1.0.1. Verified ZIP integrity, the `vibe-photo/` installation directory, and byte-for-byte agreement with the packaged theme source files.
