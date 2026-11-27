@@ -523,3 +523,10 @@ Rebuilt `dist/themes/vibe-photo-v1.3.zip` from the restored submission branch to
 Installable theme ZIPs, including historical releases, now live in `dist/themes/`; gallery plugin ZIPs live in `dist/plugins/`. Current packages are `dist/themes/vibe-photo-v1.3.zip` and `dist/plugins/vibe-photo-galleries-v1.0.1.zip`. Archive contents and release versions are unchanged by this move.
 
 Run `python3 tools/package.py theme` or `python3 tools/package.py plugin` from the repository root to build into the respective directory. `--output` still accepts an explicit destination. The historical shell theme packager also targets the repository's `dist/themes/` directory. Existing release ZIPs are never overwritten by the Python packager. Validation confirmed moved ZIP checksums are unchanged, archive integrity passes, and both packaging destinations work.
+
+
+## GitHub Pages project website
+
+The `docs/` directory contains a responsive, buildless project website with the bundled Oranienbaum font, licensed portfolio screenshot, component features, installation instructions, FAQs, and independent theme/plugin downloads. See [website setup and maintenance](docs/README.md) for local preview and publishing steps. After merging, enable GitHub Pages from `main` and `/docs` in repository Settings → Pages. The intended public URL is https://yzukerman.github.io/vibe-photo/; creation of these files alone does not enable hosting.
+
+Downloads use fixed commit URLs to the verified theme 1.3 and plugin 1.0.1 archives, so deleting the development branch does not break them. No runtime dependencies, analytics, external fonts, or JavaScript are added. Existing WordPress distributions and versions are unchanged. Validated desktop/mobile layout, no horizontal overflow at narrow width, image proportions, native FAQs, local asset responses, fragment targets, and both ZIP download endpoints.
