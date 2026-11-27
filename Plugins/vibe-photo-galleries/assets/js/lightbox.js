@@ -54,11 +54,60 @@
         returnFocus = null;
     }
 
+
+    var fullscreenOperation = Promise.resolve();
+    var closingViewer = false;
+    function fullscreenElement() {
+        return document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
+    }
+    function syncFullscreenButton() {
+        var viewer = document.getElementById('vibe-lightbox');
+        var expanded = !!(viewer && fullscreenElement() === viewer);
+        $('#vibe-lightbox .fullscreen-btn').toggleClass('active', expanded)
+            .text(t(expanded ? '⛶ Exit Fullscreen' : '⛶ Fullscreen'));
+    }
+    function exitViewerFullscreen() {
+        var viewer = document.getElementById('vibe-lightbox');
+        if (!viewer || fullscreenElement() !== viewer) return Promise.resolve();
+        var exit = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen;
+        if (!exit) return Promise.reject(new Error('Fullscreen exit unavailable'));
+        return Promise.resolve(exit.call(document));
+    }
+    function requestViewerClose() {
+        if (closingViewer || !activeLightbox) return;
+        closingViewer = true;
+        var controller = activeLightbox;
+        // A close can arrive before an asynchronous enter request has settled.
+        fullscreenOperation.catch(function() {}).then(exitViewerFullscreen).then(function() {
+            if (controller === activeLightbox) controller.close();
+        }).catch(function(error) {
+            // Keep the fullscreen element visible if the browser rejects exit.
+            console.warn('Vibe Photo fullscreen exit failed', error);
+        }).then(function() {
+            closingViewer = false;
+            syncFullscreenButton();
+        });
+    }
+    $(document).on('click.vibePhotoFullscreen', '#vibe-lightbox .fullscreen-btn', function(e) {
+        e.preventDefault();
+        if (closingViewer) return;
+        var viewer = document.getElementById('vibe-lightbox');
+        var request = viewer.requestFullscreen || viewer.webkitRequestFullscreen || viewer.mozRequestFullScreen || viewer.msRequestFullscreen;
+        try {
+            fullscreenOperation = fullscreenElement() === viewer ? exitViewerFullscreen() :
+                (request ? Promise.resolve(request.call(viewer)) : Promise.reject(new Error('Fullscreen unavailable')));
+        } catch (error) { fullscreenOperation = Promise.reject(error); }
+        fullscreenOperation = fullscreenOperation.catch(function(error) {
+            console.warn('Vibe Photo fullscreen request failed', error);
+        }).then(syncFullscreenButton);
+    });
+    $(document).on('fullscreenchange.vibePhotoFullscreen webkitfullscreenchange.vibePhotoFullscreen mozfullscreenchange.vibePhotoFullscreen MSFullscreenChange.vibePhotoFullscreen', syncFullscreenButton);
+
     $(document).on('keydown.vibePhotoViewer', function(e) {
         if (!activeLightbox || !$('#vibe-lightbox').hasClass('active')) return;
         if (e.key === 'Escape') {
             e.preventDefault();
-            activeLightbox.close();
+            requestViewerClose();
             return;
         }
         if (e.key === 'Tab') {
@@ -89,10 +138,10 @@
         e.preventDefault();
         if ($(this).hasClass('nav-prev')) activeLightbox.previous();
         else if ($(this).hasClass('nav-next')) activeLightbox.next();
-        else activeLightbox.close();
+        else requestViewerClose();
     });
     $(document).on('click.vibePhotoViewer', '#vibe-lightbox', function(e) {
-        if (e.target === this && activeLightbox) activeLightbox.close();
+        if (e.target === this && activeLightbox) requestViewerClose();
     });
 
 
@@ -934,60 +983,6 @@
             hideInfoContainer(target);
             $('.info-btn[data-target="' + target + '"]').removeClass('active');
         });
-
-        // Fullscreen functionality
-        $(document).on('click', '.fullscreen-btn', function(e) {
-            e.preventDefault();
-            toggleFullscreen();
-        });
-
-        function toggleFullscreen() {
-            var lightboxElement = document.getElementById('vibe-lightbox');
-            var $fullscreenBtn = $('.fullscreen-btn');
-            
-            if (!document.fullscreenElement && !document.webkitFullscreenElement && 
-                !document.mozFullScreenElement && !document.msFullscreenElement) {
-                // Enter fullscreen
-                if (lightboxElement.requestFullscreen) {
-                    lightboxElement.requestFullscreen();
-                } else if (lightboxElement.webkitRequestFullscreen) {
-                    lightboxElement.webkitRequestFullscreen();
-                } else if (lightboxElement.mozRequestFullScreen) {
-                    lightboxElement.mozRequestFullScreen();
-                } else if (lightboxElement.msRequestFullscreen) {
-                    lightboxElement.msRequestFullscreen();
-                }
-                $fullscreenBtn.addClass('active').text(t('⛶ Exit Fullscreen'));
-            } else {
-                // Exit fullscreen
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                } else if (document.webkitExitFullscreen) {
-                    document.webkitExitFullscreen();
-                } else if (document.mozCancelFullScreen) {
-                    document.mozCancelFullScreen();
-                } else if (document.msExitFullscreen) {
-                    document.msExitFullscreen();
-                }
-                $fullscreenBtn.removeClass('active').text(t('⛶ Fullscreen'));
-            }
-        }
-
-        // Listen for fullscreen change events
-        $(document).on('fullscreenchange webkitfullscreenchange mozfullscreenchange MSFullscreenChange', function() {
-            var $fullscreenBtn = $('.fullscreen-btn');
-            
-            if (!document.fullscreenElement && !document.webkitFullscreenElement && 
-                !document.mozFullScreenElement && !document.msFullscreenElement) {
-                // Exited fullscreen
-                $fullscreenBtn.removeClass('active').text(t('⛶ Fullscreen'));
-            } else {
-                // Entered fullscreen
-                $fullscreenBtn.addClass('active').text(t('⛶ Exit Fullscreen'));
-            }
-        });
-
-
 
         function openLightbox() {
             if (images.length === 0) return;
