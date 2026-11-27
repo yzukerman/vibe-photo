@@ -358,3 +358,13 @@ An assigned menu can still contain zero saved links. The header now requires bot
 ### Local menu persistence diagnosis
 
 Follow-up inspection found the owner's Pittsburgh Part 1 and Berlin links as draft `nav_menu_item` posts with orphan metadata and no menu relationships. Thus the editor showed entries while the published menu API returned none; the links were not absent from the database. Local repair attached those existing items to Test Menu and published them in their existing order without changing their destinations. HTTP checks confirmed both desktop and mobile menu markup includes both links. This was a Local database correction, not a theme rendering fix or production change. Menu editor visibility alone does not prove items have been published and attached to a menu.
+
+## Fallback template and document titles
+
+The malformed `index.php` fallback has been replaced with a conventional main-query loop. It no longer closes the document early, emits an extra footer, replaces WordPress's global query, or runs unrelated Photo Gallery queries. It renders the query's posts, escaped dates, featured images, excerpts, pagination, and a searchable empty state. Missing URLs retain HTTP 404 and display a Page not found heading and search form. The existing homepage, archive, search, and single templates remain responsible for their own routes.
+
+The header no longer manually emits a `<title>` using `wp_title()`. WordPress produces the document title through the theme's existing `title-tag` support, avoiding duplicate titles while preserving core/plugin title filters.
+
+Validation: live HTTP checks for the homepage, regular post, matching/empty search, and missing URL confirmed one title, main element, footer, body, and HTML document. The missing URL returned 404 with the correct message and search form. PHP syntax and Git whitespace checks passed. Repeatable fallback tests in `tests/template-smoke.php` passed for populated, paginated, and empty main queries; run each in a separate WP-CLI process, e.g. `wp eval-file /path/to/repo/tests/template-smoke.php populated`, then `paginated` and `empty`. The test requires a populated WordPress test site and performs no database writes. Separate processes are necessary because WordPress includes header/footer templates once per request.
+
+No release/version update, new distribution, or remote push was made. Theme Check and the broader submission audit remain pending.
