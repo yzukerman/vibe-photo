@@ -103,7 +103,7 @@ Being home with COVID a few months ago, I started working with Claude Code Sonne
 - `single.php` - Single post template
 - `single-photo_gallery.php` - Photo gallery single view
 - `archive-photo_gallery.php` - Photo gallery archive
-- `screenshot.png` - Theme preview image
+- `screenshot.jpg` - Theme preview image
 
 ### ✅ Assets
 
@@ -372,3 +372,7 @@ No release/version update, new distribution, or remote push was made. Theme Chec
 ## Submission screenshot replacement
 
 Replaced the old screenshot with the site owner's supplied `yuvalzukerman.com_page_2.png` portfolio capture. The source was a 2400 × 1800 PNG with the correct 4:3 ratio; it was resized to 1200 × 900 without cropping and unnecessary metadata was stripped. The installed `screenshot.png` is now actual PNG data and shows the current cover-grid design without browser controls or the WordPress admin bar. This addresses the reported screenshot dimensions requirement. Screenshot photography licensing/attribution still needs confirmation before WordPress.org submission; supplying a screenshot alone does not establish a GPL-compatible redistribution license for its photographs.
+
+### JPEG screenshot optimization
+
+The current theme preview is `screenshot.jpg`, copied unchanged from the owner-supplied `yuvalzukerman.com_page_2.jpg`. It is a progressive JPEG at 1200 × 900 (4:3), approximately 233 KiB, replacing the 1.3 MiB PNG. The obsolete PNG was removed so WordPress uses the JPEG. Dimensions, format, and appearance were checked; screenshot-photograph licensing confirmation remains pending. No release package was rebuilt.
