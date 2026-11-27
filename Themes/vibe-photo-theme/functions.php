@@ -115,24 +115,11 @@ function vibe_photo_scripts() {
 		return;
 	}
 
-	// Enqueue Foundation CSS from CDN
-	wp_enqueue_style('foundation-css', 'https://cdn.jsdelivr.net/npm/foundation-sites@6.8.1/dist/css/foundation.min.css', array(), '6.8.1');
-
-	// Enqueue custom theme styles (after Foundation)
-	wp_enqueue_style('vibe-photo-fonts', 'https://fonts.googleapis.com/css2?family=Oranienbaum&display=swap', array(), null);
+	// Ship presentation dependencies locally; no CDN or Google Fonts requests.
+	wp_enqueue_style('foundation-css', get_template_directory_uri() . '/assets/vendor/foundation/foundation.min.css', array(), '6.8.1');
+	wp_enqueue_style('vibe-photo-fonts', get_template_directory_uri() . '/assets/fonts/fonts.css', array(), filemtime(get_template_directory() . '/assets/fonts/fonts.css'));
 	wp_enqueue_style('vibe-photo-style', get_stylesheet_uri(), array('foundation-css', 'vibe-photo-fonts'), filemtime(get_stylesheet_directory() . '/style.css'));
-
-	// Enqueue Foundation JavaScript from CDN
-	wp_enqueue_script('foundation-js', 'https://cdn.jsdelivr.net/npm/foundation-sites@6.8.1/dist/js/foundation.min.js', array('jquery'), '6.8.1', true);
-
-	// Enqueue Masonry library from CDN
-	// TEMPORARILY DISABLED - wp_enqueue_script('masonry-js', 'https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js', array('jquery'), '4.2.2', true);
-
-	// Enqueue imagesLoaded library from CDN
-	// TEMPORARILY DISABLED - wp_enqueue_script('imagesloaded-js', 'https://unpkg.com/imagesloaded@5/imagesloaded.pkgd.min.js', array('jquery'), '5.0.0', true);
-
-	// Add custom JavaScript for photo gallery
-	// TEMPORARILY DISABLED - wp_enqueue_script('vibe-photo-gallery', get_template_directory_uri() . '/assets/js/gallery-masonry.js', array('jquery', 'foundation-js', 'masonry-js', 'imagesloaded-js'), '1.0.0', true);
+	wp_enqueue_script('foundation-js', get_template_directory_uri() . '/assets/vendor/foundation/foundation.min.js', array('jquery'), '6.8.1', true);
 
 	// Add responsive navigation
 	wp_enqueue_script('vibe-photo-navigation', get_template_directory_uri() . '/assets/js/navigation.js', array('jquery', 'foundation-js'), '1.0.0', true);
