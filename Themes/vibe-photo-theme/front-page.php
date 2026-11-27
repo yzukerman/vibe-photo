@@ -4,7 +4,7 @@
         <h1 class="show-for-sr"><?php esc_html_e('Photography collections', 'vibe-photo'); ?></h1>
         <?php
         $collections = new WP_Query(array(
-            'post_type' => array('post', 'photo_gallery'),
+            'post_type' => post_type_exists('photo_gallery') ? array('post', 'photo_gallery') : array('post'),
             'posts_per_page' => 12,
             'paged' => max(1, get_query_var('paged'), get_query_var('page')),
             'meta_query' => array(array('key' => '_thumbnail_id', 'compare' => 'EXISTS')),
